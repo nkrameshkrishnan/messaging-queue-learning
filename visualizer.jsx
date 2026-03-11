@@ -1,57 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 
-// ─── Palette ────────────────────────────────────────────────────────────────
-const P = {
-  producer:  { bg: "#1e3a5f", border: "#3b82f6", glow: "#3b82f620", text: "#93c5fd" },
-  exchange:  { bg: "#3b1f6e", border: "#8b5cf6", glow: "#8b5cf620", text: "#c4b5fd" },
-  queue:     { bg: "#4a2800", border: "#f59e0b", glow: "#f59e0b20", text: "#fcd34d" },
-  consumer:  { bg: "#064e3b", border: "#10b981", glow: "#10b98120", text: "#6ee7b7" },
-  partition: { bg: "#1e1b4b", border: "#6366f1", glow: "#6366f120", text: "#a5b4fc" },
-  dead:      { bg: "#450a0a", border: "#ef4444", glow: "#ef444420", text: "#fca5a5" },
-};
-
-const PART_COLORS = ["#6366f1", "#ec4899", "#f59e0b"];
-
-// ─── RabbitMQ exchange configs ───────────────────────────────────────────────
-const RMQ = {
-  direct: {
-    label: "Direct Exchange",
-    desc:  "Exact routing key match  →  one queue receives",
-    keys:  ["payment", "shipping", "error", "unknown"],
-    defKey: "payment",
-    queues: [
-      { id: "q1", label: "payment_queue",  bind: "payment",  consumer: "Payment Service" },
-      { id: "q2", label: "shipping_queue", bind: "shipping", consumer: "Shipping Service" },
-      { id: "q3", label: "error_queue",    bind: "error",    consumer: "Error Handler" },
-    ],
-    match: (queues, key) => queues.filter(q => q.bind === key),
-  },
-  fanout: {
-    label: "Fanout Exchange",
-    desc:  "Broadcasts to ALL bound queues — routing key ignored",
-    keys:  ["any.key", "order.placed", "ignored"],
-    defKey: "any.key",
-    queues: [
-      { id: "f1", label: "payment_fanout",   consumer: "Payment Service" },
-      { id: "f2", label: "notif_fanout",     consumer: "Notification Svc" },
-      { id: "f3", label: "analytics_fanout", consumer: "Analytics Svc" },
-    ],
-    match: (queues) => queues,
-  },
-  topic: {
-    label: "Topic Exchange",
-    desc:  " * = one word   #  = zero or more words",
-    keys:  ["order.eu.failed", "order.us-east.pending", "order.apac.placed", "payment.eu.failed"],
-    defKey: "order.eu.failed",
-    queues: [
-      { id: "t1", label: "all_orders",  pattern: "order.#",               consumer: "All Orders Svc" },
-      { id: "t2", label: "eu_queue",    pattern: "order.eu.*",            consumer: "EU Service" },
-      { id: "t3", label: "failures",    pattern: "*.*.failed",            consumer: "Failure Handler" },
-      { id: "t4", label: "us_pending",  pattern: "order.us-east.pending", consumer: "US Pending Svc" },
-    ],
-    match: (queues, key) => queues.filter(q => topicMatch(q.pattern, key)),
-  },
-};
+// ─── Utilities ───────────────────────────────────────────────────────────────
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function topicMatch(pattern, key) {
   const pp = pattern.split(".");
@@ -67,59 +17,82 @@ function topicMatch(pattern, key) {
   return go(0, 0);
 }
 
-// ─── Shared tiny components ──────────────────────────────────────────────────
-function Box({ pal, label, sub, active, style = {}, className = "" }) {
+function hashPartition(key) {
+  let h = 5381;
+  for (const c of key) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0;
+  return h % 3;
+}
+
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const T = {
+  producer:  { bg: "#0c1e38", border: "#3b82f6", text: "#93c5fd", glow: "#3b82f630" },
+  exchange:  { bg: "#1a0a38", border: "#a855f7", text: "#d8b4fe", glow: "#a855f730" },
+  queue:     { bg: "#1c0c00", border: "#f97316", text: "#fdba74", glow: "#f9731630" },
+  consumer:  { bg: "#022c1c", border: "#22c55e", text: "#86efac", glow: "#22c55e30" },
+  partition: { bg: "#0a0a28", border: "#6366f1", text: "#a5b4fc", glow: "#6366f130" },
+  dlq:       { bg: "#1c0606", border: "#ef4444", text: "#fca5a5", glow: "#ef444430" },
+};
+const PART_COLS = ["#6366f1", "#ec4899", "#f59e0b"];
+
+// ─── Shared primitives ────────────────────────────────────────────────────────
+function FlowNode({ tok, icon, label, sub, active, dimmed, w = 120 }) {
   return (
     <div
-      className={`rounded-lg px-3 py-2 text-center transition-all duration-300 select-none ${className}`}
+      className="rounded-xl px-3 py-2 text-center transition-all duration-300 select-none"
       style={{
-        background: active ? pal.border + "22" : pal.bg,
-        border: `2px solid ${active ? pal.border : pal.border + "66"}`,
-        boxShadow: active ? `0 0 18px ${pal.glow}` : "none",
-        transform: active ? "scale(1.06)" : "scale(1)",
-        ...style,
+        width: w,
+        minWidth: w,
+        background: active ? tok.border + "25" : dimmed ? "#080808" : tok.bg,
+        border: `2px solid ${active ? tok.border : dimmed ? "#1a1a1a" : tok.border + "60"}`,
+        boxShadow: active ? `0 0 22px ${tok.glow}` : "none",
+        transform: active ? "scale(1.07)" : "scale(1)",
+        opacity: dimmed ? 0.3 : 1,
       }}
     >
-      <div className="text-xs font-bold font-mono leading-tight" style={{ color: pal.text }}>{label}</div>
-      {sub && <div className="text-xs font-mono opacity-60 mt-0.5 leading-tight" style={{ color: pal.text }}>{sub}</div>}
+      <div style={{ fontSize: 20 }}>{icon}</div>
+      <div className="text-xs font-bold font-mono leading-tight mt-0.5" style={{ color: active ? tok.border : dimmed ? "#333" : tok.text }}>
+        {label}
+      </div>
+      {sub && (
+        <div className="text-xs font-mono leading-tight mt-0.5 opacity-60" style={{ color: tok.text }}>
+          {sub}
+        </div>
+      )}
     </div>
   );
 }
 
-function Arrow({ on, color = "#374151", dashed = false }) {
+function Arrow({ on, color = "#1e293b", label = "" }) {
   return (
-    <div className="flex items-center shrink-0 mx-1">
-      <div
-        className="transition-all duration-300"
-        style={{
-          width: 28,
-          height: 2,
-          background: on ? color : "#2d3748",
-          borderTop: dashed ? "2px dashed " + (on ? color : "#2d3748") : undefined,
-        }}
-      />
-      <div
-        className="transition-all duration-300"
-        style={{
+    <div className="flex flex-col items-center mx-1 shrink-0">
+      <div className="flex items-center">
+        <div className="h-0.5 w-8 transition-all duration-300" style={{ background: on ? color : "#1e293b" }} />
+        <div style={{
           borderTop: "5px solid transparent",
           borderBottom: "5px solid transparent",
-          borderLeft: `7px solid ${on ? color : "#2d3748"}`,
-          marginLeft: -1,
-        }}
-      />
+          borderLeft: `7px solid ${on ? color : "#1e293b"}`,
+          transition: "border-color .3s",
+        }} />
+      </div>
+      {label && (
+        <div className="text-xs font-mono text-center mt-0.5 leading-tight" style={{ color: on ? color : "#2d3748", maxWidth: 68 }}>
+          {label}
+        </div>
+      )}
     </div>
   );
 }
 
-function Chip({ label, active, onClick, activeColor = "#3b82f6" }) {
+function Pill({ label, active, color = "#6366f1", onClick }) {
   return (
     <button
       onClick={onClick}
-      className="px-2 py-0.5 rounded text-xs font-mono transition-all"
+      className="px-2.5 py-0.5 rounded-full text-xs font-mono transition-all"
       style={{
-        background: active ? activeColor + "33" : "#1e293b",
-        border: `1px solid ${active ? activeColor : "#374151"}`,
-        color: active ? activeColor : "#6b7280",
+        background: active ? color + "25" : "#0f172a",
+        border: `1px solid ${active ? color : "#374151"}`,
+        color: active ? color : "#6b7280",
+        cursor: "pointer",
       }}
     >
       {label}
@@ -127,514 +100,793 @@ function Chip({ label, active, onClick, activeColor = "#3b82f6" }) {
   );
 }
 
-function Log({ items, title }) {
+// ─── Narrative box ────────────────────────────────────────────────────────────
+function Narrative({ text, color = "#a855f7" }) {
+  if (!text) return null;
   return (
-    <div className="mt-4 rounded-lg p-3" style={{ background: "#020817", border: "1px solid #1e293b" }}>
-      <div className="text-xs font-bold font-mono text-gray-500 mb-1.5">📋 {title}</div>
-      {items.length === 0
-        ? <div className="text-xs font-mono text-gray-700">No events yet — interact above!</div>
-        : items.map((e, i) => (
-          <div key={i} className="text-xs font-mono text-gray-300 leading-relaxed">{e}</div>
-        ))
-      }
+    <div
+      className="rounded-xl px-4 py-3 mt-3 text-sm font-mono leading-relaxed transition-all duration-300"
+      style={{ background: color + "12", border: `1px solid ${color}50`, color: "#e2e8f0" }}
+    >
+      {text}
     </div>
   );
 }
 
-// ─── RabbitMQ visualizer ─────────────────────────────────────────────────────
-function RabbitMQViz() {
-  const [type, setType] = useState("direct");
-  const [key, setKey] = useState("payment");
-  const [stage, setStage] = useState(0);      // 0 idle → 1 producer → 2 exchange → 3 queues → 4 consumer
-  const [activeIds, setActiveIds] = useState(new Set());
-  const [log, setLog] = useState([]);
-  const [busy, setBusy] = useState(false);
-
-  const cfg = RMQ[type];
-
-  useEffect(() => {
-    setKey(cfg.defKey);
-    setStage(0);
-    setActiveIds(new Set());
-  }, [type]);  // eslint-disable-line
-
-  const matched = cfg.match(cfg.queues, key);
-
-  const send = useCallback(async () => {
-    if (busy) return;
-    setBusy(true);
-    setStage(1);
-    await delay(650);
-    setStage(2);
-    await delay(650);
-    setStage(3);
-    setActiveIds(new Set(matched.map(q => q.id)));
-    await delay(650);
-    setStage(4);
-    await delay(650);
-    setStage(0);
-    setActiveIds(new Set());
-    setBusy(false);
-    const ts = new Date().toLocaleTimeString();
-    if (matched.length === 0) {
-      setLog(prev => [`⚠️  [${ts}] key="${key}" matched NOTHING → message dropped`, ...prev.slice(0, 7)]);
-    } else {
-      setLog(prev => [
-        `✉️  [${ts}] key="${key}" → ${cfg.label} → [${matched.map(q => q.label).join(", ")}]`,
-        ...prev.slice(0, 7),
-      ]);
-    }
-  }, [busy, key, matched, cfg]);  // eslint-disable-line
-
-  const stageLabel = ["", "Producer sending…", "Exchange routing…", `→ ${activeIds.size} queue(s)`, "Consumer ACKing ✓"][stage] || "";
-
+// ─── Concept side-panel ───────────────────────────────────────────────────────
+function ConceptPanel({ lesson }) {
   return (
-    <div>
-      {/* Exchange type tabs */}
-      <div className="flex gap-2 mb-3 flex-wrap">
-        {Object.entries(RMQ).map(([t, c]) => (
-          <Chip key={t} label={c.label} active={type === t} activeColor="#8b5cf6"
-            onClick={() => { if (!busy) setType(t); }} />
-        ))}
+    <div className="space-y-3">
+      {/* Title card */}
+      <div className="rounded-xl p-3.5" style={{ background: "#080e1a", border: "1px solid #1e293b" }}>
+        <div className="text-xs font-mono font-bold mb-1" style={{ color: "#475569" }}>
+          LESSON {lesson.num}
+        </div>
+        <div className="text-base font-bold text-white leading-tight">{lesson.title}</div>
+        <div className="text-xs text-gray-400 mt-1 leading-relaxed">{lesson.subtitle}</div>
       </div>
 
-      <div className="text-xs font-mono text-indigo-300 mb-3">ℹ️  {cfg.desc}</div>
-
-      {/* Routing key chooser */}
-      <div className="flex items-center gap-2 mb-4 flex-wrap">
-        <span className="text-xs text-gray-500 font-mono shrink-0">Routing key:</span>
-        {cfg.keys.map(k => (
-          <Chip key={k} label={`"${k}"`} active={key === k} activeColor="#f59e0b"
-            onClick={() => { if (!busy) setKey(k); }} />
-        ))}
-      </div>
-
-      {/* Flow diagram */}
-      <div className="rounded-xl p-4 overflow-x-auto" style={{ background: "#020817", border: "1px solid #1e293b" }}>
-        <div className="flex items-center min-w-max">
-
-          {/* Producer */}
-          <Box pal={P.producer} label="📦 Producer" sub={`key: "${key}"`} active={stage >= 1} style={{ width: 112 }} />
-          <Arrow on={stage >= 1} color="#3b82f6" />
-
-          {/* Exchange */}
-          <Box
-            pal={P.exchange}
-            label={`📫 ${type.toUpperCase()}`}
-            sub="Exchange"
-            active={stage >= 2}
-            style={{ width: 100 }}
-          />
-
-          {/* Queue + Consumer rows */}
-          <div className="flex flex-col gap-2 ml-2">
-            {cfg.queues.map(q => {
-              const hit = matched.some(m => m.id === q.id);
-              const qPal = hit ? P.queue : { bg: "#111827", border: "#374151", glow: "#0", text: "#4b5563" };
-              const cPal = hit ? P.consumer : { bg: "#111827", border: "#374151", glow: "#0", text: "#4b5563" };
-              return (
-                <div key={q.id} className="flex items-center">
-                  <Arrow on={stage >= 2 && hit} color="#f59e0b" />
-                  <Box pal={qPal} label={q.label} sub={q.pattern || q.bind || ""} active={stage >= 3 && activeIds.has(q.id)} style={{ width: 148 }} />
-                  <Arrow on={stage >= 4 && activeIds.has(q.id)} color="#10b981" />
-                  <Box pal={cPal} label={`👤 ${q.consumer}`} active={stage >= 4 && activeIds.has(q.id)} style={{ width: 148 }} />
-                </div>
-              );
-            })}
+      {/* Real-world analogy */}
+      <div className="rounded-xl p-3.5" style={{ background: "#061406", border: "1px solid #14532d" }}>
+        <div className="flex items-center gap-2 mb-2">
+          <span style={{ fontSize: 22 }}>{lesson.analogy.icon}</span>
+          <div>
+            <div className="text-xs font-mono font-bold" style={{ color: "#22c55e" }}>REAL WORLD ANALOGY</div>
+            <div className="text-xs font-bold text-white">{lesson.analogy.scenario}</div>
           </div>
         </div>
+        <p className="text-xs text-gray-300 leading-relaxed">{lesson.analogy.text}</p>
       </div>
 
-      {/* Send button + stage indicator */}
-      <div className="flex items-center gap-3 mt-3 flex-wrap">
-        <button
-          onClick={send}
-          disabled={busy}
-          className="px-4 py-2 rounded font-mono text-sm font-bold transition-all"
+      {/* Key terms */}
+      <div className="rounded-xl p-3.5" style={{ background: "#080e1a", border: "1px solid #1e293b" }}>
+        <div className="text-xs font-mono font-bold mb-2.5" style={{ color: "#475569" }}>📚 KEY TERMS</div>
+        <div className="space-y-3">
+          {lesson.terms.map((t, i) => (
+            <div key={i} className="flex gap-2">
+              <div
+                className="shrink-0 rounded-md px-1.5 py-0.5 text-xs font-mono font-bold self-start mt-0.5"
+                style={{ background: "#1e293b", color: "#e2e8f0" }}
+              >
+                {t.icon}
+              </div>
+              <div>
+                <div className="text-xs font-bold font-mono text-white">{t.term}</div>
+                <div className="text-xs text-gray-400 leading-relaxed mt-0.5">{t.def}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Lesson data ──────────────────────────────────────────────────────────────
+const RMQ_LESSONS = [
+  {
+    id: "queue",
+    num: "01",
+    title: "The Basic Queue",
+    subtitle: "Messages wait safely until a worker is ready to process them.",
+    analogy: {
+      icon: "☕",
+      scenario: "Coffee Shop Order Queue",
+      text: "You order a coffee. The cashier writes your order on a slip and pins it to a rail. The barista takes slips one by one. Even if 10 people order at once, no order is lost — they wait safely on the rail. If a barista goes on break, slips keep piling up until they return.",
+    },
+    terms: [
+      { icon: "📦", term: "Producer", def: "The app that creates and sends messages. Like the cashier writing order slips." },
+      { icon: "📋", term: "Queue", def: "A waiting line of messages. They stay here until a consumer picks them up. Like the order slip rail." },
+      { icon: "👤", term: "Consumer", def: "The service that reads and processes messages. Like the barista making the drinks." },
+      { icon: "✅", term: "ACK (Acknowledgement)", def: "The consumer tells RabbitMQ 'I finished processing this — delete it.' Until ACK is sent, the message is safe. If the consumer crashes, the message is re-delivered automatically." },
+    ],
+    type: "basic",
+  },
+  {
+    id: "direct",
+    num: "02",
+    title: "Direct Exchange",
+    subtitle: "Route messages to the right service using an exact label (routing key).",
+    analogy: {
+      icon: "📮",
+      scenario: "Office Mail Room",
+      text: "Letters arrive at the mail room with a department label: 'Finance', 'HR', 'Engineering'. The mail sorter reads the label and puts each letter in the right pigeonhole. Only the Finance department gets Finance mail. A letter labeled 'unknown' has no pigeonhole — it's dropped.",
+    },
+    terms: [
+      { icon: "📫", term: "Exchange", def: "A smart router sitting between the producer and queues. The producer sends to the exchange — NOT directly to a queue." },
+      { icon: "🏷️", term: "Routing Key", def: "A label on each message (like a department name). The exchange uses this to decide which queue gets the message." },
+      { icon: "🔗", term: "Binding", def: "A rule connecting an exchange to a queue. Example: 'if routing key = payment → send to payment_queue'." },
+    ],
+    type: "direct",
+    defKey: "payment",
+    keys: ["payment", "shipping", "error", "unknown"],
+    queues: [
+      { id: "q1", label: "payment_queue",  bind: "payment",  consumer: "Payment Service",  icon: "💳" },
+      { id: "q2", label: "shipping_queue", bind: "shipping", consumer: "Shipping Service", icon: "🚚" },
+      { id: "q3", label: "error_queue",    bind: "error",    consumer: "Error Handler",    icon: "⚠️" },
+    ],
+  },
+  {
+    id: "fanout",
+    num: "03",
+    title: "Fanout Exchange",
+    subtitle: "Broadcast the same message to ALL queues at once — routing key ignored.",
+    analogy: {
+      icon: "📢",
+      scenario: "Company-wide Announcement Email",
+      text: "The CEO sends 'We hit our sales goal!' to the entire company. Every department — Finance, HR, Engineering, Marketing — gets a copy. Nobody is excluded. Nobody needs to be individually addressed. Everybody gets the same news simultaneously.",
+    },
+    terms: [
+      { icon: "📡", term: "Fanout Exchange", def: "Copies every message to ALL bound queues. The routing key is completely ignored — irrelevant." },
+      { icon: "📋→📋", term: "Fan-out", def: "One message becomes N copies — one per bound queue. Like a photocopier that automatically distributes to every inbox." },
+      { icon: "🆓", term: "Independent Consumers", def: "Each consumer gets their own copy. Payment charges the card; Notifications sends an email; Analytics logs the sale — all independently, simultaneously." },
+    ],
+    type: "fanout",
+    queues: [
+      { id: "f1", label: "payment_fanout",   consumer: "Payment Service",      icon: "💳" },
+      { id: "f2", label: "notif_fanout",     consumer: "Notification Service", icon: "🔔" },
+      { id: "f3", label: "analytics_fanout", consumer: "Analytics Service",    icon: "📊" },
+    ],
+  },
+  {
+    id: "topic",
+    num: "04",
+    title: "Topic Exchange",
+    subtitle: "Wildcard routing — subscribe to patterns, not exact keys.",
+    analogy: {
+      icon: "📰",
+      scenario: "News Subscription Service",
+      text: "You can subscribe to 'sports.*' (all sports news) or 'world.#' (everything world-related at any depth). One person only gets sports headlines; another gets every world news article ever published. A routing key like 'order.eu.failed' could match multiple subscribers at once.",
+    },
+    terms: [
+      { icon: "*", term: "* (star wildcard)", def: "Matches exactly ONE word. Example: 'order.eu.*' matches 'order.eu.placed' and 'order.eu.failed' — but NOT 'order.eu.sub.failed' (that's two words after .eu)." },
+      { icon: "#", term: "# (hash wildcard)", def: "Matches ZERO or MORE words. Example: 'order.#' matches 'order.placed', 'order.eu.placed', 'order.eu.sub.placed' — anything that starts with 'order'." },
+      { icon: "🎯", term: "Pattern Binding", def: "Queues bind to patterns instead of exact keys. A message can match multiple patterns and be delivered to multiple queues simultaneously." },
+    ],
+    type: "topic",
+    defKey: "order.eu.failed",
+    keys: ["order.eu.failed", "order.us-east.pending", "order.apac.placed", "payment.eu.failed"],
+    queues: [
+      { id: "t1", label: "all_orders",  pattern: "order.#",               consumer: "All Orders Svc",  icon: "📋" },
+      { id: "t2", label: "eu_queue",    pattern: "order.eu.*",            consumer: "EU Service",      icon: "🌍" },
+      { id: "t3", label: "failures",    pattern: "*.*.failed",            consumer: "Failure Handler", icon: "⚠️" },
+      { id: "t4", label: "us_pending",  pattern: "order.us-east.pending", consumer: "US Pending Svc",  icon: "🇺🇸" },
+    ],
+  },
+];
+
+const KAFKA_LESSONS = [
+  {
+    id: "topic",
+    num: "01",
+    title: "Topics, Partitions & Offsets",
+    subtitle: "Kafka is a permanent, ordered log — messages are never deleted after reading.",
+    analogy: {
+      icon: "📚",
+      scenario: "Public Library Archive",
+      text: "A library never throws away books after someone reads them. Each book (message) gets a permanent shelf number (offset). Anyone can borrow the same book; reading it doesn't remove it. New books are always added to the end of the shelf. You can always say 'I want to re-read from book #5 onwards'.",
+    },
+    terms: [
+      { icon: "📋", term: "Topic", def: "A named, ordered stream of messages. Like a dedicated shelf in the library. You publish to a topic; consumers subscribe to it." },
+      { icon: "📍", term: "Offset", def: "A sequential number for each message: 0, 1, 2, 3... Like page numbers. You can always seek back and re-read from any offset." },
+      { icon: "🗂️", term: "Partition", def: "A topic is split into partitions for parallelism. Think of it as separate aisles in the library. More partitions = more consumers can read in parallel." },
+      { icon: "🔑", term: "Message Key", def: "An optional label that determines which partition a message goes to. Messages with the SAME key ALWAYS go to the SAME partition — guaranteeing order for that key." },
+    ],
+    tipsTitle: "Try these experiments",
+    tips: [
+      "Pick key 'cust-001' and publish it 3 times — notice it ALWAYS hits the same partition",
+      "Switch to 'cust-002' — it goes to a different partition",
+      "Publish many messages, then scroll through the offsets (0, 1, 2…)",
+      "Unlike RabbitMQ, messages STAY after being consumed — they never disappear",
+    ],
+  },
+  {
+    id: "groups",
+    num: "02",
+    title: "Consumer Groups",
+    subtitle: "Same group = share the work. Different group = each gets a full copy.",
+    analogy: {
+      icon: "📖",
+      scenario: "Two Teams Reading the Same Report",
+      text: "A weekly sales report is published. The Finance team (2 people) splits it — person 1 reads pages 1-50, person 2 reads 51-100. They share the work. Meanwhile, the Marketing team (1 person) reads the same complete report entirely independently. Finance reading their pages doesn't affect Marketing's progress at all. Each team has their own private bookmark.",
+    },
+    terms: [
+      { icon: "🏷️", term: "group.id", def: "The group's name. Consumers sharing the same group.id split the partitions between them (load balance). Consumers with different group.id each get a full copy of everything." },
+      { icon: "📌", term: "Committed Offset", def: "The group's bookmark. Kafka remembers 'Group A has processed up to offset 5 on Partition 0'. If Group A restarts, it picks up from offset 5 — nothing is lost or replayed unintentionally." },
+      { icon: "♻️", term: "Replay", def: "Since messages aren't deleted, a new consumer group can start from offset 0 and read ALL historical messages. Powerful for backfilling a new service or fixing a bug." },
+    ],
+    tipsTitle: "See it in action",
+    tips: [
+      "Publish several messages, then click Consume on Service A — only its bookmark moves",
+      "Now click Consume on Service B — it reads the SAME messages from its own offset 0",
+      "Service A and B are completely independent — one doesn't affect the other",
+      "Try consuming from Service A again — it picks up where it left off, not from the start",
+    ],
+  },
+];
+
+// ─── Narrative generator ──────────────────────────────────────────────────────
+function makeNarrative(lessonId, stage, ctx = {}) {
+  const scripts = {
+    queue: [
+      null,
+      "📦  Step 1/4 — The Order Service creates a new message (an order) and sends it to the queue.",
+      "📋  Step 2/4 — The message arrives safely in the queue. It waits here. Even if the Payment Service is busy or offline, the message is NOT lost.",
+      "👤  Step 3/4 — The Payment Service picks up the message and starts processing it (charging the card)...",
+      "✅  Step 4/4 — Done! The consumer sends an ACK back to RabbitMQ: \"I handled this, you can delete it now.\" RabbitMQ removes the message from the queue.",
+    ],
+    direct: [
+      null,
+      `📦  Step 1/4 — Order Service sends a message with routing key: "${ctx.key}"`,
+      `📫  Step 2/4 — The message hits the Direct Exchange. It scans its binding rules looking for a queue bound to "${ctx.key}"...`,
+      ctx.matchCount > 0
+        ? `✅  Step 3/4 — Match found! Routing key "${ctx.key}" matches → ${ctx.matchNames}. Message delivered.`
+        : `❌  Step 3/4 — No queue is bound to "${ctx.key}". The message has nowhere to go and is DROPPED.`,
+      ctx.matchCount > 0
+        ? "👤  Step 4/4 — The consumer picks up and processes the message, then ACKs it."
+        : "🗑️  Step 4/4 — Message discarded. To fix this: add a queue bound to this routing key.",
+    ],
+    fanout: [
+      null,
+      "📦  Step 1/4 — Order Service publishes an 'order placed' event to the Fanout Exchange.",
+      "📡  Step 2/4 — Fanout Exchange COPIES the message to ALL 3 bound queues simultaneously. Notice: the routing key is completely ignored!",
+      "📋  Step 3/4 — All 3 queues now hold their own independent copy. One message became three.",
+      "👥  Step 4/4 — Each service processes its own copy: Payment charges the card 💳, Notifications sends an email 🔔, Analytics logs the sale 📊. All in parallel!",
+    ],
+    topic: [
+      null,
+      `📦  Step 1/4 — Publishing event with topic key: "${ctx.key}"`,
+      `🎯  Step 2/4 — Topic Exchange tests the key "${ctx.key}" against all queue patterns...`,
+      ctx.matchCount > 0
+        ? `✅  Step 3/4 — ${ctx.matchCount} pattern(s) matched! Routed to: ${ctx.matchNames}.`
+        : `❌  Step 3/4 — No patterns matched "${ctx.key}". Message dropped.`,
+      ctx.matchCount > 0
+        ? "👤  Step 4/4 — Matching consumers receive their copy and process it."
+        : "💡  Step 4/4 — Try a key like 'order.eu.failed' to see multiple queues match.",
+    ],
+  };
+  return scripts[lessonId]?.[stage] ?? null;
+}
+
+// ─── RabbitMQ lesson component ────────────────────────────────────────────────
+function RabbitMQLesson({ lesson }) {
+  const [rKey, setRKey]       = useState(lesson.defKey ?? "");
+  const [stage, setStage]     = useState(0);
+  const [hitIds, setHitIds]   = useState(new Set());
+  const [narr, setNarr]       = useState(null);
+  const [history, setHistory] = useState([]);
+  const [busy, setBusy]       = useState(false);
+
+  useEffect(() => {
+    setRKey(lesson.defKey ?? "");
+    setStage(0); setHitIds(new Set()); setNarr(null); setBusy(false);
+  }, [lesson.id]); // eslint-disable-line
+
+  const getHits = useCallback(() => {
+    if (!lesson.queues) return [];
+    if (lesson.type === "direct") return lesson.queues.filter((q) => q.bind === rKey);
+    if (lesson.type === "fanout") return lesson.queues;
+    if (lesson.type === "topic")  return lesson.queues.filter((q) => topicMatch(q.pattern, rKey));
+    return [];
+  }, [lesson, rKey]);
+
+  const run = useCallback(async () => {
+    if (busy) return;
+    setBusy(true);
+    const hits = getHits();
+    const ctx = { key: rKey, matchNames: hits.map((q) => q.label).join(", "), matchCount: hits.length };
+    const ids = new Set(hits.map((q) => q.id));
+
+    for (let s = 1; s <= 4; s++) {
+      setStage(s);
+      if (s === 3) setHitIds(ids);
+      setNarr(makeNarrative(lesson.id, s, ctx));
+      await sleep(950);
+    }
+
+    setStage(0); setHitIds(new Set()); setBusy(false);
+    setNarr(null);
+
+    const ts = new Date().toLocaleTimeString();
+    const entry = hits.length === 0
+      ? `⚠️  [${ts}] key="${rKey}" → no match → dropped`
+      : `✅  [${ts}] key="${rKey}" → [${hits.map((q) => q.label).join(", ")}]`;
+    setHistory((p) => [entry, ...p.slice(0, 5)]);
+  }, [busy, rKey, lesson, getHits]);
+
+  const hits = getHits();
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      {/* Concept panel */}
+      <div className="lg:col-span-2">
+        <ConceptPanel lesson={lesson} />
+      </div>
+
+      {/* Interactive zone */}
+      <div className="lg:col-span-3 space-y-3">
+
+        {/* Key picker for direct/topic */}
+        {(lesson.type === "direct" || lesson.type === "topic") && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-gray-500 font-mono shrink-0">
+              {lesson.type === "direct" ? "Routing key:" : "Topic key:"}
+            </span>
+            {lesson.keys.map((k) => (
+              <Pill key={k} label={`"${k}"`} active={rKey === k} color="#a855f7"
+                onClick={() => !busy && setRKey(k)} />
+            ))}
+          </div>
+        )}
+
+        {/* Diagram area */}
+        <div className="rounded-2xl p-4 overflow-x-auto" style={{ background: "#050d1a", border: "1px solid #1e293b" }}>
+
+          {/* BASIC QUEUE */}
+          {lesson.type === "basic" && (
+            <div className="flex items-center justify-start gap-0 min-w-max py-2">
+              <FlowNode tok={T.producer} icon="📦" label="Order Service" sub="Producer" active={stage >= 1} />
+              <Arrow on={stage >= 1} color="#3b82f6" label="sends to" />
+              <FlowNode tok={T.queue} icon="📋" label="orders_queue" sub="Queue" active={stage >= 2} w={138} />
+              <Arrow on={stage >= 3} color="#22c55e" label="delivers" />
+              <FlowNode tok={T.consumer} icon="👤" label="Payment Svc" sub="Consumer" active={stage >= 3} />
+              {stage >= 4 && (
+                <div className="ml-2 px-2 py-0.5 rounded-full text-xs font-mono font-bold animate-bounce"
+                  style={{ background: "#22c55e25", border: "1px solid #22c55e", color: "#86efac" }}>
+                  ACK ✓
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* DIRECT / TOPIC EXCHANGE */}
+          {(lesson.type === "direct" || lesson.type === "topic") && (
+            <div className="flex items-center min-w-max">
+              <FlowNode tok={T.producer} icon="📦" label="Order Service" sub={`key:"${rKey}"`} active={stage >= 1} />
+              <Arrow on={stage >= 1} color="#3b82f6" />
+              <FlowNode tok={T.exchange} icon="📫"
+                label={lesson.type === "direct" ? "DIRECT" : "TOPIC"}
+                sub="Exchange" active={stage >= 2} w={106} />
+              <div className="flex flex-col gap-2 ml-1">
+                {lesson.queues.map((q) => {
+                  const hit = hits.some((h) => h.id === q.id);
+                  const qTok = hit ? T.queue : { bg: "#0a0a0a", border: "#1a1a1a", text: "#1a1a1a", glow: "#0" };
+                  const cTok = hit ? T.consumer : { bg: "#0a0a0a", border: "#1a1a1a", text: "#1a1a1a", glow: "#0" };
+                  return (
+                    <div key={q.id} className="flex items-center">
+                      <Arrow on={stage >= 2 && hit} color="#f97316"
+                        label={lesson.type === "direct" ? q.bind : q.pattern} />
+                      <FlowNode tok={qTok} icon={q.icon} label={q.label}
+                        sub={lesson.type === "topic" ? q.pattern : q.bind}
+                        active={stage >= 3 && hitIds.has(q.id)} dimmed={!hit} w={148} />
+                      <Arrow on={stage >= 4 && hitIds.has(q.id)} color="#22c55e" />
+                      <FlowNode tok={cTok} icon="👤" label={q.consumer}
+                        active={stage >= 4 && hitIds.has(q.id)} dimmed={!hit} w={148} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* FANOUT EXCHANGE */}
+          {lesson.type === "fanout" && (
+            <div className="flex items-center min-w-max">
+              <FlowNode tok={T.producer} icon="📦" label="Order Service" sub="Producer" active={stage >= 1} />
+              <Arrow on={stage >= 1} color="#3b82f6" />
+              <FlowNode tok={T.exchange} icon="📡" label="FANOUT" sub="Exchange" active={stage >= 2} w={106} />
+              <div className="flex flex-col gap-2 ml-1">
+                {lesson.queues.map((q) => (
+                  <div key={q.id} className="flex items-center">
+                    <Arrow on={stage >= 2} color="#f97316" label="copy" />
+                    <FlowNode tok={T.queue} icon={q.icon} label={q.label} active={stage >= 3} w={160} />
+                    <Arrow on={stage >= 4} color="#22c55e" />
+                    <FlowNode tok={T.consumer} icon="👤" label={q.consumer} active={stage >= 4} w={160} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Send button */}
+        <button onClick={run} disabled={busy}
+          className="w-full py-2.5 rounded-xl text-sm font-mono font-bold transition-all"
           style={{
-            background: busy ? "#1e293b" : "#3b1f6e",
-            border: `1px solid ${busy ? "#374151" : "#8b5cf6"}`,
-            color: busy ? "#4b5563" : "#c4b5fd",
+            background: busy ? "#080e1a" : "#1a0a38",
+            border: `2px solid ${busy ? "#374151" : "#a855f7"}`,
+            color: busy ? "#374151" : "#d8b4fe",
             cursor: busy ? "not-allowed" : "pointer",
           }}
         >
-          {busy ? "⏳ Sending…" : "📤 Send Message"}
+          {busy ? "⏳  Animating step-by-step…" : "▶  Send Message  (watch step-by-step)"}
         </button>
-        {stageLabel && <span className="text-xs font-mono text-gray-400">{stageLabel}</span>}
-        {matched.length === 0 && !busy && (
-          <span className="text-xs font-mono text-red-400">⚠️ No queues match this key</span>
+
+        {/* Step narrative */}
+        <Narrative text={narr} color="#a855f7" />
+
+        {/* History log */}
+        {history.length > 0 && (
+          <div className="rounded-xl p-3" style={{ background: "#050d1a", border: "1px solid #1e293b" }}>
+            <div className="text-xs font-mono font-bold mb-1.5" style={{ color: "#334155" }}>📋 HISTORY</div>
+            {history.map((e, i) => (
+              <div key={i} className="text-xs font-mono text-gray-500">{e}</div>
+            ))}
+          </div>
         )}
       </div>
-
-      <Log items={log} title="RabbitMQ Event Log" />
     </div>
   );
 }
 
-// ─── Kafka visualizer ────────────────────────────────────────────────────────
-const GROUPS = [
-  { id: "payment",   name: "payment-service",   color: "#3b82f6", desc: "Load balanced — workers share partitions" },
-  { id: "inventory", name: "inventory-service",  color: "#10b981", desc: "Gets ALL messages (own cursor)" },
-];
+// ─── Kafka lesson component ───────────────────────────────────────────────────
+function KafkaLesson({ lesson }) {
+  const [msgKey, setMsgKey]   = useState("cust-001");
+  const [parts, setParts]     = useState([[], [], []]);
+  const [offsets, setOffsets] = useState({ svc_a: [0, 0, 0], svc_b: [0, 0, 0] });
+  const [flashP, setFlashP]   = useState(null);
+  const [stage, setStage]     = useState(0);
+  const [narr, setNarr]       = useState(null);
+  const [consuming, setConsuming] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [busy, setBusy]       = useState(false);
 
-function hashPartition(key, n) {
-  let h = 5381;
-  for (const c of key) h = (h * 33 ^ c.charCodeAt(0)) >>> 0;
-  return h % n;
-}
-
-const delay = (ms) => new Promise(r => setTimeout(r, ms));
-
-function KafkaViz() {
-  const [msgKey, setMsgKey] = useState("cust-001");
-  const [parts, setParts] = useState([[], [], []]);        // messages per partition
-  const [offsets, setOffsets] = useState({ payment: [0, 0, 0], inventory: [0, 0, 0] });
-  const [stage, setStage] = useState(0);
-  const [flashPart, setFlashPart] = useState(null);
-  const [consumingGroup, setConsumingGroup] = useState(null);
-  const [log, setLog] = useState([]);
-  const [busy, setBusy] = useState(false);
-
-  const keyOpts = ["cust-001", "cust-002", "eu-order", "us-order", "cust-003"];
-  const targetPart = hashPartition(msgKey, 3);
+  const targetP = hashPartition(msgKey);
 
   const publish = useCallback(async () => {
     if (busy) return;
     setBusy(true);
     setStage(1);
-    await delay(650);
+    setNarr(`📦  Producer creates a message with key "${msgKey}". Kafka is about to decide which partition to send it to...`);
+    await sleep(800);
+
     setStage(2);
-    setFlashPart(targetPart);
-    await delay(700);
+    setFlashP(targetP);
+    setNarr(`🔑  Kafka hashes the key "${msgKey}" → Partition ${targetP}. Same key ALWAYS maps to the same partition. This guarantees messages from the same customer arrive in order!`);
+    await sleep(900);
+
     const msgId = Date.now().toString(36);
-    setParts(prev => {
-      const next = prev.map(p => [...p]);
-      const row = [...next[targetPart], { id: msgId, key: msgKey }];
-      next[targetPart] = row.slice(-9); // keep last 9
+    const newOffset = parts[targetP].length;
+    setParts((prev) => {
+      const next = prev.map((p) => [...p]);
+      const row = [...next[targetP], { id: msgId, key: msgKey, offset: newOffset }];
+      next[targetP] = row.slice(-9);
       return next;
     });
-    setFlashPart(null);
+    setFlashP(null);
+    setStage(3);
+    setNarr(`✅  Message appended to Partition ${targetP} at offset ${newOffset}. Unlike RabbitMQ, Kafka KEEPS this message forever (until retention expires). It's not deleted when consumed!`);
+    await sleep(1000);
+
     setStage(0);
+    setNarr(null);
     setBusy(false);
-    setLog(prev => [
-      `📤 key="${msgKey}" → partition ${targetPart} (deterministic hash)`,
-      ...prev.slice(0, 7),
-    ]);
-  }, [busy, msgKey, targetPart]);
+    setHistory((p) => [`📤 key="${msgKey}" → Partition ${targetP} offset ${newOffset}`, ...p.slice(0, 5)]);
+  }, [busy, msgKey, targetP, parts]);
 
   const consume = useCallback(async (groupId) => {
     if (busy) return;
-    const gOffsets = offsets[groupId];
-    // find first partition with unconsumed messages
-    let p = gOffsets.findIndex((o, i) => o < parts[i].length);
+    const gOff = offsets[groupId];
+    const p = gOff.findIndex((o, i) => o < parts[i].length);
     if (p === -1) {
-      setLog(prev => [`⚠️  ${groupId}: no new messages`, ...prev.slice(0, 7)]);
+      setNarr(`⚠️  ${groupId === "svc_a" ? "Service A" : "Service B"} is fully caught up — no new messages to consume!`);
+      setTimeout(() => setNarr(null), 2500);
       return;
     }
-    const offset = gOffsets[p];
+    const offset = gOff[p];
     const msg = parts[p][offset];
     setBusy(true);
-    setConsumingGroup(groupId);
-    await delay(700);
-    setOffsets(prev => {
+    setConsuming(groupId);
+    const gName = groupId === "svc_a" ? "Service A" : "Service B";
+    setNarr(`📖  ${gName} reads from Partition ${p} at offset ${offset}. The OTHER service is NOT affected — they each have their own private bookmark.`);
+    await sleep(900);
+    setOffsets((prev) => {
       const next = { ...prev };
       const arr = [...prev[groupId]];
       arr[p] = offset + 1;
       next[groupId] = arr;
       return next;
     });
-    setConsumingGroup(null);
+    setConsuming(null);
     setBusy(false);
-    setLog(prev => [
-      `📨 ${groupId} consumed partition=${p} offset=${offset} key="${msg?.key}"`,
-      ...prev.slice(0, 7),
-    ]);
+    setNarr(`✅  ${gName} committed offset ${offset + 1} on Partition ${p}. Next poll starts from here. Notice the other service's bookmark didn't move!`);
+    setHistory((prev) => [`📨 ${gName}: P${p} offset ${offset} key="${msg?.key}"`, ...prev.slice(0, 5)]);
+    setTimeout(() => setNarr(null), 3500);
   }, [busy, offsets, parts]);
 
+  const SVCS = [
+    { id: "svc_a", name: "Service A", color: "#3b82f6", desc: "Independent cursor" },
+    { id: "svc_b", name: "Service B", color: "#22c55e", desc: "Independent cursor" },
+  ];
+
   return (
-    <div>
-      {/* Key chooser */}
-      <div className="flex items-center gap-2 mb-4 flex-wrap">
-        <span className="text-xs text-gray-500 font-mono shrink-0">Message key:</span>
-        {keyOpts.map(k => (
-          <Chip key={k} label={k} active={msgKey === k} activeColor="#6366f1"
-            onClick={() => { if (!busy) setMsgKey(k); }} />
-        ))}
-        <span className="text-xs font-mono ml-1" style={{ color: PART_COLORS[targetPart] }}>
-          → partition {targetPart}
-        </span>
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      {/* Concept panel */}
+      <div className="lg:col-span-2">
+        <ConceptPanel lesson={lesson} />
       </div>
 
-      {/* Main diagram */}
-      <div className="rounded-xl p-4 overflow-x-auto" style={{ background: "#020817", border: "1px solid #1e293b" }}>
-        <div className="flex gap-4 items-start min-w-max">
+      {/* Interactive zone */}
+      <div className="lg:col-span-3 space-y-3">
 
-          {/* Producer */}
-          <div className="flex flex-col items-center gap-2 pt-8">
-            <Box pal={P.producer} label="📦 Producer" sub={`key: "${msgKey}"`} active={stage >= 1} style={{ width: 112 }} />
-            <button
-              onClick={publish}
-              disabled={busy}
-              className="px-3 py-1 rounded text-xs font-mono font-bold transition-all w-full"
-              style={{
-                background: busy ? "#1e293b" : "#1e3a5f",
-                border: `1px solid ${busy ? "#374151" : "#3b82f6"}`,
-                color: busy ? "#4b5563" : "#93c5fd",
-                cursor: busy ? "not-allowed" : "pointer",
-              }}
-            >
-              {busy && stage > 0 && stage < 3 ? "⏳" : "📤 Publish"}
-            </button>
-          </div>
+        {/* Key picker */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-gray-500 font-mono shrink-0">Message key:</span>
+          {["cust-001", "cust-002", "eu-order", "us-order"].map((k) => (
+            <Pill key={k} label={k} active={msgKey === k} color="#6366f1"
+              onClick={() => !busy && setMsgKey(k)} />
+          ))}
+          <span className="text-xs font-mono" style={{ color: PART_COLS[targetP] }}>
+            → Partition {targetP}
+          </span>
+        </div>
 
-          <div className="flex items-start pt-10">
-            <Arrow on={stage >= 2} color="#3b82f6" />
-          </div>
+        {/* Kafka diagram */}
+        <div className="rounded-2xl p-4" style={{ background: "#050d1a", border: "1px solid #1e293b" }}>
+          <div className="flex gap-3 items-start">
 
-          {/* Partitions */}
-          <div style={{ minWidth: 280 }}>
-            <div className="text-xs font-bold font-mono mb-2" style={{ color: "#a5b4fc" }}>
-              📋 Topic: "orders" (3 partitions)
+            {/* Producer */}
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <FlowNode tok={T.producer} icon="📦" label="Producer"
+                sub={`key:"${msgKey}"`} active={stage >= 1} w={100} />
+              <button onClick={publish} disabled={busy}
+                className="px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all w-full"
+                style={{
+                  background: busy ? "#0a0f1a" : "#0c1e38",
+                  border: `1px solid ${busy ? "#374151" : "#3b82f6"}`,
+                  color: busy ? "#334155" : "#93c5fd",
+                  cursor: busy ? "not-allowed" : "pointer",
+                }}
+              >
+                {busy && stage > 0 && stage < 3 ? "⏳" : "📤 Publish"}
+              </button>
             </div>
-            <div className="space-y-2">
-              {[0, 1, 2].map(p => {
-                const isFlash = flashPart === p;
-                const col = PART_COLORS[p];
+
+            <div className="flex items-start pt-8">
+              <Arrow on={stage >= 2} color="#3b82f6" />
+            </div>
+
+            {/* Partitions */}
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-bold font-mono mb-2" style={{ color: "#475569" }}>
+                📋 Topic: "order_events" (3 partitions)
+              </div>
+              {[0, 1, 2].map((p) => {
+                const col = PART_COLS[p];
+                const flash = flashP === p;
+                const isTarget = targetP === p;
                 return (
-                  <div
-                    key={p}
-                    className="rounded-lg p-2 transition-all duration-300"
+                  <div key={p} className="rounded-lg p-2 mb-1.5 transition-all duration-300"
                     style={{
-                      background: isFlash ? col + "22" : "#0f172a",
-                      border: `1px solid ${isFlash ? col : "#1e293b"}`,
-                      boxShadow: isFlash ? `0 0 14px ${col}44` : "none",
+                      background: flash ? col + "20" : "#080e1a",
+                      border: `1px solid ${flash ? col : isTarget ? col + "35" : "#1e293b"}`,
+                      boxShadow: flash ? `0 0 16px ${col}40` : "none",
                     }}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold shrink-0" style={{ color: col, width: 72 }}>
+                      <span className="text-xs font-mono font-bold shrink-0" style={{ color: col, width: 68 }}>
                         Partition {p}
                       </span>
-                      <div className="flex gap-1 flex-1 overflow-hidden flex-wrap">
+                      <div className="flex gap-1 flex-1 flex-wrap overflow-hidden">
                         {parts[p].length === 0
                           ? <span className="text-xs text-gray-700 font-mono">empty</span>
                           : parts[p].map((m, idx) => (
-                            <div
-                              key={m.id}
+                            <div key={m.id} title={`key:${m.key} offset:${idx}`}
                               className="rounded px-1.5 py-0.5 text-xs font-mono"
-                              title={`key:${m.key} offset:${idx}`}
-                              style={{
-                                background: col + "33",
-                                border: `1px solid ${col}55`,
-                                color: col,
-                              }}
+                              style={{ background: col + "30", border: `1px solid ${col}55`, color: col }}
                             >
                               {idx}
                             </div>
                           ))
                         }
-                        {isFlash && (
-                          <div
-                            className="rounded px-1.5 py-0.5 text-xs font-mono animate-pulse"
-                            style={{ background: "#ffffff33", border: "1px solid #ffffff66", color: "#fff" }}
-                          >
+                        {flash && (
+                          <div className="rounded px-1.5 py-0.5 text-xs font-mono animate-pulse"
+                            style={{ background: "#ffffff20", border: "1px solid #ffffff50", color: "#fff" }}>
                             ✉
                           </div>
                         )}
                       </div>
-                      <span className="text-xs text-gray-600 font-mono shrink-0">{parts[p].length}</span>
+                      <span className="text-xs text-gray-700 font-mono shrink-0">{parts[p].length}</span>
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
 
-          <div className="flex items-start pt-10">
-            <Arrow on color="#374151" />
-          </div>
+            <div className="flex items-start pt-8">
+              <Arrow on color="#1e293b" />
+            </div>
 
-          {/* Consumer groups */}
-          <div className="space-y-3">
-            {GROUPS.map(g => {
-              const gOff = offsets[g.id];
-              const pending = parts.reduce((s, p, i) => s + Math.max(0, p.length - gOff[i]), 0);
-              const isConsuming = consumingGroup === g.id;
-              return (
-                <div
-                  key={g.id}
-                  className="rounded-lg p-2.5 transition-all duration-300"
-                  style={{
-                    background: isConsuming ? g.color + "22" : "#0f172a",
-                    border: `1px solid ${isConsuming ? g.color : "#1e293b"}`,
-                    minWidth: 168,
-                  }}
-                >
-                  <div className="text-xs font-bold font-mono mb-0.5" style={{ color: g.color }}>
-                    👥 {g.name}
-                  </div>
-                  <div className="text-xs text-gray-600 font-mono mb-2 leading-tight">{g.desc}</div>
-                  {[0, 1, 2].map(p => (
-                    <div key={p} className="flex gap-1 text-xs font-mono">
-                      <span className="text-gray-600">P{p}:</span>
-                      <span style={{ color: PART_COLORS[p] }}>
-                        {gOff[p]}/{parts[p].length}
-                      </span>
-                      {gOff[p] < parts[p].length && (
-                        <span className="text-yellow-500">↑{parts[p].length - gOff[p]}</span>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => consume(g.id)}
-                    disabled={busy || pending === 0}
-                    className="mt-2 w-full px-2 py-1 rounded text-xs font-mono transition-all"
+            {/* Consumer groups */}
+            <div className="space-y-2 shrink-0">
+              {SVCS.map((svc) => {
+                const gOff = offsets[svc.id];
+                const pending = parts.reduce((s, p, i) => s + Math.max(0, p.length - gOff[i]), 0);
+                const isConsuming = consuming === svc.id;
+                return (
+                  <div key={svc.id} className="rounded-xl p-2.5 transition-all duration-300"
                     style={{
-                      background: pending > 0 && !busy ? g.color + "22" : "#1e293b",
-                      border: `1px solid ${pending > 0 && !busy ? g.color : "#374151"}`,
-                      color: pending > 0 && !busy ? g.color : "#4b5563",
-                      cursor: pending > 0 && !busy ? "pointer" : "not-allowed",
+                      background: isConsuming ? svc.color + "18" : "#080e1a",
+                      border: `1px solid ${isConsuming ? svc.color : "#1e293b"}`,
+                      minWidth: 144,
                     }}
                   >
-                    {isConsuming ? "⏳ Reading…" : `📨 Consume (${pending})`}
-                  </button>
-                </div>
-              );
-            })}
+                    <div className="text-xs font-bold font-mono" style={{ color: svc.color }}>
+                      👥 {svc.name}
+                    </div>
+                    <div className="text-xs text-gray-600 font-mono mb-1.5 leading-tight">{svc.desc}</div>
+                    {[0, 1, 2].map((p) => (
+                      <div key={p} className="flex gap-1 text-xs font-mono">
+                        <span style={{ color: "#334155" }}>P{p}:</span>
+                        <span style={{ color: PART_COLS[p] }}>{gOff[p]}/{parts[p].length}</span>
+                        {gOff[p] < parts[p].length && (
+                          <span style={{ color: "#fbbf24" }}>↑{parts[p].length - gOff[p]}</span>
+                        )}
+                      </div>
+                    ))}
+                    <button onClick={() => consume(svc.id)} disabled={busy || pending === 0}
+                      className="mt-2 w-full px-2 py-1 rounded-lg text-xs font-mono transition-all"
+                      style={{
+                        background: pending > 0 && !busy ? svc.color + "20" : "#0a0f1a",
+                        border: `1px solid ${pending > 0 && !busy ? svc.color : "#1e293b"}`,
+                        color: pending > 0 && !busy ? svc.color : "#334155",
+                        cursor: pending > 0 && !busy ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {isConsuming ? "⏳" : `📨 Consume (${pending})`}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
           </div>
-
         </div>
-      </div>
 
-      <div className="mt-2 text-xs font-mono text-gray-600">
-        💡 Same key → same partition always. Each group tracks its own offset independently.
-      </div>
+        {/* Narrative */}
+        <Narrative text={narr} color="#6366f1" />
 
-      <Log items={log} title="Kafka Event Log" />
-    </div>
-  );
-}
-
-// ─── Comparison table ────────────────────────────────────────────────────────
-function ComparisonTable() {
-  const rows = [
-    ["Message retention",     "Deleted after ACK",          "Persists (configurable TTL)"],
-    ["Replay old messages",   "❌ Not possible",            "✅ Seek to any offset"],
-    ["Routing",               "Rich: exchanges + bindings", "Simple: topic + key → partition"],
-    ["Fan-out",               "Fanout exchange",            "Multiple consumer groups"],
-    ["Best for",              "Task queues, RPC, workflows","Event streaming, audit logs"],
-    ["Ordering guarantee",    "Per-queue",                  "Per-partition (same key)"],
-    ["Throughput",            "~50k msgs/sec",              "~1M+ msgs/sec"],
-    ["Delivery guarantee",    "At-least-once via ACK",      "At-least-once via offset commit"],
-  ];
-  return (
-    <div className="rounded-2xl p-5 overflow-x-auto mt-6" style={{ background: "#0f172a", border: "1px solid #1e293b" }}>
-      <h3 className="text-sm font-bold font-mono text-gray-300 mb-3">⚡ Quick Comparison</h3>
-      <table className="w-full text-xs font-mono border-collapse">
-        <thead>
-          <tr>
-            <th className="text-left py-1.5 pr-4 text-gray-500 font-semibold border-b border-gray-800">Feature</th>
-            <th className="text-left py-1.5 pr-4 font-semibold border-b border-gray-800" style={{ color: "#c4b5fd" }}>🐰 RabbitMQ</th>
-            <th className="text-left py-1.5 font-semibold border-b border-gray-800" style={{ color: "#93c5fd" }}>☁️ Kafka</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(([feat, rmq, kfk], i) => (
-            <tr key={i} style={{ background: i % 2 === 0 ? "transparent" : "#0a0f1a" }}>
-              <td className="py-1.5 pr-4 text-gray-500">{feat}</td>
-              <td className="py-1.5 pr-4" style={{ color: "#e9d5ff" }}>{rmq}</td>
-              <td className="py-1.5" style={{ color: "#bfdbfe" }}>{kfk}</td>
-            </tr>
+        {/* Tips */}
+        <div className="rounded-xl p-3" style={{ background: "#080e1a", border: "1px solid #1e293b" }}>
+          <div className="text-xs font-mono font-bold mb-2" style={{ color: "#334155" }}>
+            🧪 {lesson.tipsTitle}
+          </div>
+          {lesson.tips.map((tip, i) => (
+            <div key={i} className="text-xs font-mono text-gray-600 leading-relaxed">→ {tip}</div>
           ))}
-        </tbody>
-      </table>
+        </div>
+
+        {/* History */}
+        {history.length > 0 && (
+          <div className="rounded-xl p-3" style={{ background: "#050d1a", border: "1px solid #1e293b" }}>
+            <div className="text-xs font-mono font-bold mb-1.5" style={{ color: "#334155" }}>📋 HISTORY</div>
+            {history.map((e, i) => (
+              <div key={i} className="text-xs font-mono text-gray-500">{e}</div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-// ─── Root ────────────────────────────────────────────────────────────────────
+// ─── Root app ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [tab, setTab] = useState("rabbitmq");
+  const [broker, setBroker] = useState("rabbitmq");
+  const [rmqIdx, setRmqIdx] = useState(0);
+  const [kfkIdx, setKfkIdx] = useState(0);
+
+  const lessons = broker === "rabbitmq" ? RMQ_LESSONS : KAFKA_LESSONS;
+  const idx     = broker === "rabbitmq" ? rmqIdx : kfkIdx;
+  const setIdx  = broker === "rabbitmq" ? setRmqIdx : setKfkIdx;
+  const lesson  = lessons[idx];
+
+  const BROKERS = [
+    { id: "rabbitmq", icon: "🐰", label: "RabbitMQ",     sub: "Message Broker",    color: "#a855f7" },
+    { id: "kafka",    icon: "☁️", label: "Apache Kafka", sub: "Event Streaming",   color: "#3b82f6" },
+  ];
 
   return (
-    <div className="min-h-screen p-5" style={{ background: "#020817", color: "#f1f5f9" }}>
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen p-4" style={{ background: "#020817", color: "#f1f5f9" }}>
+      <div className="max-w-6xl mx-auto">
 
         {/* Header */}
-        <div className="mb-5">
-          <h1 className="text-xl font-bold font-mono text-white">🔀 Message Queue Visualizer</h1>
-          <p className="text-xs text-gray-500 font-mono mt-0.5">
-            Interactive step-through of RabbitMQ and Apache Kafka
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold font-mono text-white">🎓 Message Queue Learning Guide</h1>
+          <p className="text-sm text-gray-500 font-mono mt-1">
+            Beginner-friendly • Interactive • Step-by-step explanations
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-5">
-          {[
-            { id: "rabbitmq", icon: "🐰", label: "RabbitMQ",     color: "#8b5cf6" },
-            { id: "kafka",    icon: "☁️", label: "Apache Kafka", color: "#3b82f6" },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className="px-4 py-2 rounded-lg font-mono text-sm font-bold transition-all"
+        {/* Broker selector */}
+        <div className="flex gap-3 justify-center mb-6">
+          {BROKERS.map((b) => (
+            <button key={b.id} onClick={() => setBroker(b.id)}
+              className="px-5 py-2.5 rounded-xl font-mono transition-all"
               style={{
-                background: tab === t.id ? t.color + "33" : "#0f172a",
-                border: `2px solid ${tab === t.id ? t.color : "#1e293b"}`,
-                color: tab === t.id ? t.color : "#6b7280",
+                background: broker === b.id ? b.color + "20" : "#080e1a",
+                border: `2px solid ${broker === b.id ? b.color : "#1e293b"}`,
+                color: broker === b.id ? b.color : "#475569",
               }}
             >
-              {t.icon} {t.label}
+              <span className="font-bold text-sm">{b.icon} {b.label}</span>
+              <div className="text-xs opacity-70">{b.sub}</div>
             </button>
           ))}
         </div>
 
-        {/* Panel */}
-        <div className="rounded-2xl p-5" style={{ background: "#0f172a", border: "1px solid #1e293b" }}>
-          {tab === "rabbitmq" ? (
-            <>
-              <div className="mb-4">
-                <h2 className="text-base font-bold font-mono" style={{ color: "#c4b5fd" }}>
-                  RabbitMQ — Message Broker
-                </h2>
-                <p className="text-xs text-gray-500 font-mono">
-                  Producer → Exchange (routes) → Queue(s) → Consumer ACKs
-                </p>
-              </div>
-              <RabbitMQViz />
-            </>
-          ) : (
-            <>
-              <div className="mb-4">
-                <h2 className="text-base font-bold font-mono" style={{ color: "#93c5fd" }}>
-                  Apache Kafka — Event Streaming
-                </h2>
-                <p className="text-xs text-gray-500 font-mono">
-                  Producer → Topic (partitioned log) → Consumer Groups (each with own offset cursor)
-                </p>
-              </div>
-              <KafkaViz />
-            </>
-          )}
-        </div>
-
-        <ComparisonTable />
-
-        {/* Legend */}
-        <div className="mt-4 flex gap-4 flex-wrap">
-          {[
-            { label: "Producer",  col: "#3b82f6" },
-            { label: "Exchange",  col: "#8b5cf6" },
-            { label: "Queue",     col: "#f59e0b" },
-            { label: "Consumer",  col: "#10b981" },
-            { label: "Partition", col: "#6366f1" },
-          ].map(({ label, col }) => (
-            <div key={label} className="flex items-center gap-1.5 text-xs font-mono text-gray-400">
-              <div className="w-3 h-3 rounded-sm" style={{ background: col + "66", border: `1px solid ${col}` }} />
-              {label}
-            </div>
+        {/* Lesson tabs */}
+        <div className="flex gap-2 justify-center mb-5 flex-wrap">
+          {lessons.map((l, i) => (
+            <button key={l.id} onClick={() => setIdx(i)}
+              className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all"
+              style={{
+                background: idx === i ? "#1e293b" : "#080e1a",
+                border: `1px solid ${idx === i ? "#475569" : "#1e293b"}`,
+                color: idx === i ? "#e2e8f0" : "#334155",
+              }}
+            >
+              {l.num}. {l.title}
+            </button>
           ))}
         </div>
 
+        {/* Lesson content */}
+        <div className="rounded-2xl p-5" style={{ background: "#080e1a", border: "1px solid #1e293b" }}>
+          {broker === "rabbitmq"
+            ? <RabbitMQLesson key={`rmq-${lesson.id}`} lesson={lesson} />
+            : <KafkaLesson    key={`kfk-${lesson.id}`} lesson={lesson} />
+          }
+        </div>
+
+        {/* Progress nav */}
+        <div className="flex items-center justify-between mt-4 px-1">
+          <button onClick={() => setIdx(Math.max(0, idx - 1))} disabled={idx === 0}
+            className="px-4 py-2 rounded-lg text-xs font-mono transition-all"
+            style={{
+              background: "#080e1a", border: "1px solid #1e293b",
+              color: idx === 0 ? "#1e293b" : "#6b7280",
+              cursor: idx === 0 ? "not-allowed" : "pointer",
+            }}
+          >
+            ← Previous
+          </button>
+
+          <div className="flex items-center gap-4">
+            <div className="flex gap-1.5">
+              {lessons.map((_, i) => (
+                <button key={i} onClick={() => setIdx(i)}
+                  className="rounded-full transition-all"
+                  style={{
+                    width: i === idx ? 20 : 8,
+                    height: 8,
+                    background: i === idx ? (broker === "rabbitmq" ? "#a855f7" : "#3b82f6") : "#1e293b",
+                  }}
+                />
+              ))}
+            </div>
+            <span className="text-xs font-mono text-gray-600">
+              {idx + 1} / {lessons.length}
+            </span>
+          </div>
+
+          <button onClick={() => setIdx(Math.min(lessons.length - 1, idx + 1))}
+            disabled={idx === lessons.length - 1}
+            className="px-4 py-2 rounded-lg text-xs font-mono transition-all"
+            style={{
+              background: "#080e1a", border: "1px solid #1e293b",
+              color: idx === lessons.length - 1 ? "#1e293b" : "#6b7280",
+              cursor: idx === lessons.length - 1 ? "not-allowed" : "pointer",
+            }}
+          >
+            Next →
+          </button>
+        </div>
+
+        {/* Footer hint */}
+        <p className="text-center text-xs font-mono mt-4" style={{ color: "#1e293b" }}>
+          Click ▶ Send Message in each lesson to see an animated step-by-step explanation
+        </p>
       </div>
     </div>
   );
