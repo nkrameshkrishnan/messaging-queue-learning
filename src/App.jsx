@@ -6,17 +6,34 @@ const ANIM_CSS = `
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
-@keyframes mq-pulse { 
+@keyframes mq-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
 }
-.mq-bounce { animation: mq-bounce 2s ease-in-out infinite; }
-.mq-pulse { animation: mq-pulse 3s ease-in-out infinite; }
-* { box-sizing: border-box; }
-body { 
-  background: linear-gradient(135deg, #0f172a 0%, rgba(51, 65, 85, 0.5) 100%);
-  min-height: 100vh;
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.mq-bounce { animation: mq-bounce 2s ease-in-out infinite; }
+.mq-pulse  { animation: mq-pulse 3s ease-in-out infinite; }
+.fade-up   { animation: fadeUp 0.38s ease-out forwards; }
+* { box-sizing: border-box; }
+body {
+  background: #f8fafc;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1e293b;
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+button { font-family: inherit; }
 `;
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -42,16 +59,16 @@ function hashPartition(key, n = 3) {
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
-  producer: { bg: "rgba(59, 130, 246, 0.08)", border: "#3b82f6", text: "#60a5fa", glow: "rgba(59, 130, 246, 0.2)" },
-  exchange: { bg: "rgba(168, 85, 247, 0.08)", border: "#a855f7", text: "#c084fc", glow: "rgba(168, 85, 247, 0.2)" },
-  queue:    { bg: "rgba(249, 115, 22, 0.08)", border: "#f97316", text: "#fb923c", glow: "rgba(249, 115, 22, 0.2)" },
-  consumer: { bg: "rgba(34, 197, 94, 0.08)", border: "#22c55e", text: "#4ade80", glow: "rgba(34, 197, 94, 0.2)" },
-  stream:   { bg: "rgba(6, 182, 212, 0.08)", border: "#06b6d4", text: "#22d3ee", glow: "rgba(6, 182, 212, 0.2)" },
-  rpc:      { bg: "rgba(234, 179, 8, 0.08)", border: "#eab308", text: "#facc15", glow: "rgba(234, 179, 8, 0.2)" },
-  kafka:    { bg: "rgba(99, 102, 241, 0.08)", border: "#6366f1", text: "#818cf8", glow: "rgba(99, 102, 241, 0.2)" },
-  sqs:      { bg: "rgba(245, 158, 11, 0.08)", border: "#f59e0b", text: "#fbbf24", glow: "rgba(245, 158, 11, 0.2)" },
-  dlq:      { bg: "rgba(239, 68, 68, 0.08)", border: "#ef4444", text: "#f87171", glow: "rgba(239, 68, 68, 0.2)" },
-  istio:    { bg: "rgba(14, 165, 233, 0.08)", border: "#0ea5e9", text: "#38bdf8", glow: "rgba(14, 165, 233, 0.2)" },
+  producer: { bg: "rgba(59, 130, 246, 0.10)", border: "#3b82f6", text: "#1d4ed8", glow: "rgba(59, 130, 246, 0.2)" },
+  exchange: { bg: "rgba(168, 85, 247, 0.10)", border: "#a855f7", text: "#7c3aed", glow: "rgba(168, 85, 247, 0.2)" },
+  queue:    { bg: "rgba(249, 115, 22, 0.10)", border: "#f97316", text: "#c2410c", glow: "rgba(249, 115, 22, 0.2)" },
+  consumer: { bg: "rgba(34, 197, 94, 0.10)", border: "#22c55e", text: "#15803d", glow: "rgba(34, 197, 94, 0.2)" },
+  stream:   { bg: "rgba(6, 182, 212, 0.10)", border: "#06b6d4", text: "#0e7490", glow: "rgba(6, 182, 212, 0.2)" },
+  rpc:      { bg: "rgba(234, 179, 8, 0.10)", border: "#eab308", text: "#92400e", glow: "rgba(234, 179, 8, 0.2)" },
+  kafka:    { bg: "rgba(99, 102, 241, 0.10)", border: "#6366f1", text: "#4338ca", glow: "rgba(99, 102, 241, 0.2)" },
+  sqs:      { bg: "rgba(245, 158, 11, 0.10)", border: "#f59e0b", text: "#b45309", glow: "rgba(245, 158, 11, 0.2)" },
+  dlq:      { bg: "rgba(239, 68, 68, 0.10)", border: "#ef4444", text: "#dc2626", glow: "rgba(239, 68, 68, 0.2)" },
+  istio:    { bg: "rgba(14, 165, 233, 0.10)", border: "#0ea5e9", text: "#0369a1", glow: "rgba(14, 165, 233, 0.2)" },
 };
 const PART_COLORS = ["#6366f1", "#ec4899", "#f59e0b"];
 
@@ -61,8 +78,8 @@ function FlowNode({ tok, icon, label, sub, active, dimmed, w = 108 }) {
     <div style={{
       width: w, minWidth: w, borderRadius: 8, padding: "10px 12px",
       textAlign: "center", transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)", userSelect: "none",
-      background: active ? tok.bg : dimmed ? "rgba(15, 23, 42, 0.5)" : tok.bg,
-      border: `1.5px solid ${active ? tok.border : dimmed ? "rgba(51, 65, 85, 0.3)" : tok.border}`,
+      background: active ? tok.bg : dimmed ? "rgba(248,250,252,0.80)" : tok.bg,
+      border: `1.5px solid ${active ? tok.border : dimmed ? "rgba(203,213,225,0.60)" : tok.border}`,
       boxShadow: active ? `0 0 0 3px ${tok.glow}, 0 4px 12px rgba(0,0,0,0.3)` : dimmed ? "none" : "0 2px 8px rgba(0,0,0,0.2)",
       transform: active ? "translateY(-2px)" : "translateY(0)",
       opacity: dimmed ? 0.3 : 1,
@@ -70,7 +87,7 @@ function FlowNode({ tok, icon, label, sub, active, dimmed, w = 108 }) {
       <div style={{ fontSize: 20, filter: active ? "none" : dimmed ? "grayscale(1)" : "none" }}>{icon}</div>
       <div style={{
         fontSize: 11, fontWeight: 600, fontFamily: "system-ui, -apple-system, sans-serif", lineHeight: 1.3, marginTop: 4,
-        color: active ? tok.border : dimmed ? "#475569" : tok.text,
+        color: active ? tok.border : dimmed ? "#94a3b8" : tok.text,
       }}>{label}</div>
       {sub && (
         <div style={{ fontSize: 10, fontFamily: "monospace", lineHeight: 1.3, marginTop: 3, opacity: 0.7, color: tok.text }}>
@@ -81,7 +98,7 @@ function FlowNode({ tok, icon, label, sub, active, dimmed, w = 108 }) {
   );
 }
 
-function Arrow({ on, color = "rgba(51, 65, 85, 0.5)", label = "" }) {
+function Arrow({ on, color = "rgba(148,163,184,0.60)", label = "" }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "0 4px", flexShrink: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -89,7 +106,7 @@ function Arrow({ on, color = "rgba(51, 65, 85, 0.5)", label = "" }) {
           height: 2, 
           width: 28, 
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)", 
-          background: on ? `linear-gradient(90deg, ${color}80, ${color})` : "rgba(51, 65, 85, 0.3)",
+          background: on ? `linear-gradient(90deg, ${color}80, ${color})` : "rgba(148,163,184,0.40)",
           borderRadius: 1
         }} />
         <div style={{ 
@@ -97,7 +114,7 @@ function Arrow({ on, color = "rgba(51, 65, 85, 0.5)", label = "" }) {
           height: 0,
           borderTop: "4px solid transparent", 
           borderBottom: "4px solid transparent", 
-          borderLeft: `6px solid ${on ? color : "rgba(51, 65, 85, 0.3)"}`, 
+          borderLeft: `6px solid ${on ? color : "rgba(148,163,184,0.40)"}`, 
           transition: "border-color .3s" 
         }} />
       </div>
@@ -106,12 +123,12 @@ function Arrow({ on, color = "rgba(51, 65, 85, 0.5)", label = "" }) {
   );
 }
 
-function BackArrow({ on, color = "rgba(51, 65, 85, 0.5)", label = "" }) {
+function BackArrow({ on, color = "rgba(148,163,184,0.60)", label = "" }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "0 3px", flexShrink: 0 }}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <div style={{ borderTop: "5px solid transparent", borderBottom: "5px solid transparent", borderRight: `7px solid ${on ? color : "rgba(51, 65, 85, 0.5)"}`, transition: "border-color .35s" }} />
-        <div style={{ height: 2, width: 26, transition: "all 0.35s", background: on ? color : "rgba(51, 65, 85, 0.5)" }} />
+        <div style={{ borderTop: "5px solid transparent", borderBottom: "5px solid transparent", borderRight: `7px solid ${on ? color : "rgba(148,163,184,0.60)"}`, transition: "border-color .35s" }} />
+        <div style={{ height: 2, width: 26, transition: "all 0.35s", background: on ? color : "rgba(148,163,184,0.60)" }} />
       </div>
       {label && <div style={{ fontSize: 9, fontFamily: "monospace", textAlign: "center", marginTop: 2, color: on ? color : "#2d3748", maxWidth: 58 }}>{label}</div>}
     </div>
@@ -126,7 +143,7 @@ function Narrative({ text, color = "#a855f7", step, total }) {
       fontFamily: "system-ui, -apple-system, sans-serif", lineHeight: 1.6, transition: "all 0.3s",
       background: `linear-gradient(135deg, ${color}08, ${color}12)`, 
       border: `1px solid ${color}30`, 
-      color: "#e2e8f0",
+      color: "#94a3b8",
       backdropFilter: "blur(8px)"
     }}>
       {step != null && total != null && (
@@ -150,7 +167,7 @@ function StepBar({ current, total, color }) {
           borderRadius: 2, 
           background: i < current 
             ? `linear-gradient(90deg, ${color}cc, ${color})` 
-            : "rgba(30, 41, 59, 0.5)", 
+            : "rgba(203,213,225,0.50)", 
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           boxShadow: i < current ? `0 0 8px ${color}40` : "none"
         }} />
@@ -171,8 +188,8 @@ function StepBtn({ stage, total, color, onAdvance, onBack }) {
       <button onClick={onBack} disabled={!canBack} style={{
         padding: "12px 20px", borderRadius: 8, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: 14,
         fontWeight: 600, border: "none",
-        background: canBack ? `${color}15` : "rgba(15, 23, 42, 0.5)",
-        color: canBack ? color : "#475569",
+        background: canBack ? `${color}15` : "rgba(241,245,249,0.80)",
+        color: canBack ? color : "#64748b",
         cursor: canBack ? "pointer" : "not-allowed",
         opacity: canBack ? 1 : 0.4, transition: "all 0.2s", flexShrink: 0,
         boxShadow: canBack ? `0 2px 8px ${color}20` : "none"
@@ -192,37 +209,57 @@ function StepBtn({ stage, total, color, onAdvance, onBack }) {
   );
 }
 
-function ConceptPanel({ lesson }) {
+function ConceptPanel({ lesson, color }) {
+  const accent = color || lesson.color || "#6366f1";
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ borderRadius: 10, padding: 16, background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(51, 65, 85, 0.4)", backdropFilter: "blur(12px)" }}>
-        <div style={{ fontSize: 10, fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 600, marginBottom: 6, color: "#64748b", letterSpacing: 0.5, textTransform: "uppercase" }}>
-          Lesson {lesson.num}
-        </div>
-        <div style={{ fontSize: 17, fontWeight: 700, color: "#f1f5f9", lineHeight: 1.3, fontFamily: "system-ui, -apple-system, sans-serif" }}>{lesson.title}</div>
-        <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 6, lineHeight: 1.5, fontFamily: "system-ui, -apple-system, sans-serif" }}>{lesson.subtitle}</div>
-      </div>
-
-      <div style={{ borderRadius: 10, padding: 16, background: "linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.12))", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-          <span style={{ fontSize: 24 }}>{lesson.analogy.icon}</span>
+      {/* Analogy card */}
+      <div style={{
+        borderRadius: 14, padding: "18px 18px",
+        background: "#ffffff",
+        border: `1px solid ${accent}28`,
+        boxShadow: `0 0 0 1px ${accent}08`,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+            background: accent + "18", border: `1px solid ${accent}30`,
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
+          }}>{lesson.analogy.icon}</div>
           <div>
-            <div style={{ fontSize: 10, fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 600, color: "#22c55e", letterSpacing: 0.5, textTransform: "uppercase" }}>Real World Analogy</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#f1f5f9", fontFamily: "system-ui, -apple-system, sans-serif" }}>{lesson.analogy.scenario}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: accent, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Real World Analogy</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", lineHeight: 1.3 }}>{lesson.analogy.scenario}</div>
           </div>
         </div>
-        <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.6, margin: 0, fontFamily: "system-ui, -apple-system, sans-serif" }}>{lesson.analogy.text}</p>
+        <p style={{ fontSize: 12.5, color: "#64748b", lineHeight: 1.7, margin: 0 }}>{lesson.analogy.text}</p>
       </div>
 
-      <div style={{ borderRadius: 10, padding: 16, background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(51, 65, 85, 0.4)" }}>
-        <div style={{ fontSize: 10, fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 600, marginBottom: 12, color: "#64748b", letterSpacing: 0.5, textTransform: "uppercase" }}>📚 Key Terms</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* Key Terms card */}
+      <div style={{
+        borderRadius: 14, padding: "16px 18px",
+        background: "#ffffff", border: "1px solid #e8edf4",
+      }}>
+        <div style={{
+          fontSize: 10, fontWeight: 700, marginBottom: 14, color: "#64748b",
+          letterSpacing: 0.8, textTransform: "uppercase",
+          display: "flex", alignItems: "center", gap: 6,
+        }}>
+          <span>📚</span> Key Terms
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
           {lesson.terms.map((t, i) => (
-            <div key={i} style={{ display: "flex", gap: 10 }}>
-              <div style={{ flexShrink: 0, borderRadius: 6, padding: "4px 8px", fontSize: 13, fontFamily: "system-ui, -apple-system, sans-serif", fontWeight: 600, alignSelf: "flex-start", marginTop: 2, background: "rgba(51, 65, 85, 0.4)", color: "#e2e8f0" }}>{t.icon}</div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, fontFamily: "system-ui, -apple-system, sans-serif", color: "#f1f5f9" }}>{t.term}</div>
-                <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5, marginTop: 2, fontFamily: "system-ui, -apple-system, sans-serif" }}>{t.def}</div>
+            <div key={i} style={{
+              display: "flex", gap: 12, paddingTop: i === 0 ? 0 : 12, paddingBottom: 12,
+              borderBottom: i < lesson.terms.length - 1 ? "1px solid #e2e8f0" : "none",
+            }}>
+              <div style={{
+                flexShrink: 0, width: 32, height: 32, borderRadius: 9,
+                background: "#e8edf4", display: "flex", alignItems: "center",
+                justifyContent: "center", fontSize: 15,
+              }}>{t.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: "#94a3b8", marginBottom: 2 }}>{t.term}</div>
+                <div style={{ fontSize: 11.5, color: "#64748b", lineHeight: 1.6 }}>{t.def}</div>
               </div>
             </div>
           ))}
@@ -331,9 +368,70 @@ const LESSONS_META = [
       { icon: "📊", term: "OffsetType.OFFSET(n)", def: "Start from a specific offset: ConsumerOffsetSpecification(OffsetType.OFFSET, last_offset + 1)." },
     ],
   },
+  // ── RABBITMQ ADVANCED ──────────────────────────────────────────────────────
+  {
+    id: "rmq-dlx", num: "09", title: "RabbitMQ – Dead Letter Exchanges",
+    subtitle: "Route rejected, expired, or nack'd messages to a special exchange for retry with backoff.",
+    color: "#ef4444", group: "rabbitmq",
+    analogy: { icon: "📮", scenario: "Return-to-Sender Post Office", text: "When a letter can't be delivered (wrong address, expired, refused), the post office doesn't throw it away — it sends it to a special 'Return Mail' department. Dead Letter Exchanges are RabbitMQ's return-mail department for undeliverable messages." },
+    terms: [
+      { icon: "💀", term: "Dead Letter Exchange (DLX)", def: "An exchange to which RabbitMQ automatically republishes a message when it is rejected, expired via TTL, or overflows a queue length limit." },
+      { icon: "⏱️", term: "Message TTL (x-message-ttl)", def: "Per-queue TTL in milliseconds. If a message isn't consumed within the TTL window it becomes 'dead' and is routed to the DLX." },
+      { icon: "🔁", term: "Retry with Backoff", def: "Pattern: dead-letter into a holding queue with a TTL (delay), then re-publish to the original exchange. Repeat with increasing delay until max retries." },
+      { icon: "🪣", term: "x-dead-letter-exchange", def: "Queue argument that names the exchange dead messages are forwarded to: args={'x-dead-letter-exchange': 'dlx.orders'}." },
+    ],
+  },
+  {
+    id: "rmq-confirms", num: "10", title: "RabbitMQ – Publisher Confirms",
+    subtitle: "Get an explicit broker acknowledgement for every published message to guarantee no data loss.",
+    color: "#8b5cf6", group: "rabbitmq",
+    analogy: { icon: "📬", scenario: "Certified Mail with Return Receipt", text: "Sending a regular letter means no guarantee it arrived. Certified mail gives you a signed receipt proving delivery. Publisher Confirms are RabbitMQ's signed receipt for every published message." },
+    terms: [
+      { icon: "✅", term: "channel.confirm_select()", def: "Puts the channel in Confirm mode. Every subsequent basic_publish gets a delivery tag and the broker sends back an ack (or nack)." },
+      { icon: "🔢", term: "Delivery Tag", def: "A monotonically-increasing integer assigned to each published message in confirm mode. Lets you match acks to specific messages." },
+      { icon: "👍", term: "Basic.Ack", def: "Broker confirms the message was safely written to disk (persistent) or routed to a consumer (transient). You can now consider it delivered." },
+      { icon: "👎", term: "Basic.Nack / Multiple", def: "Broker signals it could not handle the message. The multiple flag can bulk-ack all outstanding delivery tags up to and including the tagged one." },
+    ],
+  },
+  {
+    id: "rmq-quorum", num: "11", title: "RabbitMQ – Quorum Queues",
+    subtitle: "Raft-based replicated queues that trade memory efficiency for durable, strongly-consistent delivery.",
+    color: "#06b6d4", group: "rabbitmq",
+    analogy: { icon: "🗳️", scenario: "Democratic Vote for Every Write", text: "Imagine a committee where every decision requires a majority vote. Quorum Queues work the same way: a message is only confirmed when the majority of nodes (quorum) have written it to disk. No single node failure can lose data." },
+    terms: [
+      { icon: "🏛️", term: "Raft Consensus", def: "Distributed consensus algorithm used by Quorum Queues. Requires a majority (⌊n/2⌋+1) of nodes to acknowledge a write before it is committed." },
+      { icon: "👑", term: "Leader Node", def: "One node acts as Raft leader and handles all publishes and consumer deliveries. Followers replicate the log and can become leader on failure." },
+      { icon: "📊", term: "x-queue-type: quorum", def: "Queue declaration argument: channel.queue_declare('orders', arguments={'x-queue-type':'quorum'}). Cannot be changed after creation." },
+      { icon: "⚡", term: "Delivery Limit", def: "Quorum queues support x-delivery-limit to automatically dead-letter messages that have been nack'd more than N times — poison message protection." },
+    ],
+  },
+  {
+    id: "rmq-flow", num: "12", title: "RabbitMQ – Flow Control & Back-pressure",
+    subtitle: "How RabbitMQ protects itself from memory and disk exhaustion when producers are faster than consumers.",
+    color: "#f59e0b", group: "rabbitmq",
+    analogy: { icon: "🚦", scenario: "Highway On-Ramp Metering Light", text: "On busy highways, on-ramp lights turn red to slow down incoming cars and prevent gridlock. RabbitMQ's flow control does the same — it slows down producers automatically when memory or disk thresholds are exceeded." },
+    terms: [
+      { icon: "🧠", term: "Memory High-Watermark", def: "Default 0.4 (40% of RAM). When exceeded, RabbitMQ blocks all producers and triggers a memory alarm, allowing consumers to drain the backlog." },
+      { icon: "💾", term: "Disk Free Low-Watermark", def: "Default 50 MB. If disk free space drops below this, RabbitMQ enters flow control to prevent log exhaustion and data corruption." },
+      { icon: "🔒", term: "Connection Blocked", def: "When alarms fire, the broker sends a Connection.Blocked notification to all publishing connections. Publishers must pause until Connection.Unblocked arrives." },
+      { icon: "💳", term: "Credit Flow (internal)", def: "Per-process credit-based flow control within the broker. Each Erlang process grants credits to upstream processes; when credits run out, the sender blocks." },
+    ],
+  },
+  {
+    id: "rmq-cluster", num: "13", title: "RabbitMQ – Clustering & Fault Tolerance",
+    subtitle: "Join multiple RabbitMQ nodes into a cluster for high availability, load distribution, and zero-downtime deploys.",
+    color: "#10b981", group: "rabbitmq",
+    analogy: { icon: "🏙️", scenario: "City with Multiple Power Stations", text: "A city powered by a single power station goes dark if it fails. Cities with multiple interconnected stations automatically re-route power when one goes down — citizens barely notice. A RabbitMQ cluster does the same for your message streams." },
+    terms: [
+      { icon: "🔗", term: "Erlang Cookie", def: "Secret shared token used to authenticate nodes joining a cluster. All nodes must have the same cookie in /var/lib/rabbitmq/.erlang.cookie." },
+      { icon: "🌐", term: "rabbitmqctl join_cluster", def: "Command to add a node to an existing cluster: rabbitmqctl join_cluster rabbit@node1. Queues and exchanges are shared across all nodes." },
+      { icon: "🔀", term: "Network Partition", def: "When nodes lose contact, RabbitMQ must decide whether to pause one side or allow split-brain. Controlled by cluster_partition_handling (pause_minority is safest)." },
+      { icon: "🔄", term: "Rolling Upgrade", def: "Upgrade nodes one at a time with no downtime. Remove node → upgrade → rejoin. Quorum queues maintain availability through rolling upgrades automatically." },
+    ],
+  },
   // ── KAFKA ──────────────────────────────────────────────────────────────────
   {
-    id: "kafka-partitions", num: "09", title: "Kafka – Topics & Partitions",
+    id: "kafka-partitions", num: "01", title: "Kafka – Topics & Partitions",
     subtitle: "Kafka splits a topic into ordered partitions. Message keys control which partition a message lands in.",
     color: "#6366f1", group: "kafka",
     analogy: { icon: "📚", scenario: "Library with Numbered Shelves", text: "A library (Kafka broker) has a section called 'orders' (the topic). The section is split into 3 numbered shelves (partitions). Books (messages) with the same author (key) always go on the same shelf — so you can find all of one author's books in one place." },
@@ -345,7 +443,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-groups", num: "10", title: "Kafka – Consumer Groups",
+    id: "kafka-groups", num: "02", title: "Kafka – Consumer Groups",
     subtitle: "A consumer group shares partitions among members — each partition goes to exactly one consumer in the group.",
     color: "#ec4899", group: "kafka",
     analogy: { icon: "👥", scenario: "Team Project Division", text: "A team of 3 people (consumer group) splits 3 chapters (partitions) of a report between them — each person reads their own chapter in parallel. A second independent team can read the full report too, completely unaffected by the first team." },
@@ -357,7 +455,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-offsets", num: "11", title: "Kafka – Offsets & Commits",
+    id: "kafka-offsets", num: "03", title: "Kafka – Offsets & Commits",
     subtitle: "Offsets are Kafka's bookmark system. Manual commits give you control; auto-commit trades safety for simplicity.",
     color: "#06b6d4", group: "kafka",
     analogy: { icon: "🔖", scenario: "Reading a Long Book", text: "You read pages 1–50 and place a bookmark at page 50. If you fall asleep before moving the bookmark, tomorrow you re-read some pages (at-least-once). Manual commit = you only move the bookmark after understanding each page. Auto-commit = bookmark moves every 5 minutes whether you finished reading or not." },
@@ -369,7 +467,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-replication", num: "12", title: "Kafka – Replication",
+    id: "kafka-replication", num: "04", title: "Kafka – Replication",
     subtitle: "Each partition is copied to N brokers. When a leader fails, a follower takes over with no data loss.",
     color: "#f97316", group: "kafka",
     analogy: { icon: "📋", scenario: "Document with Backup Copies", text: "Your lawyer holds the original contract (leader broker). Two colleagues hold certified copies (replicas). If the lawyer disappears, a colleague's copy instantly becomes the official version. The more copies, the safer the data." },
@@ -381,7 +479,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-transactions", num: "13", title: "Kafka – Transactions & EOS",
+    id: "kafka-transactions", num: "05", title: "Kafka – Transactions & EOS",
     subtitle: "Exactly-once semantics: idempotent producers deduplicate retries; transactions make multi-partition writes atomic.",
     color: "#a855f7", group: "kafka",
     analogy: { icon: "🏦", scenario: "Bank Transfer", text: "Moving $100 from Account A to Account B must be atomic — either BOTH the debit and credit happen, or NEITHER does. A transaction wraps both writes. If anything fails mid-way, the whole thing is rolled back. Consumers only see completed transfers, never half-executed ones." },
@@ -393,7 +491,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-compaction", num: "14", title: "Kafka – Log Compaction",
+    id: "kafka-compaction", num: "06", title: "Kafka – Log Compaction",
     subtitle: "A compacted topic keeps only the latest value per key — it acts like a distributed key-value store.",
     color: "#22c55e", group: "kafka",
     analogy: { icon: "📇", scenario: "Address Book Updates", text: "Your address book has Alice's old address. She moves — you update her entry, not add a new row. The old address is gone, the new one kept. Log compaction does the same: a new value for key 'user-1' eventually removes the old message. The log always shows current state, not full history." },
@@ -406,7 +504,7 @@ const LESSONS_META = [
   },
   // ── SQS ────────────────────────────────────────────────────────────────────
   {
-    id: "sqs-standard", num: "15", title: "AWS SQS – Standard Queue",
+    id: "sqs-standard", num: "01", title: "AWS SQS – Standard Queue",
     subtitle: "Fully managed queue as a service. No broker to run — AWS handles everything. Receive, process, then delete.",
     color: "#f59e0b", group: "sqs",
     analogy: { icon: "🎫", scenario: "Restaurant Order Tickets", text: "A kitchen printer (SQS) prints order tickets. A cook grabs a ticket (receive), the ticket flips over so no other cook grabs it (visibility timeout). After cooking, the cook throws the ticket away (delete). If the cook forgets, the ticket flips back and another cook can grab it." },
@@ -418,7 +516,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "sqs-fifo", num: "16", title: "AWS SQS – FIFO & DLQ",
+    id: "sqs-fifo", num: "02", title: "AWS SQS – FIFO & DLQ",
     subtitle: "FIFO queues guarantee strict ordering and exactly-once processing. DLQ catches messages that keep failing.",
     color: "#ef4444", group: "sqs",
     analogy: { icon: "🏪", scenario: "Deli Number Tickets", text: "A deli gives numbered tickets: 1, 2, 3... served in strict order (FIFO). If you show the same ticket twice within 5 minutes, the cashier ignores the duplicate (deduplication). If a customer can't be served 3 times, they're sent to a manager's desk (DLQ) for special handling." },
@@ -431,7 +529,7 @@ const LESSONS_META = [
   },
   // ── Istio ──────────────────────────────────────────────────────────────────
   {
-    id: "istio-arch", num: "17", title: "Istio – Architecture & Sidecar",
+    id: "istio-arch", num: "01", title: "Istio – Architecture & Sidecar",
     subtitle: "Istio adds an Envoy sidecar proxy to every pod, forming a data plane. Istiod is the control plane managing config, certs, and service discovery.",
     color: "#0ea5e9", group: "istio",
     analogy: { icon: "🛂", scenario: "Airport Security", text: "Every passenger (service) must pass through security (Envoy sidecar) before boarding or leaving. Airport management (Istiod) configures which gates are open, who can fly where, and issues boarding passes (TLS certs). Passengers don't handle any of this — it's completely transparent." },
@@ -443,7 +541,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-routing", num: "18", title: "Istio – Traffic Routing",
+    id: "istio-routing", num: "02", title: "Istio – Traffic Routing",
     subtitle: "VirtualService defines how requests are routed to services. DestinationRule configures policies for destination subsets — load balancing, pools, and TLS.",
     color: "#14b8a6", group: "istio",
     analogy: { icon: "🚦", scenario: "Smart GPS + Road Policy", text: "A VirtualService is the GPS app — it decides which road (v1 or v2) a car takes based on header, URI, or weight. A DestinationRule is the road policy — it sets speed limits (connection pools), retry policies, and which lanes (subsets) exist. Together they give fine-grained traffic control." },
@@ -455,7 +553,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-canary", num: "19", title: "Istio – Canary Deployments",
+    id: "istio-canary", num: "03", title: "Istio – Canary Deployments",
     subtitle: "Gradually shift traffic between service versions using weighted routing. Move from 100/0 to 0/100 without touching Kubernetes Deployments or Services.",
     color: "#22c55e", group: "istio",
     analogy: { icon: "🐤", scenario: "Restaurant Soft Launch", text: "A restaurant opens a new chef (v2) but sends only 10% of diners there while 90% still go to the trusted chef (v1). As positive reviews accumulate, more diners shift to v2. If v2 fails, flip back instantly. No diners are re-seated — the routing change is invisible to them." },
@@ -467,7 +565,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-fault", num: "20", title: "Istio – Fault Injection",
+    id: "istio-fault", num: "04", title: "Istio – Fault Injection",
     subtitle: "Inject delays and HTTP aborts into service calls to test resilience — without changing application code. Chaos engineering built into the mesh.",
     color: "#ef4444", group: "istio",
     analogy: { icon: "🧪", scenario: "Fire Drill", text: "Instead of waiting for a real fire (outage), a fire marshal (Istio) randomly locks some doors (delay injection) or triggers alarms (abort injection) to test how staff (services) respond. The drill is invisible to staff — they believe it is real. Weaknesses are found and fixed safely before a real incident." },
@@ -479,7 +577,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-circuit", num: "21", title: "Istio – Circuit Breaking",
+    id: "istio-circuit", num: "05", title: "Istio – Circuit Breaking",
     subtitle: "Automatically eject failing endpoints from the load balancing pool. Prevents a slow or faulty pod from receiving traffic until it recovers.",
     color: "#f97316", group: "istio",
     analogy: { icon: "⚡", scenario: "Electrical Circuit Breaker", text: "When one wire (pod) overloads with errors, the circuit breaker trips (ejects the pod from the pool). Other wires still carry current. After a cooling-off period (baseEjectionTime), the breaker resets and tries the pod again. The whole circuit is protected from one bad wire." },
@@ -491,7 +589,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-gateway", num: "22", title: "Istio – Ingress Gateway",
+    id: "istio-gateway", num: "06", title: "Istio – Ingress Gateway",
     subtitle: "The Istio Gateway handles all traffic entering the mesh from outside. Pair it with a VirtualService to route external requests to internal services.",
     color: "#8b5cf6", group: "istio",
     analogy: { icon: "🏢", scenario: "Office Building Lobby", text: "The Gateway is the building reception desk — the only entrance from outside. The receptionist (VirtualService) checks what the visitor needs (host/path) and directs them to the right floor (service). Without the VirtualService receptionist, no one gets past the lobby even if the door is open." },
@@ -503,7 +601,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-mtls", num: "23", title: "Istio – mTLS",
+    id: "istio-mtls", num: "07", title: "Istio – mTLS",
     subtitle: "Mutual TLS encrypts all service-to-service traffic. Both sides present certificates. STRICT mode rejects any plaintext connection in the mesh.",
     color: "#06b6d4", group: "istio",
     analogy: { icon: "🤝", scenario: "Mutual ID Check", text: "In a bank vault room, both the guard AND the visitor show their ID badges before the door opens. Neither trusts the other without cryptographic proof. Istio's mTLS works the same — both caller and receiver present valid certificates before any data flows. No cert means no connection, period." },
@@ -515,7 +613,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-authz", num: "24", title: "Istio – Authorization Policy",
+    id: "istio-authz", num: "08", title: "Istio – Authorization Policy",
     subtitle: "Fine-grained access control at L4/L7: who can call what. ALLOW or DENY based on service identity, namespace, HTTP method, path, and JWT claims.",
     color: "#ec4899", group: "istio",
     analogy: { icon: "🔑", scenario: "Hotel Key Card System", text: "Each hotel room (service) has its own key card reader (AuthorizationPolicy). Housekeeping (sa/housekeeping) can open rooms but not the safe. Guests (sa/guest) can open only their own room. The front desk (Istiod) issues the key cards. No master key exists — every permission is explicit and granular." },
@@ -527,7 +625,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-observe", num: "25", title: "Istio – Observability",
+    id: "istio-observe", num: "09", title: "Istio – Observability",
     subtitle: "Istio auto-generates golden signal metrics, distributed traces, and access logs for every service call — zero application code changes required.",
     color: "#eab308", group: "istio",
     analogy: { icon: "🔭", scenario: "Air Traffic Control", text: "Air traffic controllers (Kiali) see every plane (service) on radar, track routes, and spot collisions (errors) before they happen. Each plane's black box (Jaeger) records the full flight path. Ground crew (Prometheus) monitor engine health (metrics) every 15 seconds. Pilots (app developers) fly normally — all monitoring is automatic and invisible." },
@@ -540,7 +638,7 @@ const LESSONS_META = [
   },
   // ── Istio – ICA-Complete & Expert Lessons ──────────────────────────────────
   {
-    id: "istio-install", num: "26", title: "Istio – Installation & Profiles",
+    id: "istio-install", num: "10", title: "Istio – Installation & Profiles",
     subtitle: "Istio ships four profiles: minimal, default, demo, and production. IstioOperator lets you customize every control plane component declaratively.",
     color: "#38bdf8", group: "istio",
     analogy: { icon: "🏗️", scenario: "Building Blueprints", text: "Like choosing a house blueprint — minimal is a studio apartment (just the structure), default is a family home, demo adds every feature for inspection, and production is a hardened custom build. The IstioOperator CRD is your architect's instruction sheet — change any room without rebuilding from scratch." },
@@ -552,7 +650,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-service-entry", num: "27", title: "Istio – ServiceEntry",
+    id: "istio-service-entry", num: "11", title: "Istio – ServiceEntry",
     subtitle: "ServiceEntry registers external services (outside the mesh) into Istio's internal registry, enabling VirtualService routing, mTLS, and traffic policies for egress traffic.",
     color: "#34d399", group: "istio",
     analogy: { icon: "📖", scenario: "Company Phone Directory", text: "The mesh registry is the internal phone directory — only listed numbers can be reached through official channels. ServiceEntry adds an external vendor's number to the directory. Once listed, you can apply call policies (routing rules, retries, TLS) just like internal extensions. Unlisted numbers are either blocked or connect directly without oversight." },
@@ -564,7 +662,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-egress", num: "28", title: "Istio – Egress Gateway",
+    id: "istio-egress", num: "12", title: "Istio – Egress Gateway",
     subtitle: "The Egress Gateway is a dedicated Envoy that funnels all outbound mesh traffic through a single auditable exit point, enabling centralized policy, logging, and TLS.",
     color: "#fb7185", group: "istio",
     analogy: { icon: "🛃", scenario: "Customs Border Control", text: "Without an egress gateway, any employee (pod) can make international calls (external requests) directly — untracked. The egress gateway is customs — every outbound package must pass through one checkpoint. Customs logs it, applies rules, and decides whether to let it through. Suspicious packages are blocked before leaving the building." },
@@ -576,7 +674,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-jwt", num: "29", title: "Istio – JWT Authentication",
+    id: "istio-jwt", num: "13", title: "Istio – JWT Authentication",
     subtitle: "RequestAuthentication validates JWT tokens on incoming requests. Combined with AuthorizationPolicy, it enables end-user identity checks alongside service-to-service mTLS.",
     color: "#a78bfa", group: "istio",
     analogy: { icon: "🎫", scenario: "Concert Ticket + VIP Badge", text: "mTLS is the security guard checking employee badges (service identity). JWT is the concert ticket showing which band you bought tickets for (user claims: role, email, tenant). The door requires BOTH — a valid employee badge to enter the building, plus a ticket that grants access to the specific show. Forged or expired tickets are rejected at the door." },
@@ -588,7 +686,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-troubleshoot", num: "30", title: "Istio – Troubleshooting",
+    id: "istio-troubleshoot", num: "14", title: "Istio – Troubleshooting",
     subtitle: "The istioctl CLI is your primary diagnostic tool. Use analyze, proxy-status, and proxy-config to debug routing, mTLS, and configuration issues systematically.",
     color: "#f472b6", group: "istio",
     analogy: { icon: "🔧", scenario: "Car Diagnostics", text: "istioctl analyze is the OBD-II port — plug in and get a list of fault codes and recommended fixes. proxy-status is the dashboard warning lights — which ECU (Envoy) is out of sync. proxy-config is the full diagnostic report — detailed sensor readings for every component. Envoy's admin API is the mechanic's live data stream." },
@@ -600,7 +698,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-mirror", num: "31", title: "Istio – Traffic Mirroring",
+    id: "istio-mirror", num: "15", title: "Istio – Traffic Mirroring",
     subtitle: "Mirror (shadow) live traffic to a second destination. Responses from the mirror are discarded — zero user impact. Validate v2 with real production load before shifting weights.",
     color: "#67e8f9", group: "istio",
     analogy: { icon: "🪞", scenario: "Flight Simulator", text: "Pilots train in a simulator using real flight data — every maneuver, every turbulence — but crashes have no real-world consequences. Traffic mirroring is the flight simulator for your new service version: v2 receives every real production request and must process it, but its responses are thrown away. Bugs are caught before real passengers board." },
@@ -612,7 +710,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-sidecar", num: "32", title: "Istio – Sidecar Resource",
+    id: "istio-sidecar", num: "16", title: "Istio – Sidecar Resource",
     subtitle: "By default every Envoy sidecar tracks ALL services in the mesh. The Sidecar resource scopes each proxy's config to only the services it needs, slashing memory by up to 80% in large meshes.",
     color: "#4ade80", group: "istio",
     analogy: { icon: "📦", scenario: "Warehouse Stock List", text: "A warehouse worker (pod) doesn't need the full catalogue of every product in every warehouse worldwide — just the items on today's pick list. By default Istio sends every Envoy the full 10,000-item catalogue. The Sidecar resource is the manager saying: you only need items 42, 67, and 88. Smaller list = faster lookups, less memory, faster config updates." },
@@ -624,7 +722,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-lb", num: "33", title: "Istio – Load Balancing",
+    id: "istio-lb", num: "17", title: "Istio – Load Balancing",
     subtitle: "Istio supports six load balancing algorithms. CONSISTENT_HASH enables sticky sessions by hashing on a header, cookie, or source IP — critical for stateful services.",
     color: "#fbbf24", group: "istio",
     analogy: { icon: "🎯", scenario: "Supermarket Checkout", text: "ROUND_ROBIN is queuing by rota. LEAST_REQUEST is choosing the shortest queue. RANDOM is picking any open till. CONSISTENT_HASH is always going to the same cashier who knows your loyalty card — your session state (shopping cart) stays with that cashier. If your cashier goes home, a new consistent cashier is assigned and your cart migrates." },
@@ -636,7 +734,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-ambient", num: "34", title: "Istio – Ambient Mesh",
+    id: "istio-ambient", num: "18", title: "Istio – Ambient Mesh",
     subtitle: "Ambient mode removes per-pod sidecars entirely. A per-node ztunnel handles L4 mTLS, while optional per-namespace waypoint proxies handle L7 policies. Drastically lower resource overhead.",
     color: "#818cf8", group: "istio",
     analogy: { icon: "🌊", scenario: "Water Pipes vs Water Truck", text: "Sidecar mode is a water delivery truck (Envoy) glued to every house — constant overhead even when not in use. Ambient mode is building proper water pipes: ztunnel is the main supply pipe running under every street (node), handling the basics. Waypoint proxies are the pressure regulator valves you add only to buildings (namespaces) that need fine control. Most houses only need the pipe." },
@@ -648,7 +746,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-wasm", num: "35", title: "Istio – WebAssembly Plugins",
+    id: "istio-wasm", num: "19", title: "Istio – WebAssembly Plugins",
     subtitle: "WasmPlugin extends Envoy with custom filters compiled to WebAssembly — add auth logic, rate limiting, request transformation, or custom telemetry without forking Envoy.",
     color: "#c084fc", group: "istio",
     analogy: { icon: "🔌", scenario: "Browser Extensions", text: "Envoy is the browser — fast and capable but with a fixed feature set. WasmPlugin is the extension store: anyone can publish a plugin that runs inside the browser (Envoy), intercepts pages (requests), modifies content (headers), or blocks malicious sites (rate limiting). Extensions are sandboxed — a buggy plugin crashes its sandbox, not the browser." },
@@ -686,7 +784,7 @@ function HelloWorldLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:4}}>
           <FlowNode tok={T.producer} icon="💻" label="Producer" sub="send.py" active={stage===1||stage===2}/>
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?"routing_key='hello'":""}/>
@@ -723,15 +821,15 @@ function WorkQueuesLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:14,flexWrap:"wrap"}}>
           <FlowNode tok={T.producer} icon="💻" label="Producer" sub="new_task.py" active={stage===1||stage===2}/>
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?"4 tasks":""}/>
-          <div style={{flex:1,minWidth:180,borderRadius:8,padding:"10px 12px",border:`1.5px solid ${stage>=1?T.queue.border+"80":"rgba(51, 65, 85, 0.3)"}`,background:T.queue.bg,backdropFilter:"blur(8px)"}}>
+          <div style={{flex:1,minWidth:180,borderRadius:8,padding:"10px 12px",border:`1.5px solid ${stage>=1?T.queue.border+"80":"rgba(148,163,184,0.40)"}`,background:T.queue.bg,backdropFilter:"blur(8px)"}}>
             <div style={{fontSize:11,color:T.queue.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>📦 task_queue {stage>=1?"(durable=True)":""}</div>
             <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
               {stage>=2?TASKS.map(t=>(
-                <div key={t.id} style={{borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:taken(t.id)?"rgba(15, 23, 42, 0.8)":T.queue.border+"30",border:`1px solid ${taken(t.id)?"rgba(51, 65, 85, 0.5)":T.queue.border}`,color:taken(t.id)?"#64748b":T.queue.text,textDecoration:taken(t.id)?"line-through":"none",transition:"all 0.3s"}}>{t.label}</div>
+                <div key={t.id} style={{borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:taken(t.id)?"rgba(255,255,255,0.96)":T.queue.border+"30",border:`1px solid ${taken(t.id)?"rgba(148,163,184,0.60)":T.queue.border}`,color:taken(t.id)?"#64748b":T.queue.text,textDecoration:taken(t.id)?"line-through":"none",transition:"all 0.3s"}}>{t.label}</div>
               )):<div style={{fontSize:10,color:"#64748b",fontFamily:"monospace"}}>empty...</div>}
             </div>
           </div>
@@ -768,7 +866,7 @@ function PubSubLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:4,flexWrap:"wrap"}}>
           <FlowNode tok={T.producer} icon="📡" label="Producer" sub="emit_log.py" active={stage===1||stage===3}/>
           <Arrow on={stage>=3} color={T.producer.border}/>
@@ -819,11 +917,11 @@ function RoutingLesson({ meta }) {
       <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:11,color:"#475569",fontFamily:"monospace"}}>routing_key:</span>
         {ROUTING_KEYS_LIST.map(k=>(
-          <button key={k} disabled={locked} onClick={()=>setRKey(k)} style={{padding:"3px 10px",borderRadius:9999,fontSize:11,fontFamily:"monospace",background:rKey===k?meta.color+"20":"rgba(15, 23, 42, 0.6)",border:`1px solid ${rKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:rKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
+          <button key={k} disabled={locked} onClick={()=>setRKey(k)} style={{padding:"3px 10px",borderRadius:9999,fontSize:11,fontFamily:"monospace",background:rKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${rKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:rKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
         ))}
         {locked&&<span style={{fontSize:10,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
       </div>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:4,flexWrap:"wrap"}}>
           <FlowNode tok={T.producer} icon="💻" label="Producer" sub={`key='${rKey}'`} active={stage===1||stage===2}/>
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?rKey:""}/>
@@ -878,10 +976,10 @@ function TopicsLesson({ meta }) {
       <div style={{display:"flex",gap:5,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:11,color:"#475569",fontFamily:"monospace"}}>routing_key:</span>
         {TOPIC_KEYS_LIST.map(k=>(
-          <button key={k} disabled={locked} onClick={()=>setRKey(k)} style={{padding:"3px 8px",borderRadius:9999,fontSize:10,fontFamily:"monospace",background:rKey===k?meta.color+"20":"rgba(15, 23, 42, 0.6)",border:`1px solid ${rKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:rKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
+          <button key={k} disabled={locked} onClick={()=>setRKey(k)} style={{padding:"3px 8px",borderRadius:9999,fontSize:10,fontFamily:"monospace",background:rKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${rKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:rKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
         ))}
       </div>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:4,flexWrap:"wrap"}}>
           <FlowNode tok={T.producer} icon="💻" label="Producer" sub={rKey} active={stage===1||stage===2}/>
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?rKey:""}/>
@@ -922,7 +1020,7 @@ function RPCLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:6,letterSpacing:1}}>→ REQUEST PATH</div>
         <div style={{display:"flex",alignItems:"center",gap:4,flexWrap:"wrap",marginBottom:14}}>
           <FlowNode tok={T.producer} icon="💻" label="Client" sub="rpc_client.py" active={stage===1||stage===2||stage===5||stage===6}/>
@@ -964,19 +1062,19 @@ function StreamHelloLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{marginBottom:14}}>
           <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:8,letterSpacing:1}}>📜 STREAM: mystream (append-only log)</div>
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
             {MSGS.map((m,i)=>(
-              <div key={i} style={{borderRadius:8,padding:"8px 12px",fontSize:11,fontFamily:"monospace",background:stage>=2?T.stream.border+"18":"#0a0a0a",border:`2px solid ${stage>=2?T.stream.border:"rgba(51, 65, 85, 0.5)"}`,color:stage>=2?T.stream.text:"#64748b",transition:"all 0.35s"}}>
-                <div style={{fontSize:9,color:stage>=2?"#475569":"rgba(51, 65, 85, 0.5)",marginBottom:3}}>offset {i}</div>
+              <div key={i} style={{borderRadius:8,padding:"8px 12px",fontSize:11,fontFamily:"monospace",background:stage>=2?T.stream.border+"18":"#f1f5f9",border:`2px solid ${stage>=2?T.stream.border:"rgba(148,163,184,0.60)"}`,color:stage>=2?T.stream.text:"#64748b",transition:"all 0.35s"}}>
+                <div style={{fontSize:9,color:stage>=2?"#475569":"rgba(148,163,184,0.60)",marginBottom:3}}>offset {i}</div>
                 📦 {m}
                 {stage>=4&&<div style={{fontSize:9,color:"#22c55e",marginTop:2}}>read by A ✅</div>}
                 {stage>=5&&<div style={{fontSize:9,color:T.stream.border,marginTop:1}}>read by B ✅</div>}
               </div>
             ))}
-            {stage>=2&&<div style={{borderRadius:8,padding:"8px 12px",fontSize:11,fontFamily:"monospace",background:"rgba(15, 23, 42, 0.6)",border:"1px dashed rgba(51, 65, 85, 0.4)",color:"#64748b"}}><div style={{fontSize:9,marginBottom:3}}>offset 3</div>📦 next...</div>}
+            {stage>=2&&<div style={{borderRadius:8,padding:"8px 12px",fontSize:11,fontFamily:"monospace",background:"rgba(248,250,252,0.92)",border:"1px dashed rgba(148,163,184,0.50)",color:"#64748b"}}><div style={{fontSize:9,marginBottom:3}}>offset 3</div>📦 next...</div>}
           </div>
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -1022,7 +1120,7 @@ function StreamOffsetLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{marginBottom:14}}>
           <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:8,letterSpacing:1}}>📜 STREAM: mystream</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
@@ -1030,7 +1128,7 @@ function StreamOffsetLesson({ meta }) {
               const done=(i<=2&&stage>=2)||(i>=3&&stage>=6);
               const old=i<=2&&stage>=5;
               const cur=i>=3&&stage===6;
-              return(<div key={i} style={{borderRadius:8,padding:"7px 10px",fontSize:10,fontFamily:"monospace",background:old?"#0a1510":done?meta.color+"18":"#0a0a0a",border:`2px solid ${cur?meta.color:done?meta.color+"60":"rgba(51, 65, 85, 0.5)"}`,color:old?"#1e3a2a":done?"#86efac":"#64748b",transition:"all 0.35s"}}>
+              return(<div key={i} style={{borderRadius:8,padding:"7px 10px",fontSize:10,fontFamily:"monospace",background:old?"#f0fff4":done?meta.color+"18":"#f1f5f9",border:`2px solid ${cur?meta.color:done?meta.color+"60":"rgba(148,163,184,0.60)"}`,color:old?"#1e3a2a":done?"#86efac":"#64748b",transition:"all 0.35s"}}>
                 <div style={{fontSize:8,marginBottom:2,color:old?"#1e3a2a":"#475569"}}>offset {i}</div>
                 {m}{i<=2&&stage>=2?" ✅":""}{cur?" ◀":""}
               </div>);
@@ -1049,7 +1147,322 @@ function StreamOffsetLesson({ meta }) {
   );
 }
 
-// ─── LESSON 9: Kafka – Topics & Partitions ────────────────────────────────────
+// ─── LESSON 9: RabbitMQ – Dead Letter Exchanges ───────────────────────────────
+function DlxLesson({ meta }) {
+  const STEPS = 6;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const retryNum = Math.max(0, stage - 4);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Declare queues with DLX and TTL</b><br/><br/><span style={{color:"#a3e635"}}>channel.queue_declare('orders',<br/>{"    "}arguments={"{"}<br/>{"        "}'x-dead-letter-exchange': 'dlx.orders',<br/>{"        "}'x-message-ttl': 5000,  # 5 s TTL<br/>{"        "}'x-max-length': 1000<br/>{"    "}{"}"})<br/>channel.queue_declare('orders.retry', arguments={"{"}<br/>{"    "}'x-dead-letter-exchange': '',        # default exchange<br/>{"    "}'x-dead-letter-routing-key': 'orders',<br/>{"    "}'x-message-ttl': 10000 # 10 s hold<br/>{"}"})</span><br/><br/>Two queues: <b>orders</b> (main) and <b>orders.retry</b> (delay buffer). DLX links them together.</>,
+    <><b style={{color:meta.color}}>Step 2 — Producer publishes to orders queue</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(<br/>{"    "}exchange='',<br/>{"    "}routing_key='orders',<br/>{"    "}body=json.dumps({"{'order_id':'ORD-99','amount':250}"}),<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}delivery_mode=2,  # persistent<br/>{"        "}headers={"{'x-retry-count': 0}"}<br/>{"    "})<br/>)</span><br/><br/>Message enters the <b>orders</b> queue. Consumer picks it up and tries to process.</>,
+    <><b style={{color:meta.color}}>Step 3 — Consumer nacks / message TTL expires</b><br/><br/><span style={{color:"#a3e635"}}>def on_message(ch, method, props, body):<br/>{"    "}try:<br/>{"        "}process_order(body)<br/>{"        "}ch.basic_ack(method.delivery_tag)<br/>{"    "}except Exception:<br/>{"        "}# nack without requeue → triggers DLX<br/>{"        "}ch.basic_nack(method.delivery_tag, requeue=False)</span><br/><br/>basic_nack(requeue=<b>False</b>) tells RabbitMQ: "this message failed — do not put it back." RabbitMQ immediately routes it to the DLX.</>,
+    <><b style={{color:meta.color}}>Step 4 — Message arrives at orders.retry (delay queue)</b><br/><br/>The dead-lettered message lands in <b>orders.retry</b>.<br/><br/>It sits there for the retry TTL (<b>10 seconds</b>). When the TTL expires, RabbitMQ dead-letters it again — this time back to the default exchange with routing key <b>'orders'</b>.<br/><br/>The message re-enters the original <b>orders</b> queue for a second attempt. 🔁</>,
+    <><b style={{color:meta.color}}>Step 5 — Exponential backoff with retry counter</b><br/><br/><span style={{color:"#a3e635"}}>headers = props.headers or {"{}"}<br/>retry_count = headers.get('x-retry-count', 0)<br/>{"if retry_count >= 3:"}<br/>{"    "}# Too many retries → park in dead end queue<br/>{"    "}channel.basic_publish(exchange='dlx.orders',<br/>{"        "}routing_key='orders.dead', body=body)<br/>{"    "}ch.basic_ack(method.delivery_tag)<br/>else:<br/>{"    "}headers['x-retry-count'] = retry_count + 1<br/>{"    "}ch.basic_nack(method.delivery_tag, requeue=False)</span></>,
+    <><b style={{color:meta.color}}>Step 6 — Poison message parked in orders.dead ✅</b><br/><br/>After 3 retries the message is considered a <b>poison message</b> and forwarded to <b>orders.dead</b> for manual inspection.<br/><br/>✅ Main queue is unblocked &nbsp;&nbsp; ✅ No messages lost<br/>✅ Retry history preserved in headers &nbsp;&nbsp; ✅ Alerting can monitor orders.dead depth<br/><br/>This pattern is called <b>Dead Letter + Retry with Backoff</b> — the backbone of resilient RabbitMQ systems.</>,
+  ];
+  const mainActive  = stage >= 2 && stage < 3;
+  const nackActive  = stage === 3;
+  const retryActive = stage === 4;
+  const deadActive  = stage >= 5;
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+        {/* Flow diagram */}
+        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:14}}>
+          <FlowNode tok={T.producer} icon="💻" label="Producer" sub={stage>=2?"ORD-99":""} active={stage===2}/>
+          <Arrow on={stage>=2} color={T.producer.border} label="publish"/>
+          {/* Main queue */}
+          <div style={{borderRadius:8,padding:"10px 12px",minWidth:120,background:mainActive?T.queue.bg:"rgba(241,245,249,0.80)",border:`1.5px solid ${mainActive?T.queue.border:"rgba(148,163,184,0.50)"}`,transition:"all 0.3s",textAlign:"center"}}>
+            <div style={{fontSize:11,fontWeight:600,color:mainActive?T.queue.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>📦 orders</div>
+            <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>TTL: 5s | DLX: dlx.orders</div>
+          </div>
+          <Arrow on={stage>=2&&stage<3} color={T.consumer.border} label="consume"/>
+          <FlowNode tok={T.consumer} icon={nackActive?"❌":"🖥️"} label="Consumer" sub={nackActive?"nack(requeue=F)":stage>=3?"processed":stage>=2?"processing...":""} active={stage===2} dimmed={stage<2}/>
+        </div>
+        {/* DLX + retry path */}
+        {stage >= 3 && (
+          <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginTop:8,paddingTop:10,borderTop:"1px dashed rgba(239,68,68,0.3)"}}>
+            <div style={{fontSize:9,color:T.dlq.text,fontFamily:"monospace",minWidth:60}}>💀 DLX</div>
+            <Arrow on={stage>=3} color={T.dlq.border} label="dead-letter"/>
+            <div style={{borderRadius:8,padding:"10px 12px",minWidth:120,background:retryActive?T.dlq.bg:"rgba(241,245,249,0.80)",border:`1.5px solid ${retryActive?T.dlq.border:"rgba(239,68,68,0.3)"}`,transition:"all 0.3s",textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:600,color:retryActive?T.dlq.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>⏱️ orders.retry</div>
+              <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>hold 10s → re-route</div>
+              {retryNum > 0 && <div style={{fontSize:9,fontFamily:"monospace",color:T.dlq.text,marginTop:4}}>retry #{retryNum}</div>}
+            </div>
+            {stage >= 4 && <Arrow on={stage>=4} color={T.queue.border} label="TTL→requeue"/>}
+            {stage >= 6 && (
+              <>
+                <Arrow on color={T.dlq.border} label="≥3 retries"/>
+                <div style={{borderRadius:8,padding:"10px 12px",minWidth:100,background:deadActive?"rgba(239,68,68,0.15)":"rgba(241,245,249,0.80)",border:`1.5px solid ${deadActive?"#ef4444":"rgba(148,163,184,0.50)"}`,transition:"all 0.3s",textAlign:"center"}}>
+                  <div style={{fontSize:11,fontWeight:600,color:deadActive?T.dlq.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>🪣 orders.dead</div>
+                  <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>manual inspect</div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+    </div>
+  );
+}
+
+// ─── LESSON 10: RabbitMQ – Publisher Confirms ─────────────────────────────────
+function PublisherConfirmsLesson({ meta }) {
+  const STEPS = 6;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const ackTag   = stage >= 4 ? 1 : null;
+  const nackTag  = stage === 5 ? 2 : null;
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Enable Confirm mode on the channel</b><br/><br/><span style={{color:"#a3e635"}}>import pika<br/>conn = pika.BlockingConnection(pika.ConnectionParameters('localhost'))<br/>channel = conn.channel()<br/><br/># Enable publisher confirms<br/>channel.confirm_delivery()</span><br/><br/>Once confirm_delivery() is called, every subsequent basic_publish will be tracked by the broker and you'll receive an ack or nack for each one.</>,
+    <><b style={{color:meta.color}}>Step 2 — Publish message (delivery tag 1)</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(<br/>{"    "}exchange='orders',<br/>{"    "}routing_key='new-order',<br/>{"    "}body=json.dumps(order_payload),<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}delivery_mode=2,   # persistent to disk<br/>{"        "}content_type='application/json'<br/>{"    "})<br/>)  # delivery_tag = 1</span><br/><br/>The broker assigns <b>delivery tag 1</b> to this message and begins processing it.</>,
+    <><b style={{color:meta.color}}>Step 3 — Broker writes message to disk</b><br/><br/>Because delivery_mode=<b>2</b> (persistent), the broker writes the message to its on-disk journal <b>before</b> sending the ack.<br/><br/>This guarantees that even if the broker restarts immediately after acking, the message is not lost.<br/><br/>For transient messages (delivery_mode=1), the broker acks after routing to a consumer — faster but loses message on broker crash.</>,
+    <><b style={{color:meta.color}}>Step 4 — Broker sends Basic.Ack (tag=1) ✅</b><br/><br/><span style={{color:"#a3e635"}}># With pika's BlockingChannel, confirm_delivery()<br/># raises an exception if a nack arrives<br/># Otherwise it returns True on success<br/><br/># In async mode (SelectConnection):<br/>def on_ack(frame):<br/>{"    "}delivery_tag = frame.method.delivery_tag<br/>{"    "}multiple     = frame.method.multiple<br/>{"    "}mark_confirmed(delivery_tag, multiple)</span><br/><br/>The ack means: "I have safely persisted message #1. You can consider it delivered."</>,
+    <><b style={{color:meta.color}}>Step 5 — Broker sends Basic.Nack (tag=2) ❌</b><br/><br/><span style={{color:"#a3e635"}}>def on_nack(frame):<br/>{"    "}delivery_tag = frame.method.delivery_tag<br/>{"    "}# Republish or alert<br/>{"    "}resend_message(delivery_tag)</span><br/><br/>A nack means the broker <b>could not</b> handle the message — typically a queue overflow or internal error. You must republish or alert.<br/><br/>💡 Nacks are rare in practice; they signal a broker-side problem, not a message problem.</>,
+    <><b style={{color:meta.color}}>Step 6 — Async batch confirms for throughput 🚀</b><br/><br/><span style={{color:"#a3e635"}}># Publish 1000 messages, collect acks asynchronously<br/>unconfirmed = {"{}"}<br/>for i, msg in enumerate(batch, start=1):<br/>{"    "}channel.basic_publish(..., body=msg)<br/>{"    "}unconfirmed[i] = msg<br/><br/>def on_ack(frame):<br/>{"    "}tag = frame.method.delivery_tag<br/>{"    "}if frame.method.multiple:<br/>{"        "}for k in list(unconfirmed):<br/>{"            if k <= tag: del unconfirmed[k]"}<br/>{"    "}else:<br/>{"        "}del unconfirmed[tag]</span><br/><br/>This <b>async batch confirm</b> pattern achieves ~30k msg/s with zero data loss — the recommended approach for high-throughput producers.</>,
+  ];
+  const msgs = [
+    { tag: 1, status: stage >= 4 ? "acked" : stage >= 2 ? "pending" : "unsent" },
+    { tag: 2, status: stage >= 5 ? "nacked" : stage >= 2 ? "pending" : "unsent" },
+    { tag: 3, status: stage >= 6 ? "acked" : "unsent" },
+  ];
+  const statusColor = { acked: "#22c55e", nacked: "#ef4444", pending: meta.color, unsent: "#94a3b8" };
+  const statusIcon  = { acked: "✅", nacked: "❌", pending: "⏳", unsent: "—" };
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+        {/* Confirm mode channel */}
+        <div style={{marginBottom:12,padding:"8px 12px",borderRadius:8,background:`${meta.color}10`,border:`1px solid ${meta.color}30`,fontSize:11,fontFamily:"monospace",color:meta.color}}>
+          {stage>=1?"✅ channel in CONFIRM mode — delivery tags active":"⬜ standard channel (no confirms)"}
+        </div>
+        <div style={{display:"flex",alignItems:"flex-start",gap:6,flexWrap:"wrap"}}>
+          <FlowNode tok={T.producer} icon="💻" label="Producer" sub={stage>=2?"publishing…":"confirm_select()"} active={stage>=1&&stage<4}/>
+          <Arrow on={stage>=2} color={T.producer.border} label="basic_publish"/>
+          {/* Broker box */}
+          <div style={{borderRadius:8,padding:"12px 14px",minWidth:140,background:"rgba(99,102,241,0.08)",border:`1px solid rgba(99,102,241,0.3)`,backdropFilter:"blur(8px)"}}>
+            <div style={{fontSize:11,fontWeight:600,color:"#818cf8",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:8}}>🏠 Broker</div>
+            {msgs.map(m => (
+              <div key={m.tag} style={{display:"flex",alignItems:"center",gap:6,marginBottom:4,borderRadius:6,padding:"4px 8px",background:`${statusColor[m.status]}12`,border:`1px solid ${statusColor[m.status]}30`,transition:"all 0.3s"}}>
+                <span style={{fontSize:10,fontFamily:"monospace",color:"#475569"}}>tag={m.tag}</span>
+                <span style={{fontSize:12}}>{statusIcon[m.status]}</span>
+                <span style={{fontSize:10,fontFamily:"monospace",color:statusColor[m.status]}}>{m.status}</span>
+              </div>
+            ))}
+          </div>
+          {/* Ack/Nack arrows back */}
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {stage>=4&&<div style={{display:"flex",alignItems:"center",gap:4}}>
+              <BackArrow on color="#22c55e" label="Ack tag=1"/>
+              <span style={{fontSize:10,color:"#22c55e",fontFamily:"monospace"}}>✅ safe</span>
+            </div>}
+            {stage>=5&&<div style={{display:"flex",alignItems:"center",gap:4}}>
+              <BackArrow on color="#ef4444" label="Nack tag=2"/>
+              <span style={{fontSize:10,color:"#ef4444",fontFamily:"monospace"}}>❌ resend</span>
+            </div>}
+          </div>
+        </div>
+      </div>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+    </div>
+  );
+}
+
+// ─── LESSON 11: RabbitMQ – Quorum Queues ──────────────────────────────────────
+function QuorumQueuesLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  // nodes: node1=leader (after election), node2=follower, node3=follower
+  const leaderIdx = stage >= 2 ? 0 : stage === 1 ? null : null;
+  const node3Down = stage >= 4;
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Declare a Quorum Queue</b><br/><br/><span style={{color:"#a3e635"}}>channel.queue_declare(<br/>{"    "}'critical-orders',<br/>{"    "}durable=True,<br/>{"    "}arguments={"{'x-queue-type': 'quorum'}"}<br/>)<br/><br/># 3-node cluster: quorum = ⌊3/2⌋+1 = 2 nodes</span><br/><br/>Unlike classic queues, quorum queues <b>cannot</b> be non-durable. They are always persistent and replicated. The queue exists on <b>every</b> node in the cluster.</>,
+    <><b style={{color:meta.color}}>Step 2 — Raft Leader Election</b><br/><br/>On creation (or after a leader failure), nodes run a <b>Raft election</b>:<br/><br/>1. A node becomes <b>candidate</b> and requests votes<br/>2. Nodes vote if they haven't voted this term<br/>3. First to get majority (≥2 of 3) becomes <b>leader</b><br/><br/>node-1 wins the election and becomes the <b>Raft leader</b> for this queue. All publishes and acks route through the leader.</>,
+    <><b style={{color:meta.color}}>Step 3 — Quorum Write: majority must acknowledge</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(<br/>{"    "}exchange='',<br/>{"    "}routing_key='critical-orders',<br/>{"    "}body=payload,<br/>{"    "}properties=pika.BasicProperties(delivery_mode=2)<br/>)</span><br/><br/>The leader appends the message to its Raft log and replicates to followers.<br/><br/>✅ node-1 (leader) wrote &nbsp;&nbsp; ✅ node-2 (follower) wrote<br/>❌ node-3 — lagging<br/><br/>2 of 3 nodes confirmed → <b>quorum reached</b> → producer acked!</>,
+    <><b style={{color:meta.color}}>Step 4 — node-3 fails — queue keeps serving 💪</b><br/><br/>node-3 crashes. The cluster still has <b>2 nodes alive</b> (node-1, node-2) — that's still a majority for a 3-node quorum (⌊3/2⌋+1 = 2).<br/><br/>✅ Publishes continue &nbsp;&nbsp; ✅ Consumers continue<br/>✅ No messages lost — node-2 has a complete replica<br/><br/>If instead 2 nodes fail (leaving only 1), the quorum is lost and the queue pauses to protect consistency.</>,
+    <><b style={{color:meta.color}}>Step 5 — Delivery Limit: poison message protection ✅</b><br/><br/><span style={{color:"#a3e635"}}># Declare with delivery limit<br/>channel.queue_declare('critical-orders', arguments={"{"}<br/>{"    "}'x-queue-type': 'quorum',<br/>{"    "}'x-delivery-limit': 3  # auto-DLX after 3 nacks<br/>{"}"})</span><br/><br/>If a message is nack'd 3 times (e.g. a processing bug), RabbitMQ automatically dead-letters it instead of letting it loop forever.<br/><br/>💡 Combine with DLX (Lesson 09) for full poison-message handling.</>,
+  ];
+  const nodes = [
+    { id: "node-1", label: "node-1", role: leaderIdx===0?"LEADER":"follower", active: stage>=2&&leaderIdx===0 },
+    { id: "node-2", label: "node-2", role: "follower", active: stage>=3 },
+    { id: "node-3", label: "node-3", role: node3Down?"DOWN":"follower", active: false, down: node3Down },
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+        <div style={{display:"flex",gap:8,alignItems:"flex-start",flexWrap:"wrap"}}>
+          <FlowNode tok={T.producer} icon="💻" label="Producer" sub={stage>=3?"publish…":""} active={stage===3}/>
+          <Arrow on={stage>=3} color={T.producer.border} label="basic_publish"/>
+          {/* 3-node cluster */}
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {nodes.map(n => (
+              <div key={n.id} style={{display:"flex",alignItems:"center",gap:6,borderRadius:8,padding:"8px 12px",minWidth:160,
+                background:n.down?"rgba(239,68,68,0.05)":n.active?`${meta.color}10`:"rgba(241,245,249,0.80)",
+                border:`1.5px solid ${n.down?"rgba(239,68,68,0.4)":n.active?meta.color:"rgba(148,163,184,0.50)"}`,
+                transition:"all 0.3s"}}>
+                <div style={{width:10,height:10,borderRadius:"50%",background:n.down?"#ef4444":n.active?meta.color:"#334155",flexShrink:0,transition:"all 0.3s",boxShadow:n.active?`0 0 8px ${meta.color}60`:"none"}}/>
+                <div>
+                  <div style={{fontSize:11,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:n.down?"#ef4444":n.active?meta.color:"#64748b"}}>{n.label}</div>
+                  <div style={{fontSize:9,fontFamily:"monospace",color:n.down?"#7f1d1d":n.role==="LEADER"?meta.color:"#475569"}}>{n.role}</div>
+                  {stage>=3&&!n.down&&<div style={{fontSize:9,fontFamily:"monospace",color:"#22c55e",marginTop:2}}>✅ wrote</div>}
+                  {stage>=3&&n.role==="follower"&&!n.down&&n.id==="node-3"&&stage===3&&<div style={{fontSize:9,fontFamily:"monospace",color:"#f59e0b",marginTop:2}}>⏳ lagging</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+          {stage>=3&&<div style={{display:"flex",flexDirection:"column",justifyContent:"center",gap:6}}>
+            <BackArrow on color="#22c55e" label="Ack (quorum)"/>
+          </div>}
+        </div>
+        {stage>=2&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:`${meta.color}08`,border:`1px solid ${meta.color}30`,fontSize:11,fontFamily:"monospace",color:meta.color}}>
+          quorum = ⌊3/2⌋+1 = <b>2 nodes</b> · {stage>=4?"2/3 alive → ✅ serving":"write confirmed when 2 of 3 ack"}
+        </div>}
+      </div>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+    </div>
+  );
+}
+
+// ─── LESSON 12: RabbitMQ – Flow Control & Back-pressure ───────────────────────
+function FlowControlLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const memPct = [10, 30, 55, 55, 30][stage] ?? 10;
+  const alarmOn = stage >= 2 && stage < 4;
+  const blocked = stage >= 3 && stage < 4;
+  const draining = stage >= 4;
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Normal operation: producers publish freely</b><br/><br/>RabbitMQ monitors broker memory and disk continuously.<br/><br/>Default memory high-watermark = <b>0.4</b> (40% of total RAM).<br/>Default disk free low-watermark = <b>50 MB</b>.<br/><br/>While both are healthy, producers publish at full speed and the broker routes messages to queues and consumers without delay.</>,
+    <><b style={{color:meta.color}}>Step 2 — Memory climbs toward the watermark</b><br/><br/>Consumers are slow (downstream bottleneck). Messages accumulate in queues faster than they are consumed.<br/><br/>RabbitMQ's internal memory tracker observes memory usage rising above <b>40%</b> of available RAM.<br/><br/>The broker prepares to activate flow control — calculating which connections need to be throttled.</>,
+    <><b style={{color:meta.color}}>Step 3 — Memory alarm fires 🚨 — producers blocked</b><br/><br/><span style={{color:"#a3e635"}}># Client side — pika raises an exception<br/>pika.exceptions.ConnectionBlockedError<br/><br/># Or listen to Connection.Blocked notification:<br/>conn.add_on_connection_blocked_callback(on_blocked)<br/>conn.add_on_connection_unblocked_callback(on_unblocked)<br/><br/>def on_blocked(conn, reason):<br/>{"    "}logger.warning("Producer blocked: %s", reason)</span><br/><br/>All <b>publishing</b> connections receive a <b>Connection.Blocked</b> frame. Consuming connections continue unaffected — draining is still allowed.</>,
+    <><b style={{color:meta.color}}>Step 4 — Consumers drain the backlog</b><br/><br/>With producers paused, consumers work through the accumulated message backlog.<br/><br/>Memory usage falls as messages are consumed and removed from queues.<br/><br/>The broker continuously checks memory every few hundred milliseconds. When memory drops below the watermark, it will unblock connections.</>,
+    <><b style={{color:meta.color}}>Step 5 — Connection.Unblocked — producers resume ✅</b><br/><br/><span style={{color:"#a3e635"}}>def on_unblocked(conn):<br/>{"    "}logger.info("Producer unblocked — resuming")<br/>{"    "}resume_publishing()</span><br/><br/>Broker sends <b>Connection.Unblocked</b>. Producers resume publishing.<br/><br/>✅ Broker memory safe &nbsp;&nbsp; ✅ Zero message loss<br/><br/>💡 Best practices: size consumers for 2×producer throughput, set per-queue <b>x-max-length</b>, and monitor <code>rabbitmq_alarms_memory_used_watermark</code> in Prometheus.</>,
+  ];
+  const memColor = memPct < 35 ? "#22c55e" : memPct < 50 ? "#f59e0b" : "#ef4444";
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+        {/* Memory gauge */}
+        <div style={{marginBottom:14}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+            <span style={{fontSize:10,fontFamily:"monospace",color:"#475569"}}>🧠 Broker memory</span>
+            <span style={{fontSize:10,fontFamily:"monospace",color:memColor}}>{memPct}% {alarmOn?"🚨 ALARM":""}</span>
+          </div>
+          <div style={{height:10,borderRadius:999,background:"rgba(241,245,249,0.85)",overflow:"hidden",border:"1px solid rgba(148,163,184,0.50)"}}>
+            <div style={{height:"100%",width:`${memPct}%`,background:`linear-gradient(90deg,#22c55e,${memColor})`,transition:"width 0.5s ease",borderRadius:999}}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:2}}>
+            <span style={{fontSize:9,fontFamily:"monospace",color:"#334155"}}>0%</span>
+            <span style={{fontSize:9,fontFamily:"monospace",color:"#f59e0b"}}>▲ 40% watermark</span>
+            <span style={{fontSize:9,fontFamily:"monospace",color:"#334155"}}>100%</span>
+          </div>
+        </div>
+        {/* Flow diagram */}
+        <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+          <FlowNode tok={T.producer} icon={blocked?"🚫":"💻"} label="Producer" sub={blocked?"BLOCKED":draining?"wait…":"publishing"} active={stage===1&&!blocked} dimmed={blocked}/>
+          <Arrow on={!blocked&&stage>=1} color={blocked?"#ef4444":T.producer.border} label={blocked?"blocked":"→ msgs"}/>
+          <div style={{borderRadius:8,padding:"12px 14px",minWidth:120,background:alarmOn?"rgba(239,68,68,0.1)":"rgba(249,115,22,0.08)",border:`1.5px solid ${alarmOn?"#ef4444":"rgba(249,115,22,0.3)"}`,transition:"all 0.3s",textAlign:"center"}}>
+            <div style={{fontSize:11,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:alarmOn?"#f87171":T.queue.text,marginBottom:4}}>📦 Queue backlog</div>
+            <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>{stage>=2?"msgs accumulating":stage>=4?"draining…":"healthy"}</div>
+          </div>
+          <Arrow on={stage>=1} color={T.consumer.border} label="consume"/>
+          <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={draining?"draining backlog…":"slow consumer"} active={draining}/>
+        </div>
+        {alarmOn&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",fontSize:11,fontFamily:"monospace",color:"#f87171"}}>
+          🚨 memory_alarm active · Connection.Blocked sent to all publishing connections
+        </div>}
+        {draining&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(34,197,94,0.1)",border:"1px solid rgba(34,197,94,0.3)",fontSize:11,fontFamily:"monospace",color:"#4ade80"}}>
+          ✅ Connection.Unblocked sent · producers resumed · memory nominal
+        </div>}
+      </div>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+    </div>
+  );
+}
+
+// ─── LESSON 13: RabbitMQ – Clustering & Fault Tolerance ───────────────────────
+function ClusteringLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const node2Joined = stage >= 2;
+  const node3Joined = stage >= 3;
+  const node2Down   = stage >= 4;
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Start node-1 and set Erlang cookie</b><br/><br/><span style={{color:"#a3e635"}}>sudo rabbitmq-server -detached<br/><br/># All nodes MUST share the same secret cookie<br/>cat /var/lib/rabbitmq/.erlang.cookie<br/># e.g. → ABCXYZERLANGCOOKIE<br/><br/># node-2 and node-3: copy this exact cookie<br/>scp node1:/var/lib/rabbitmq/.erlang.cookie \<br/>{"    "}/var/lib/rabbitmq/.erlang.cookie</span><br/><br/>The <b>Erlang cookie</b> is the cluster's shared secret. Nodes reject join attempts with a different cookie.</>,
+    <><b style={{color:meta.color}}>Step 2 — Join node-2 to the cluster</b><br/><br/><span style={{color:"#a3e635"}}># On node-2:<br/>rabbitmqctl stop_app<br/>rabbitmqctl reset<br/>rabbitmqctl join_cluster rabbit@node-1<br/>rabbitmqctl start_app<br/><br/># Verify from any node:<br/>rabbitmqctl cluster_status<br/># Nodes: [{"{"}disc, [rabbit@node-1, rabbit@node-2]{"}"}]</span><br/><br/>node-2 fetches schema and metadata from node-1. Exchanges, virtual hosts, and users are now shared across both nodes.</>,
+    <><b style={{color:meta.color}}>Step 3 — 3-node cluster operational</b><br/><br/>With 3 nodes, quorum queues tolerate <b>1 node failure</b> (⌊3/2⌋+1 = 2 needed).<br/><br/>Queue leaders are distributed across nodes for load balancing. Clients should connect to a <b>load balancer</b> (HAProxy / NLB) that sits in front of all 3 nodes — not directly to any single node.<br/><br/><span style={{color:"#a3e635"}}># HAProxy config (frontend + backend)<br/>frontend rmq<br/>{"    "}bind *:5672<br/>{"    "}default_backend rmq_nodes<br/>backend rmq_nodes<br/>{"    "}balance roundrobin<br/>{"    "}server node1 node-1:5672 check<br/>{"    "}server node2 node-2:5672 check<br/>{"    "}server node3 node-3:5672 check</span></>,
+    <><b style={{color:meta.color}}>Step 4 — node-2 goes down (network partition / crash)</b><br/><br/>node-2 becomes unreachable. The cluster detects this via heartbeat timeouts (default 60s, tune with <b>net_ticktime</b>).<br/><br/>With <b>pause_minority</b> partition handling (recommended):<br/>- node-2 is alone → it pauses itself to prevent split-brain<br/>- node-1 + node-3 form the majority → continue serving<br/><br/><span style={{color:"#a3e635"}}># In rabbitmq.conf:<br/>cluster_partition_handling = pause_minority</span></>,
+    <><b style={{color:meta.color}}>Step 5 — Rolling upgrade: zero-downtime deploy ✅</b><br/><br/><span style={{color:"#a3e635"}}># 1. Remove node-2 from load balancer<br/># 2. Stop node-2:<br/>rabbitmqctl stop_app<br/><br/># 3. Upgrade RabbitMQ on node-2<br/>apt-get install rabbitmq-server=3.13.x<br/><br/># 4. Restart and rejoin<br/>rabbitmqctl start_app<br/><br/># 5. Repeat for node-3, then node-1</span><br/><br/>Quorum queues maintain availability during rolling upgrades because the remaining nodes always form a quorum. Classic mirrored queues required full cluster downtime — another reason to migrate to quorum queues.</>,
+  ];
+  const nodeStatus = [
+    { label: "node-1", joined: true,         down: false,       leader: stage>=2 },
+    { label: "node-2", joined: node2Joined,   down: node2Down,   leader: false },
+    { label: "node-3", joined: node3Joined,   down: false,       leader: false },
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+        {/* Client + LB */}
+        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:14}}>
+          <FlowNode tok={T.producer} icon="🖥️" label="Client" sub="pika connect" active={stage>=3}/>
+          <Arrow on={stage>=3} color={T.producer.border} label="AMQP :5672"/>
+          <div style={{borderRadius:8,padding:"10px 14px",background:"rgba(14,165,233,0.08)",border:"1px solid rgba(14,165,233,0.3)",textAlign:"center",minWidth:90}}>
+            <div style={{fontSize:11,fontWeight:600,color:"#38bdf8",fontFamily:"system-ui, -apple-system, sans-serif"}}>⚖️ HAProxy</div>
+            <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>load balancer</div>
+          </div>
+          <Arrow on={stage>=3} color={meta.color} label="round-robin"/>
+          {/* Nodes */}
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {nodeStatus.map(n => (
+              <div key={n.label} style={{display:"flex",alignItems:"center",gap:8,borderRadius:8,padding:"8px 12px",minWidth:170,
+                background:n.down?"rgba(239,68,68,0.05)":n.joined?`${meta.color}0a`:"rgba(30,41,59,0.3)",
+                border:`1.5px solid ${n.down?"rgba(239,68,68,0.5)":n.joined?`${meta.color}50`:"rgba(148,163,184,0.40)"}`,
+                transition:"all 0.35s",opacity:n.joined?1:0.4}}>
+                <div style={{width:10,height:10,borderRadius:"50%",background:n.down?"#ef4444":n.joined?meta.color:"#334155",flexShrink:0,transition:"all 0.35s",boxShadow:n.leader?`0 0 10px ${meta.color}80`:"none"}}/>
+                <div>
+                  <div style={{fontSize:11,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:n.down?"#ef4444":n.joined?meta.color:"#475569"}}>
+                    {n.label} {n.leader&&"👑"} {n.down&&"💥"}
+                  </div>
+                  <div style={{fontSize:9,fontFamily:"monospace",color:n.down?"#7f1d1d":"#475569"}}>
+                    {n.down?"UNREACHABLE":n.joined?"in cluster":"not joined"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {node2Down&&<div style={{padding:"8px 12px",borderRadius:8,background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.3)",fontSize:11,fontFamily:"monospace",color:"#f87171"}}>
+          ⚠️ node-2 unreachable · pause_minority: node-2 paused itself · node-1 + node-3 serving (quorum intact)
+        </div>}
+        {stage>=3&&!node2Down&&<div style={{padding:"8px 12px",borderRadius:8,background:`${meta.color}08`,border:`1px solid ${meta.color}30`,fontSize:11,fontFamily:"monospace",color:meta.color}}>
+          ✅ 3-node cluster · quorum = 2/3 · 1 node failure tolerated
+        </div>}
+      </div>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+    </div>
+  );
+}
+
+// ─── LESSON 9 (Kafka): Kafka – Topics & Partitions ────────────────────────────
 const KAFKA_KEYS = ["user-123","order-456","user-123","payment-789","order-456"];
 function KafkaPartitionsLesson({ meta }) {
   const STEPS = 5;
@@ -1072,11 +1485,11 @@ function KafkaPartitionsLesson({ meta }) {
       <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:11,color:"#475569",fontFamily:"monospace"}}>message key:</span>
         {KAFKA_KEYS.filter((k,i,a)=>a.indexOf(k)===i).map(k=>(
-          <button key={k} disabled={locked} onClick={()=>setMsgKey(k)} style={{padding:"3px 10px",borderRadius:9999,fontSize:11,fontFamily:"monospace",background:msgKey===k?meta.color+"20":"rgba(15, 23, 42, 0.6)",border:`1px solid ${msgKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:msgKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
+          <button key={k} disabled={locked} onClick={()=>setMsgKey(k)} style={{padding:"3px 10px",borderRadius:9999,fontSize:11,fontFamily:"monospace",background:msgKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${msgKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:msgKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
         ))}
         {locked&&<span style={{fontSize:10,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
       </div>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:6,flexWrap:"wrap"}}>
           <FlowNode tok={T.producer} icon="💻" label="Producer" sub={stage>=2?`key='${msgKey}'`:""} active={stage===1||stage===2}/>
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?msgKey:""}/>
@@ -1086,7 +1499,7 @@ function KafkaPartitionsLesson({ meta }) {
             {[0,1,2].map(p=>(
               <div key={p} style={{display:"flex",alignItems:"center",gap:6,marginBottom:p<2?6:0}}>
                 <div style={{width:8,height:8,borderRadius:"50%",background:PART_COLORS[p],flexShrink:0,boxShadow:`0 0 8px ${PART_COLORS[p]}40`}}/>
-                <div style={{flex:1,borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:stage>=4&&p===targetPart?PART_COLORS[p]+"20":"#0a0a0a",border:`1px solid ${stage>=4&&p===targetPart?PART_COLORS[p]:stage>=3&&p===targetPart?PART_COLORS[p]+"80":"rgba(51, 65, 85, 0.5)"}`,color:stage>=3&&p===targetPart?PART_COLORS[p]:"#64748b",transition:"all 0.35s"}}>
+                <div style={{flex:1,borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:stage>=4&&p===targetPart?PART_COLORS[p]+"20":"#f1f5f9",border:`1px solid ${stage>=4&&p===targetPart?PART_COLORS[p]:stage>=3&&p===targetPart?PART_COLORS[p]+"80":"rgba(148,163,184,0.60)"}`,color:stage>=3&&p===targetPart?PART_COLORS[p]:"#64748b",transition:"all 0.35s"}}>
                   P{p}: offset 0→{p===1?8:p===0?5:3}{stage>=4&&p===targetPart?` ← NEW`:""}
                 </div>
               </div>
@@ -1123,7 +1536,7 @@ function KafkaGroupsLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         {/* Topic partitions */}
         <div style={{marginBottom:12}}>
           <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:6,letterSpacing:1}}>🗄️ KAFKA TOPIC: orders (3 partitions)</div>
@@ -1135,7 +1548,7 @@ function KafkaGroupsLesson({ meta }) {
                 <div key={p} style={{display:"flex",alignItems:"center",gap:6}}>
                   <div style={{width:80,borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:PART_COLORS[p]+"20",border:`1px solid ${PART_COLORS[p]}`,color:PART_COLORS[p],textAlign:"center"}}>P{p}</div>
                   <Arrow on={stage>=2} color={PART_COLORS[p]} label={stage>=2?`→ C${rebalanced&&p===0?2:p+1}${rebalanced&&p===0?" (rebalanced)":""}`:""} />
-                  <FlowNode tok={{bg:"#022c1c",border:PART_COLORS[p],text:PART_COLORS[p],glow:PART_COLORS[p]+"30"}}
+                  <FlowNode tok={{bg:"#f0fdf4",border:PART_COLORS[p],text:PART_COLORS[p],glow:PART_COLORS[p]+"30"}}
                     icon={p===0&&stage===5?"💥":"⚙️"}
                     label={`Consumer ${p+1}`}
                     sub={p===0&&stage===5?"CRASHED":stage>=2?`payment-svc`:""}
@@ -1145,7 +1558,7 @@ function KafkaGroupsLesson({ meta }) {
                   {stage>=4&&(
                     <>
                       <Arrow on color="#475569"/>
-                      <FlowNode tok={{bg:"#1a0a38",border:"#a855f7",text:"#d8b4fe",glow:"#a855f730"}} icon="📊" label={`Analytics C${p+1}`} sub="analytics-svc" active={stage===4||stage===5} w={100}/>
+                      <FlowNode tok={{bg:"#f5f3ff",border:"#a855f7",text:"#d8b4fe",glow:"#a855f730"}} icon="📊" label={`Analytics C${p+1}`} sub="analytics-svc" active={stage===4||stage===5} w={100}/>
                     </>
                   )}
                 </div>
@@ -1154,7 +1567,7 @@ function KafkaGroupsLesson({ meta }) {
           </div>
         </div>
         {stage>=4&&(
-          <div style={{padding:"8px 12px",borderRadius:8,background:"#1a0a38",border:"1px solid #a855f750",fontSize:11,fontFamily:"monospace",color:"#d8b4fe"}}>
+          <div style={{padding:"8px 12px",borderRadius:8,background:"#f5f3ff",border:"1px solid #a855f750",fontSize:11,fontFamily:"monospace",color:"#d8b4fe"}}>
             💡 Two groups read the same topic independently. payment-svc and analytics-svc both get every message — zero overlap, zero interference.
           </div>
         )}
@@ -1182,16 +1595,16 @@ function SQSStandardLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:8,flexWrap:"wrap"}}>
           <FlowNode tok={T.producer} icon="💻" label="Producer (boto3)" sub="AWS SDK" active={stage===1||stage===2}/>
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?"send_message":""}/>
           {/* SQS Queue */}
-          <div style={{flex:1,minWidth:160,borderRadius:10,padding:"12px 14px",background:T.sqs.bg,border:`1.5px solid ${stage>=1?T.sqs.border+"80":"rgba(51, 65, 85, 0.3)"}`,transition:"all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",backdropFilter:"blur(8px)"}}>
+          <div style={{flex:1,minWidth:160,borderRadius:10,padding:"12px 14px",background:T.sqs.bg,border:`1.5px solid ${stage>=1?T.sqs.border+"80":"rgba(148,163,184,0.40)"}`,transition:"all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",backdropFilter:"blur(8px)"}}>
             <div style={{fontSize:11,color:T.sqs.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>☁️ AWS SQS: order-queue</div>
             {stage===0&&<div style={{fontSize:10,color:"#64748b",fontFamily:"monospace"}}>empty</div>}
             {stage>=2&&stage<3&&<div style={{borderRadius:6,padding:"5px 10px",fontSize:11,fontFamily:"monospace",background:T.sqs.border+"30",border:`1px solid ${T.sqs.border}`,color:T.sqs.text}}>📨 Process order #1234 ← visible</div>}
-            {stage>=3&&stage<5&&<div style={{borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:"rgba(15, 23, 42, 0.8)",border:"1px dashed rgba(71, 85, 105, 0.5)",color:"#64748b"}}>👻 Process order #1234 ← INVISIBLE (30s timer)</div>}
+            {stage>=3&&stage<5&&<div style={{borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:"rgba(255,255,255,0.96)",border:"1px dashed rgba(71, 85, 105, 0.5)",color:"#64748b"}}>👻 Process order #1234 ← INVISIBLE (30s timer)</div>}
             {stage>=5&&<div style={{fontSize:10,color:"#64748b",fontFamily:"monospace"}}>empty (deleted ✅)</div>}
           </div>
           <Arrow on={stage>=3} color={T.sqs.border} label={stage>=3?"receive_message":""}/>
@@ -1226,7 +1639,7 @@ function SQSFIFOLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:8,flexWrap:"wrap",marginBottom:12}}>
           <FlowNode tok={T.producer} icon="💻" label="Producer" sub="boto3" active={stage===1||stage===2}/>
           <Arrow on={stage>=2} color={T.producer.border}/>
@@ -1237,7 +1650,7 @@ function SQSFIFOLesson({ meta }) {
               {MSGS.map((m,i)=>{
                 const active=stage>=3&&i<3&&!(stage>=4&&i===0);
                 const failed=stage>=4&&i===0;
-                return(<div key={i} style={{borderRadius:6,padding:"3px 8px",fontSize:10,fontFamily:"monospace",background:failed?"#1a0000":active?meta.color+"20":"#0a0a0a",border:`1px solid ${failed?T.dlq.border:active?meta.color:"rgba(51, 65, 85, 0.5)"}`,color:failed?T.dlq.text:active?T.sqs.text:"#64748b",transition:"all 0.3s"}}>{i+1}. {m}{failed?" ← FAILED 3x ↓":""}</div>);
+                return(<div key={i} style={{borderRadius:6,padding:"3px 8px",fontSize:10,fontFamily:"monospace",background:failed?"#fff5f5":active?meta.color+"20":"#f1f5f9",border:`1px solid ${failed?T.dlq.border:active?meta.color:"rgba(148,163,184,0.60)"}`,color:failed?T.dlq.text:active?T.sqs.text:"#64748b",transition:"all 0.3s"}}>{i+1}. {m}{failed?" ← FAILED 3x ↓":""}</div>);
               })}
               {stage<2&&<div style={{fontSize:10,color:"#64748b",fontFamily:"monospace"}}>empty</div>}
             </div>
@@ -1286,7 +1699,7 @@ function KafkaOffsetsLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={PART_C}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         {/* Partition strip */}
         <div style={{fontSize:10,color:T.stream.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>📦 Partition 0 — offsets 0 to 7</div>
         <div style={{display:"flex",gap:4,marginBottom:12}}>
@@ -1297,11 +1710,11 @@ function KafkaOffsetsLesson({ meta }) {
             return (
               <div key={i} style={{
                 flex:1,minWidth:28,borderRadius:6,padding:"6px 2px",textAlign:"center",transition:"all 0.3s",
-                background: isReplay ? PART_C+"30" : isCommitted ? PART_C+"20" : isConsumed ? "rgba(51, 65, 85, 0.5)" : "#080e1a",
-                border:`1px solid ${isReplay ? PART_C : isCommitted ? PART_C+"80" : isConsumed ? "#64748b" : "rgba(51, 65, 85, 0.5)"}`,
+                background: isReplay ? PART_C+"30" : isCommitted ? PART_C+"20" : isConsumed ? "rgba(148,163,184,0.60)" : "#0f172a",
+                border:`1px solid ${isReplay ? PART_C : isCommitted ? PART_C+"80" : isConsumed ? "#64748b" : "rgba(148,163,184,0.60)"}`,
               }}>
                 <div style={{fontSize:9,fontFamily:"monospace",color:isCommitted||isReplay?PART_C:"#475569"}}>off</div>
-                <div style={{fontSize:13,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,color:isReplay?PART_C:isCommitted?PART_C:isConsumed?"#64748b":"rgba(51, 65, 85, 0.5)"}}>{i}</div>
+                <div style={{fontSize:13,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,color:isReplay?PART_C:isCommitted?PART_C:isConsumed?"#64748b":"rgba(148,163,184,0.60)"}}>{i}</div>
               </div>
             );
           })}
@@ -1310,7 +1723,7 @@ function KafkaOffsetsLesson({ meta }) {
         <div style={{display:"flex",gap:16,fontSize:10,fontFamily:"monospace"}}>
           <span style={{color:PART_C}}>■ committed</span>
           <span style={{color:"#475569"}}>■ read (uncommitted)</span>
-          <span style={{color:"rgba(51, 65, 85, 0.5)"}}>■ unread</span>
+          <span style={{color:"rgba(148,163,184,0.60)"}}>■ unread</span>
         </div>
         {stage>=1&&(
           <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${PART_C}08, ${PART_C}12)`,border:`1px solid ${PART_C}30`,fontSize:12,fontFamily:"system-ui, -apple-system, sans-serif",color:PART_C}}>
@@ -1349,7 +1762,7 @@ function KafkaReplicationLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{fontSize:10,color:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:12}}>🗄️ KAFKA CLUSTER — Partition 0 (RF=3)</div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           {BROKERS.map((b)=>{
@@ -1360,7 +1773,7 @@ function KafkaReplicationLesson({ meta }) {
             return (
               <div key={b.id} style={{
                 display:"flex",alignItems:"center",gap:12,padding:"10px 14px",borderRadius:10,transition:"all 0.4s",
-                background: isFailed ? "#1a0000" : isNewLeader ? "#f9731615" : `${b.color}12`,
+                background: isFailed ? "#fff5f5" : isNewLeader ? "#f9731615" : `${b.color}12`,
                 border:`1px solid ${isFailed ? "#ef4444" : isNewLeader ? "#f97316" : b.color+"60"}`,
                 opacity: isFailed ? 0.4 : 1,
               }}>
@@ -1412,13 +1825,13 @@ function KafkaTransactionsLesson({ meta }) {
     <><b style={{color:meta.color}}>Step 5 — commit_transaction() → both visible atomically</b><br/><br/><span style={{color:"#a3e635"}}>p.commit_transaction()<br/># OR: p.abort_transaction() to roll back</span><br/><br/>✅ Both messages appear SIMULTANEOUSLY to read_committed consumers. Either both are visible, or neither — never a partial view. This is <b>exactly-once across multiple topics</b>.</>,
   ];
 
-  const txColors = { pending:"#f59e0b", committed:"#22c55e", idle:"rgba(51, 65, 85, 0.5)" };
+  const txColors = { pending:"#f59e0b", committed:"#22c55e", idle:"rgba(148,163,184,0.60)" };
   const topicState = stage >= 5 ? "committed" : stage >= 3 ? "pending" : "idle";
 
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         {/* Idempotence layer */}
         {stage>=2&&(
           <div style={{marginBottom:12,padding:"10px 14px",borderRadius:8,background:"rgba(34, 197, 94, 0.1)",border:"1px solid rgba(34, 197, 94, 0.3)",display:"flex",gap:8,alignItems:"center"}}>
@@ -1487,7 +1900,7 @@ function KafkaCompactionLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:"rgba(15, 23, 42, 0.4)",border:"1px solid rgba(51, 65, 85, 0.3)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
+      <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{fontSize:10,color:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:12}}>
           📜 Topic: user_profiles (cleanup.policy=compact)
           {compacted && <span style={{color:meta.color}}> — AFTER COMPACTION</span>}
@@ -1505,8 +1918,8 @@ function KafkaCompactionLesson({ meta }) {
               <div key={`${e.key}-${e.offset}`} style={{
                 display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:8,
                 transition:"all 0.4s",opacity: hidden ? 0.15 : 1,
-                background: hidden ? "#080e1a" : isTombstone ? "#1a000040" : `${color}12`,
-                border:`1px solid ${hidden ? "rgba(51, 65, 85, 0.5)" : color+"50"}`,
+                background: hidden ? "#f1f5f9" : isTombstone ? "#fff5f540" : `${color}12`,
+                border:`1px solid ${hidden ? "rgba(148,163,184,0.60)" : color+"50"}`,
               }}>
                 <div style={{fontSize:10,fontFamily:"monospace",color:"#475569",minWidth:60}}>offset={e.offset}</div>
                 <div style={{fontSize:11,fontFamily:"monospace",color,fontWeight:"bold",minWidth:60}}>key='{e.key}'</div>
@@ -1544,9 +1957,9 @@ function IstioArchLesson({ meta }) {
     "Full mesh: Envoy enforces policies, collects metrics, and generates traces — all without a single line of application code change.",
   ];
   const box = (label, sub, color, active) => (
-    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? color : color + "40"}`, background: active ? color + "20" : "#0a0a0a", transition: "all 0.35s", minWidth: 90, textAlign: "center" }}>
+    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? color : color + "40"}`, background: active ? color + "20" : "#0f172a", transition: "all 0.35s", minWidth: 90, textAlign: "center" }}>
       <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: active ? color : color + "80" }}>{label}</div>
-      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569", marginTop: 2 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>{sub}</div>}
     </div>
   );
   return (
@@ -1554,15 +1967,15 @@ function IstioArchLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {/* Istiod control plane */}
       <div style={{ textAlign: "center", padding: "8px 0" }}>
-        <div style={{ display: "inline-block", borderRadius: 10, padding: "6px 20px", border: `2px solid ${istiodActive ? "#0ea5e9" : "rgba(51, 65, 85, 0.5)"}`, background: istiodActive ? "#0ea5e920" : "#0a0a0a", transition: "all 0.4s" }}>
+        <div style={{ display: "inline-block", borderRadius: 10, padding: "6px 20px", border: `2px solid ${istiodActive ? "#0ea5e9" : "rgba(148,163,184,0.60)"}`, background: istiodActive ? "#0ea5e920" : "#0f172a", transition: "all 0.4s" }}>
           <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: istiodActive ? "#0ea5e9" : "#64748b" }}>🧠 Istiod (Control Plane)</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#475569", marginTop: 2 }}>Pilot · Citadel · Galley</div>
+          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>Pilot · Citadel · Galley</div>
         </div>
         {istiodActive && <div style={{ fontSize: 10, fontFamily: "monospace", color: "#0ea5e9", marginTop: 4 }}>↓ xDS config push (gRPC)</div>}
       </div>
       {/* Pod */}
-      <div style={{ borderRadius: 12, border: `2px solid ${injected ? "#0ea5e9" : "#64748b"}`, padding: 14, background: "#080e1a", transition: "all 0.4s" }}>
-        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#475569", marginBottom: 10 }}>
+      <div style={{ borderRadius: 12, border: `2px solid ${injected ? "#0ea5e9" : "#64748b"}`, padding: 14, background: "#f8fafc", transition: "all 0.4s" }}>
+        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginBottom: 10 }}>
           {stage >= 2 ? "✅ namespace: demo  |  label: istio-injection=enabled" : "namespace: demo  |  no injection label"}
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
@@ -1608,7 +2021,7 @@ function IstioRoutingLesson({ meta }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {/* Request */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
-          <div style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(71, 85, 105, 0.4)", background: "rgba(15, 23, 42, 0.6)", fontSize: 12, fontFamily: "system-ui, -apple-system, sans-serif", color: "#94a3b8", backdropFilter: "blur(8px)" }}>
+          <div style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(71, 85, 105, 0.4)", background: "rgba(248,250,252,0.92)", fontSize: 12, fontFamily: "system-ui, -apple-system, sans-serif", color: "#64748b", backdropFilter: "blur(8px)" }}>
             {useHeader ? "🌐 Request  [x-version: v2]" : "🌐 Request  [no version header]"}
           </div>
           {stage >= 2 && <div style={{ fontSize: 10, color: "#14b8a6" }}>→</div>}
@@ -1617,7 +2030,7 @@ function IstioRoutingLesson({ meta }) {
         {stage >= 2 && (
           <div style={{ borderRadius: 10, border: `1px solid #14b8a6`, background: "#14b8a610", padding: "8px 14px", textAlign: "center" }}>
             <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#14b8a6" }}>📋 VirtualService: myapp</div>
-            <div style={{ fontSize: 10, fontFamily: "monospace", color: "#475569", marginTop: 4 }}>
+            <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginTop: 4 }}>
               {stage >= 4 ? "match: x-version=v2 → subset: v2 | default → subset: v1" : "default route → subset: v1"}
             </div>
           </div>
@@ -1628,8 +2041,8 @@ function IstioRoutingLesson({ meta }) {
             <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#8b5cf6", marginBottom: 6 }}>🎯 DestinationRule: myapp</div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               {["v1", "v2"].map(v => (
-                <div key={v} style={{ borderRadius: 8, padding: "5px 16px", border: `1px solid ${activeSubset === v ? "#22c55e" : "#64748b"}`, background: activeSubset === v ? "#22c55e20" : "#0a0a0a", transition: "all 0.35s", textAlign: "center" }}>
-                  <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: activeSubset === v ? "#22c55e" : "#475569" }}>subset: {v}</div>
+                <div key={v} style={{ borderRadius: 8, padding: "5px 16px", border: `1px solid ${activeSubset === v ? "#22c55e" : "#64748b"}`, background: activeSubset === v ? "#22c55e20" : "#0f172a", transition: "all 0.35s", textAlign: "center" }}>
+                  <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: activeSubset === v ? "#22c55e" : "#64748b" }}>subset: {v}</div>
                   <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b" }}>version={v}</div>
                 </div>
               ))}
@@ -1663,8 +2076,8 @@ function IstioCanaryLesson({ meta }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {/* Traffic split bar */}
-      <div style={{ borderRadius: 12, border: "1px solid rgba(51, 65, 85, 0.5)", background: "#080e1a", padding: 16 }}>
-        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#475569", marginBottom: 10, textAlign: "center" }}>VirtualService weight split</div>
+      <div style={{ borderRadius: 12, border: "1px solid rgba(148,163,184,0.60)", background: "#f8fafc", padding: 16 }}>
+        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginBottom: 10, textAlign: "center" }}>VirtualService weight split</div>
         <div style={{ display: "flex", borderRadius: 8, overflow: "hidden", height: 32, marginBottom: 10, transition: "all 0.5s" }}>
           {w1 > 0 && <div style={{ flex: w1, background: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#fff", transition: "flex 0.5s" }}>{w1}% v1</div>}
           {w2 > 0 && <div style={{ flex: w2, background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#fff", transition: "flex 0.5s" }}>{w2}% v2</div>}
@@ -1678,7 +2091,7 @@ function IstioCanaryLesson({ meta }) {
             <div key={label} style={{ textAlign: "center", opacity: weight === 0 ? 0.3 : 1, transition: "opacity 0.4s" }}>
               <div style={{ fontSize: 20 }}>📦📦</div>
               <div style={{ fontSize: 10, fontFamily: "monospace", color, marginTop: 2 }}>{label}</div>
-              <div style={{ fontSize: 10, fontFamily: "monospace", color: "#475569" }}>weight: {weight}</div>
+              <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b" }}>weight: {weight}</div>
             </div>
           ))}
         </div>
@@ -1705,16 +2118,16 @@ function IstioFaultLesson({ meta }) {
     "Step 4 — Combined: both delay (50%) and abort (10%) active simultaneously. Edge case testing at production scale.",
     "Best practice: scope faults to a test header (x-test-fault: inject). Production requests skip the fault block — only canary testers are affected.",
   ];
-  const faultColors = { none: "#475569", delay: "#f59e0b", abort: "#ef4444" };
+  const faultColors = { none: "#64748b", delay: "#f59e0b", abort: "#ef4444" };
   const fc = faultColors[faultType];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-        <div style={{ padding: "10px 16px", borderRadius: 8, border: "1px solid rgba(71, 85, 105, 0.4)", background: "rgba(15, 23, 42, 0.6)", fontSize: 12, fontFamily: "system-ui, -apple-system, sans-serif", color: "#94a3b8", textAlign: "center", backdropFilter: "blur(8px)" }}>
+        <div style={{ padding: "10px 16px", borderRadius: 8, border: "1px solid rgba(71, 85, 105, 0.4)", background: "rgba(248,250,252,0.92)", fontSize: 12, fontFamily: "system-ui, -apple-system, sans-serif", color: "#64748b", textAlign: "center", backdropFilter: "blur(8px)" }}>
           🌐 Client<br />{headerScoped ? "[x-test-fault: inject]" : "[request]"}
         </div>
-        <div style={{ fontSize: 16, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 16, color: "#64748b" }}>→</div>
         {/* Fault injector */}
         <div style={{ padding: "8px 14px", borderRadius: 8, border: `2px solid ${fc}`, background: fc + "15", fontSize: 11, fontFamily: "monospace", color: fc, textAlign: "center", minWidth: 110, transition: "all 0.4s" }}>
           🔷 Envoy<br />
@@ -1722,9 +2135,9 @@ function IstioFaultLesson({ meta }) {
           {faultType === "abort" && "💥 503 abort (10%)"}
           {faultType === "none" && "no fault"}
         </div>
-        {faultType !== "abort" && <div style={{ fontSize: 16, color: "#475569" }}>→</div>}
+        {faultType !== "abort" && <div style={{ fontSize: 16, color: "#64748b" }}>→</div>}
         {faultType !== "abort" && (
-          <div style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #22c55e55", background: "#022c1c", fontSize: 11, fontFamily: "monospace", color: "#86efac", textAlign: "center" }}>
+          <div style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #22c55e55", background: "#f0fdf4", fontSize: 11, fontFamily: "monospace", color: "#86efac", textAlign: "center" }}>
             📦 Service
           </div>
         )}
@@ -1819,10 +2232,10 @@ function IstioGatewayLesson({ meta }) {
   ];
   const step = (label, sub, active, icon) => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 90 }}>
-      <div style={{ padding: "7px 12px", borderRadius: 8, border: `2px solid ${active ? "#8b5cf6" : "rgba(51, 65, 85, 0.5)"}`, background: active ? "#8b5cf620" : "#0a0a0a", textAlign: "center", transition: "all 0.4s", width: "100%" }}>
+      <div style={{ padding: "7px 12px", borderRadius: 8, border: `2px solid ${active ? "#8b5cf6" : "rgba(148,163,184,0.60)"}`, background: active ? "#8b5cf620" : "#0f172a", textAlign: "center", transition: "all 0.4s", width: "100%" }}>
         <div style={{ fontSize: 16 }}>{icon}</div>
         <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: active ? "#8b5cf6" : "#64748b", marginTop: 2 }}>{label}</div>
-        {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569", marginTop: 1 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", marginTop: 1 }}>{sub}</div>}
       </div>
     </div>
   );
@@ -1831,11 +2244,11 @@ function IstioGatewayLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center", flexWrap: "wrap" }}>
         {step("Internet", "HTTPS :443", stage >= 2, "🌐")}
-        <div style={{ fontSize: 12, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
         {step("Gateway", tlsActive ? "TLS terminated" : "port :443", stage >= 2, "🚪")}
-        <div style={{ fontSize: 12, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
         {step("VirtualService", "host/path rules", vsActive, "🗺️")}
-        <div style={{ fontSize: 12, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
         {step("Service Pod", "app:myapp", svcActive, "📦")}
       </div>
       {tlsActive && (
@@ -1858,7 +2271,7 @@ function IstioMtlsLesson({ meta }) {
   const mode = stage <= 1 ? "none" : stage <= 2 ? "permissive" : "strict";
   const certExchange = stage >= 4;
   const encrypted = stage >= 5;
-  const modeColor = { none: "#475569", permissive: "#f59e0b", strict: "#06b6d4" }[mode];
+  const modeColor = { none: "#64748b", permissive: "#f59e0b", strict: "#06b6d4" }[mode];
   const NARR = [
     "No Istio: services communicate over plain HTTP. Any compromised pod can intercept or spoof traffic — no identity verification.",
     "Step 1 — Start with PERMISSIVE mode: PeerAuthentication allows both mTLS and plaintext. Safe for gradual migration while old clients catch up.",
@@ -1868,10 +2281,10 @@ function IstioMtlsLesson({ meta }) {
     "Step 5 — Encrypted tunnel: all service-to-service data flows through a mutually authenticated TLS 1.3 tunnel. Zero plaintext even inside the cluster.",
   ];
   const serviceBox = (label, sa, side) => (
-    <div style={{ borderRadius: 10, border: `2px solid ${encrypted ? "#06b6d4" : mode !== "none" ? "#06b6d460" : "#64748b"}`, background: "#031520", padding: "10px 14px", textAlign: "center", minWidth: 100, transition: "all 0.4s" }}>
+    <div style={{ borderRadius: 10, border: `2px solid ${encrypted ? "#06b6d4" : mode !== "none" ? "#06b6d460" : "#64748b"}`, background: "#f0faff", padding: "10px 14px", textAlign: "center", minWidth: 100, transition: "all 0.4s" }}>
       <div style={{ fontSize: 18 }}>📦</div>
       <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#7dd3fc" }}>{label}</div>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569" }}>sa/{sa}</div>
+      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>sa/{sa}</div>
       {certExchange && <div style={{ marginTop: 4, fontSize: 9, fontFamily: "monospace", color: "#06b6d4" }}>📜 SVID cert</div>}
     </div>
   );
@@ -1889,7 +2302,7 @@ function IstioMtlsLesson({ meta }) {
         {serviceBox("frontend", "frontend")}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
           <div style={{ height: 3, width: 60, borderRadius: 2, background: encrypted ? "#06b6d4" : mode !== "none" ? "#06b6d440" : "#64748b", transition: "all 0.4s" }} />
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: encrypted ? "#06b6d4" : "#475569", transition: "all 0.4s" }}>
+          <div style={{ fontSize: 9, fontFamily: "monospace", color: encrypted ? "#06b6d4" : "#64748b", transition: "all 0.4s" }}>
             {encrypted ? "🔒 mTLS 1.3" : mode === "permissive" ? "⚡ mTLS or HTTP" : "HTTP (plain)"}
           </div>
         </div>
@@ -1928,9 +2341,9 @@ function IstioAuthzLesson({ meta }) {
         {/* Callers */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {callers.map(c => (
-            <div key={c.label} style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${c.tried ? (c.allowed ? "#22c55e" : "#ef4444") : "rgba(51, 65, 85, 0.5)"}`, background: "#0a0a0a", textAlign: "center", minWidth: 100, transition: "all 0.4s" }}>
+            <div key={c.label} style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${c.tried ? (c.allowed ? "#22c55e" : "#ef4444") : "rgba(148,163,184,0.60)"}`, background: "#f8fafc", textAlign: "center", minWidth: 100, transition: "all 0.4s" }}>
               <div style={{ fontSize: 14 }}>{c.allowed ? "📦" : "☠️"}</div>
-              <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: c.tried ? (c.allowed ? "#22c55e" : "#ef4444") : "#475569" }}>{c.label}</div>
+              <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: c.tried ? (c.allowed ? "#22c55e" : "#ef4444") : "#64748b" }}>{c.label}</div>
               <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>{c.sa}</div>
               {c.tried && <div style={{ fontSize: 10, marginTop: 4, color: c.allowed ? "#22c55e" : "#ef4444" }}>{c.allowed ? "✅ 200 OK" : "🚫 403"}</div>}
             </div>
@@ -1940,18 +2353,18 @@ function IstioAuthzLesson({ meta }) {
         {policyActive && (
           <div style={{ borderRadius: 10, border: `1px solid #ec4899`, background: "#ec489910", padding: "10px 14px", minWidth: 180, fontSize: 10, fontFamily: "monospace" }}>
             <div style={{ fontWeight: "bold", color: "#ec4899", marginBottom: 6 }}>🔑 AuthorizationPolicy</div>
-            <div style={{ color: "#94a3b8" }}>action: ALLOW</div>
-            <div style={{ color: "#94a3b8" }}>from: sa/frontend</div>
-            <div style={{ color: "#94a3b8" }}>methods: GET, POST</div>
-            <div style={{ color: "#94a3b8" }}>paths: /api/*</div>
+            <div style={{ color: "#64748b" }}>action: ALLOW</div>
+            <div style={{ color: "#64748b" }}>from: sa/frontend</div>
+            <div style={{ color: "#64748b" }}>methods: GET, POST</div>
+            <div style={{ color: "#64748b" }}>paths: /api/*</div>
             {denyDefault && <div style={{ marginTop: 6, color: "#ef4444" }}>implicit: DENY all others</div>}
           </div>
         )}
         {/* Backend */}
-        <div style={{ borderRadius: 10, border: "1px solid #ec489950", background: "#031520", padding: "10px 14px", textAlign: "center", alignSelf: "center", minWidth: 90 }}>
+        <div style={{ borderRadius: 10, border: "1px solid #ec489950", background: "#f0faff", padding: "10px 14px", textAlign: "center", alignSelf: "center", minWidth: 90 }}>
           <div style={{ fontSize: 18 }}>📦</div>
           <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#7dd3fc" }}>backend</div>
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569" }}>sa/backend</div>
+          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>sa/backend</div>
         </div>
       </div>
       <Narrative text={NARR[stage]} color={meta.color} step={stage > 0 && stage <= STEPS ? stage : null} total={STEPS} />
@@ -1979,10 +2392,10 @@ function IstioObserveLesson({ meta }) {
     "Step 5 — Alerting: Prometheus alert rules fire on high error rate (>5%) or p99 latency (>1s). PagerDuty/Slack notifications via Alertmanager. Zero app code changes.",
   ];
   const tool = (icon, label, sub, active, color) => (
-    <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${active ? color : "rgba(51, 65, 85, 0.5)"}`, background: active ? color + "15" : "#0a0a0a", textAlign: "center", minWidth: 90, transition: "all 0.4s" }}>
+    <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${active ? color : "rgba(148,163,184,0.60)"}`, background: active ? color + "15" : "#0f172a", textAlign: "center", minWidth: 90, transition: "all 0.4s" }}>
       <div style={{ fontSize: 18 }}>{icon}</div>
       <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: active ? color : "#64748b" }}>{label}</div>
-      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569", marginTop: 1 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", marginTop: 1 }}>{sub}</div>}
     </div>
   );
   return (
@@ -1991,9 +2404,9 @@ function IstioObserveLesson({ meta }) {
       {/* Services row */}
       <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
         {["frontend", "orders", "payment"].map(s => (
-          <div key={s} style={{ borderRadius: 8, padding: "6px 10px", border: "1px solid rgba(51, 65, 85, 0.5)", background: "#0a0a0a", textAlign: "center" }}>
+          <div key={s} style={{ borderRadius: 8, padding: "6px 10px", border: "1px solid rgba(148,163,184,0.60)", background: "#f8fafc", textAlign: "center" }}>
             <div style={{ fontSize: 13 }}>📦</div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569" }}>{s}</div>
+            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>{s}</div>
             {metricsFlow && <div style={{ fontSize: 8, color: "#eab308", marginTop: 2 }}>→ metrics</div>}
             {tracingFlow  && <div style={{ fontSize: 8, color: "#a855f7", marginTop: 1 }}>→ traces</div>}
           </div>
@@ -2044,9 +2457,9 @@ function IstioInstallLesson({ meta }) {
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, fontFamily: "monospace" }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid #1e293b" }}>
+            <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
               {["Profile", "Control Plane", "Ingress GW", "Egress GW", "~Memory", "Best For"].map(h => (
-                <th key={h} style={{ padding: "6px 8px", textAlign: "left", color: "#475569", fontWeight: "bold" }}>{h}</th>
+                <th key={h} style={{ padding: "6px 8px", textAlign: "left", color: "#64748b", fontWeight: "bold" }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -2056,10 +2469,10 @@ function IstioInstallLesson({ meta }) {
               const highlight = stage >= 2;
               return (
                 <tr key={p.name} style={{ borderBottom: "1px solid #0f172a", background: active ? meta.color + "15" : "transparent", transition: "all 0.3s" }}>
-                  <td style={{ padding: "7px 8px", fontWeight: "bold", color: active ? meta.color : "#94a3b8" }}>{p.name}</td>
-                  <td style={{ padding: "7px 8px", color: p.cp ? "#22c55e" : "#334155" }}>{p.cp ? "✅" : "—"}</td>
-                  <td style={{ padding: "7px 8px", color: p.ig ? "#22c55e" : "#334155" }}>{p.ig ? "✅" : "—"}</td>
-                  <td style={{ padding: "7px 8px", color: p.eg ? "#22c55e" : "#334155" }}>{p.eg ? "✅" : "—"}</td>
+                  <td style={{ padding: "7px 8px", fontWeight: "bold", color: active ? meta.color : "#64748b" }}>{p.name}</td>
+                  <td style={{ padding: "7px 8px", color: p.cp ? "#22c55e" : "#94a3b8" }}>{p.cp ? "✅" : "—"}</td>
+                  <td style={{ padding: "7px 8px", color: p.ig ? "#22c55e" : "#94a3b8" }}>{p.ig ? "✅" : "—"}</td>
+                  <td style={{ padding: "7px 8px", color: p.eg ? "#22c55e" : "#94a3b8" }}>{p.eg ? "✅" : "—"}</td>
                   <td style={{ padding: "7px 8px", color: "#64748b" }}>{p.mem}</td>
                   <td style={{ padding: "7px 8px", color: "#64748b" }}>{p.use}</td>
                 </tr>
@@ -2097,10 +2510,10 @@ function IstioServiceEntryLesson({ meta }) {
     "Step 5 — TLS origination: DestinationRule mode=SIMPLE on api.payment.com. App calls plain HTTP :80; Envoy upgrades to HTTPS :443 automatically. The app never needs TLS code.",
   ];
   const extService = (label, registered, blocked) => (
-    <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${registered ? "#34d399" : blocked ? "#ef4444" : "#1e293b"}`, background: registered ? "#34d39915" : blocked ? "#ef444415" : "#0a0a0a", transition: "all 0.35s", textAlign: "center", minWidth: 140 }}>
+    <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${registered ? "#34d399" : blocked ? "#ef4444" : "#94a3b8"}`, background: registered ? "#34d39915" : blocked ? "#ef444415" : "#0f172a", transition: "all 0.35s", textAlign: "center", minWidth: 140 }}>
       <div style={{ fontSize: 12 }}>{registered ? "🌐" : blocked ? "🚫" : "🌐"}</div>
-      <div style={{ fontSize: 10, fontFamily: "monospace", color: registered ? "#34d399" : blocked ? "#ef4444" : "#475569", fontWeight: "bold" }}>{label}</div>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#334155", marginTop: 2 }}>{registered ? "✅ ServiceEntry" : blocked ? "BLOCKED" : "external"}</div>
+      <div style={{ fontSize: 10, fontFamily: "monospace", color: registered ? "#34d399" : blocked ? "#ef4444" : "#64748b", fontWeight: "bold" }}>{label}</div>
+      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginTop: 2 }}>{registered ? "✅ ServiceEntry" : blocked ? "BLOCKED" : "external"}</div>
       {tlsOrig && registered && <div style={{ fontSize: 9, color: "#06b6d4", marginTop: 2 }}>🔐 TLS origination</div>}
     </div>
   );
@@ -2108,16 +2521,16 @@ function IstioServiceEntryLesson({ meta }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
-        <div style={{ borderRadius: 10, padding: "10px 14px", border: "1px solid #34d39930", background: "#031520", textAlign: "center" }}>
+        <div style={{ borderRadius: 10, padding: "10px 14px", border: "1px solid #34d39930", background: "#f0faff", textAlign: "center" }}>
           <div style={{ fontSize: 16 }}>📦</div>
           <div style={{ fontSize: 10, fontFamily: "monospace", color: "#7dd3fc" }}>app pod</div>
         </div>
-        <div style={{ fontSize: 14, color: "#475569" }}>→</div>
-        <div style={{ borderRadius: 8, padding: "6px 10px", border: "1px solid #0ea5e940", background: "#031520", textAlign: "center" }}>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
+        <div style={{ borderRadius: 8, padding: "6px 10px", border: "1px solid #0ea5e940", background: "#f0faff", textAlign: "center" }}>
           <div style={{ fontSize: 10, fontFamily: "monospace", color: "#0ea5e9" }}>🔷 Envoy</div>
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#334155" }}>{stage >= 2 ? "REGISTRY_ONLY" : "ALLOW_ANY"}</div>
+          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8" }}>{stage >= 2 ? "REGISTRY_ONLY" : "ALLOW_ANY"}</div>
         </div>
-        <div style={{ fontSize: 14, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {extService("api.payment.com", registered, blocked)}
           {extService("api.maps.com", false, stage >= 2)}
@@ -2147,10 +2560,10 @@ function IstioEgressLesson({ meta }) {
     "Step 5 — TLS origination at the gateway: DestinationRule on the egress gateway handles HTTPS toward the external service. Internal traffic to the gateway uses mTLS (ISTIO_MUTUAL).",
   ];
   const node = (icon, label, sub, active) => (
-    <div style={{ borderRadius: 10, padding: "8px 12px", border: `2px solid ${active ? "#fb7185" : "#1e293b"}`, background: active ? "#fb718515" : "#0a0a0a", textAlign: "center", minWidth: 80, transition: "all 0.35s" }}>
+    <div style={{ borderRadius: 10, padding: "8px 12px", border: `2px solid ${active ? "#fb7185" : "#94a3b8"}`, background: active ? "#fb718515" : "#0f172a", textAlign: "center", minWidth: 80, transition: "all 0.35s" }}>
       <div style={{ fontSize: 16 }}>{icon}</div>
-      <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: active ? "#fb7185" : "#475569" }}>{label}</div>
-      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#334155", marginTop: 2 }}>{sub}</div>}
+      <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: active ? "#fb7185" : "#64748b" }}>{label}</div>
+      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginTop: 2 }}>{sub}</div>}
     </div>
   );
   return (
@@ -2158,14 +2571,14 @@ function IstioEgressLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
         {node("📦", "App Pod", "namespace", true)}
-        <div style={{ fontSize: 11, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 11, color: "#64748b" }}>→</div>
         {gwActive
           ? node("🚪", "Egress GW", tlsOrig ? "TLS orig" : "istio-system", true)
-          : <div style={{ borderRadius: 10, padding: "8px 12px", border: "1px dashed #1e293b", background: "#0a0a0a", textAlign: "center", minWidth: 80 }}>
-              <div style={{ fontSize: 10, fontFamily: "monospace", color: "#1e293b" }}>no gateway</div>
+          : <div style={{ borderRadius: 10, padding: "8px 12px", border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center", minWidth: 80 }}>
+              <div style={{ fontSize: 10, fontFamily: "monospace", color: "#94a3b8" }}>no gateway</div>
             </div>
         }
-        <div style={{ fontSize: 11, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 11, color: "#64748b" }}>→</div>
         {node("🌐", "api.payment.com", ":443 external", gwActive)}
       </div>
       {auditOn && (
@@ -2207,25 +2620,25 @@ function IstioJwtLesson({ meta }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
-        <div style={{ borderRadius: 10, padding: "10px 12px", border: "1px solid #1e293b", background: "#0a0a0a", textAlign: "center" }}>
+        <div style={{ borderRadius: 10, padding: "10px 12px", border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center" }}>
           <div style={{ fontSize: 16 }}>🌐</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#94a3b8" }}>Client</div>
+          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b" }}>Client</div>
           {validToken && <div style={{ fontSize: 9, color: "#22c55e", marginTop: 2 }}>🎫 JWT token</div>}
           {noToken    && <div style={{ fontSize: 9, color: "#ef4444", marginTop: 2 }}>❌ no token</div>}
         </div>
-        <div style={{ fontSize: 12, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
         {raActive && (
           <div style={{ borderRadius: 10, padding: "8px 12px", border: `1px solid #a78bfa`, background: "#a78bfa12", textAlign: "center", minWidth: 130 }}>
             <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#a78bfa" }}>RequestAuthentication</div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569", marginTop: 2 }}>issuer: auth.example.com</div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569" }}>jwksUri: /.well-known/jwks</div>
+            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>issuer: auth.example.com</div>
+            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>jwksUri: /.well-known/jwks</div>
             {combined && <div style={{ fontSize: 9, color: "#ec4899", marginTop: 4 }}>+ AuthzPolicy: role=admin</div>}
           </div>
         )}
-        <div style={{ fontSize: 12, color: "#475569" }}>→</div>
-        <div style={{ borderRadius: 10, padding: "8px 12px", border: `1px solid ${noToken ? "#ef444450" : validToken ? "#22c55e50" : "#1e293b"}`, background: "#031520", textAlign: "center", transition: "all 0.4s" }}>
+        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ borderRadius: 10, padding: "8px 12px", border: `1px solid ${noToken ? "#ef444450" : validToken ? "#22c55e50" : "#94a3b8"}`, background: "#f0faff", textAlign: "center", transition: "all 0.4s" }}>
           <div style={{ fontSize: 16 }}>📦</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: noToken ? "#ef4444" : validToken ? "#22c55e" : "#475569" }}>
+          <div style={{ fontSize: 10, fontFamily: "monospace", color: noToken ? "#ef4444" : validToken ? "#22c55e" : "#64748b" }}>
             {noToken ? "403 Forbidden" : validToken ? "200 OK" : "service"}
           </div>
         </div>
@@ -2280,13 +2693,13 @@ backend.istio-demo.svc.cluster.local:9090  OK        mTLS          mTLS
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {stage > 0 && active && (
-        <div style={{ borderRadius: 10, border: `1px solid ${active.color}40`, background: "#080e1a", overflow: "hidden" }}>
+        <div style={{ borderRadius: 10, border: `1px solid ${active.color}40`, background: "#f8fafc", overflow: "hidden" }}>
           <div style={{ padding: "7px 12px", background: active.color + "18", borderBottom: `1px solid ${active.color}30`, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 10, fontFamily: "monospace", fontWeight: "bold", color: active.color }}>{active.title}</span>
           </div>
-          <div style={{ padding: "8px 12px", fontFamily: "monospace", fontSize: 10, color: "#4ade80", background: "#020617" }}>
-            <div style={{ color: "#475569", marginBottom: 4 }}>$ {active.cmd}</div>
-            <pre style={{ margin: 0, whiteSpace: "pre-wrap", color: "#94a3b8", lineHeight: 1.6 }}>{active.output}</pre>
+          <div style={{ padding: "8px 12px", fontFamily: "monospace", fontSize: 10, color: "#4ade80", background: "#f8fafc" }}>
+            <div style={{ color: "#64748b", marginBottom: 4 }}>$ {active.cmd}</div>
+            <pre style={{ margin: 0, whiteSpace: "pre-wrap", color: "#64748b", lineHeight: 1.6 }}>{active.output}</pre>
           </div>
         </div>
       )}
@@ -2317,12 +2730,12 @@ function IstioMirrorLesson({ meta }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
-        <div style={{ borderRadius: 10, padding: "8px 12px", border: "1px solid #1e293b", background: "#0a0a0a", textAlign: "center" }}>
+        <div style={{ borderRadius: 10, padding: "8px 12px", border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center" }}>
           <div style={{ fontSize: 16 }}>🌐</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#94a3b8" }}>Client</div>
+          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b" }}>Client</div>
           {headerMod && <div style={{ fontSize: 9, color: "#67e8f9", marginTop: 2 }}>x-source: production</div>}
         </div>
-        <div style={{ fontSize: 14, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
           <div style={{ borderRadius: 10, padding: "8px 12px", border: "2px solid #6366f1", background: "#6366f115", textAlign: "center", minWidth: 80 }}>
             <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#a5b4fc" }}>📦 v1</div>
@@ -2331,7 +2744,7 @@ function IstioMirrorLesson({ meta }) {
           {mirrorOn && (
             <div style={{ borderRadius: 10, padding: "8px 12px", border: `2px dashed #67e8f9`, background: "#67e8f910", textAlign: "center", minWidth: 80, opacity: 0.85 }}>
               <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#67e8f9" }}>📦 v2 (mirror)</div>
-              <div style={{ fontSize: 9, fontFamily: "monospace", color: "#475569" }}>response discarded</div>
+              <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>response discarded</div>
               {pct > 0 && <div style={{ fontSize: 9, color: "#67e8f9" }}>{pct}% mirrored</div>}
             </div>
           )}
@@ -2363,8 +2776,8 @@ function IstioSidecarResourceLesson({ meta }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
-      <div style={{ borderRadius: 10, border: "1px solid #1e293b", background: "#080e1a", padding: 12 }}>
-        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#475569", marginBottom: 8, textAlign: "center" }}>
+      <div style={{ borderRadius: 10, border: "1px solid #e2e8f0", background: "#f8fafc", padding: 12 }}>
+        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginBottom: 8, textAlign: "center" }}>
           {scoped ? "🔷 Envoy config (scoped — after Sidecar resource)" : "🔷 Envoy config (default — all services)"}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center" }}>
@@ -2372,7 +2785,7 @@ function IstioSidecarResourceLesson({ meta }) {
             const needed = neededSvcs.includes(s);
             const visible = !scoped || needed;
             return (
-              <div key={s} style={{ padding: "3px 8px", borderRadius: 6, border: `1px solid ${visible ? "#4ade8050" : "#1e293b"}`, background: visible ? "#4ade8010" : "transparent", fontSize: 9, fontFamily: "monospace", color: visible ? "#4ade80" : "#1e293b", transition: "all 0.4s", opacity: visible ? 1 : 0.2 }}>
+              <div key={s} style={{ padding: "3px 8px", borderRadius: 6, border: `1px solid ${visible ? "#4ade8050" : "#94a3b8"}`, background: visible ? "#4ade8010" : "transparent", fontSize: 9, fontFamily: "monospace", color: visible ? "#4ade80" : "#94a3b8", transition: "all 0.4s", opacity: visible ? 1 : 0.2 }}>
                 {s}
               </div>
             );
@@ -2419,10 +2832,10 @@ function IstioLbLesson({ meta }) {
         {ALGOS.map((algo, i) => {
           const isActive = i === (stage === 0 ? 0 : stage - 1);
           return (
-            <div key={algo.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderRadius: 8, border: `1px solid ${isActive ? algo.color : "#1e293b"}`, background: isActive ? algo.color + "15" : "#080e1a", transition: "all 0.35s" }}>
-              <span style={{ fontSize: 10, fontFamily: "monospace", fontWeight: "bold", color: isActive ? algo.color : "#334155", minWidth: 130 }}>{algo.name}</span>
+            <div key={algo.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderRadius: 8, border: `1px solid ${isActive ? algo.color : "#94a3b8"}`, background: isActive ? algo.color + "15" : "#0f172a", transition: "all 0.35s" }}>
+              <span style={{ fontSize: 10, fontFamily: "monospace", fontWeight: "bold", color: isActive ? algo.color : "#94a3b8", minWidth: 130 }}>{algo.name}</span>
               <span style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", flex: 1 }}>{algo.desc}</span>
-              <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: isActive ? algo.color + "25" : "#1e293b", color: isActive ? algo.color : "#334155", fontFamily: "monospace" }}>{algo.tag}</span>
+              <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: isActive ? algo.color + "25" : "#94a3b8", color: isActive ? algo.color : "#94a3b8", fontFamily: "monospace" }}>{algo.tag}</span>
             </div>
           );
         })}
@@ -2456,9 +2869,9 @@ function IstioAmbientLesson({ meta }) {
     "Step 5 — Migration: sidecar and ambient namespaces coexist. Migrate namespace by namespace — add the ambient label, remove the injection label. Rollback by reversing labels.",
   ];
   const podStyle = (label, hasEnvoy, active) => (
-    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? "#818cf8" : "#1e293b"}`, background: active ? "#818cf815" : "#0a0a0a", textAlign: "center", minWidth: 70, transition: "all 0.4s" }}>
+    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? "#818cf8" : "#94a3b8"}`, background: active ? "#818cf815" : "#0f172a", textAlign: "center", minWidth: 70, transition: "all 0.4s" }}>
       <div style={{ fontSize: 12 }}>📦</div>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: active ? "#818cf8" : "#334155" }}>{label}</div>
+      <div style={{ fontSize: 9, fontFamily: "monospace", color: active ? "#818cf8" : "#94a3b8" }}>{label}</div>
       {hasEnvoy && <div style={{ fontSize: 8, color: "#f59e0b", marginTop: 1 }}>+Envoy 🔷</div>}
     </div>
   );
@@ -2467,7 +2880,7 @@ function IstioAmbientLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {!ambientMode ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#475569", textAlign: "center" }}>Sidecar mode — Envoy injected into every pod</div>
+          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", textAlign: "center" }}>Sidecar mode — Envoy injected into every pod</div>
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             {["pod-1","pod-2","pod-3","pod-4","pod-5"].map(p => podStyle(p, true, false))}
           </div>
@@ -2521,23 +2934,23 @@ function IstioWasmLesson({ meta }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-        <div style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #1e293b", background: "#0a0a0a", textAlign: "center" }}>
+        <div style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center" }}>
           <div style={{ fontSize: 14 }}>🌐</div>
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8" }}>Request</div>
+          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>Request</div>
         </div>
-        <div style={{ fontSize: 12, color: "#475569" }}>→</div>
+        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
           {PHASES.map(ph => (
-            <div key={ph.name} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${ph.active ? ph.color : "#1e293b"}`, background: ph.active ? ph.color + "15" : "#0a0a0a", fontSize: 9, fontFamily: "monospace", color: ph.active ? ph.color : "#334155", transition: "all 0.35s", display: "flex", gap: 8 }}>
+            <div key={ph.name} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${ph.active ? ph.color : "#94a3b8"}`, background: ph.active ? ph.color + "15" : "#0f172a", fontSize: 9, fontFamily: "monospace", color: ph.active ? ph.color : "#94a3b8", transition: "all 0.35s", display: "flex", gap: 8 }}>
               <span style={{ fontWeight: "bold", minWidth: 40 }}>{ph.name}</span>
-              <span style={{ color: ph.active ? ph.color + "cc" : "#1e293b" }}>{ph.desc}</span>
+              <span style={{ color: ph.active ? ph.color + "cc" : "#94a3b8" }}>{ph.desc}</span>
             </div>
           ))}
         </div>
-        <div style={{ fontSize: 12, color: "#475569" }}>→</div>
-        <div style={{ padding: "8px 12px", borderRadius: 8, border: `1px solid ${rateLimited ? "#ef4444" : customHeader ? "#22c55e" : "#1e293b"}`, background: "#0a0a0a", textAlign: "center", transition: "all 0.4s" }}>
+        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ padding: "8px 12px", borderRadius: 8, border: `1px solid ${rateLimited ? "#ef4444" : customHeader ? "#22c55e" : "#94a3b8"}`, background: "#f8fafc", textAlign: "center", transition: "all 0.4s" }}>
           <div style={{ fontSize: 14 }}>📦</div>
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: rateLimited ? "#ef4444" : customHeader ? "#22c55e" : "#475569" }}>
+          <div style={{ fontSize: 9, fontFamily: "monospace", color: rateLimited ? "#ef4444" : customHeader ? "#22c55e" : "#64748b" }}>
             {rateLimited ? "429 Rate Limited" : customHeader ? "200 + x-filtered-by" : "Service"}
           </div>
         </div>
@@ -2555,19 +2968,19 @@ function SvcBox({ label, sub, color = "#0ea5e9", pulse = false, warn = false, di
   return (
     <div style={{
       padding: "8px 14px", borderRadius: 10, minWidth: 90, textAlign: "center",
-      background: dim ? "#0a0a0a" : (warn ? "#7f1d1d" : color + "18"),
-      border: `1.5px solid ${dim ? "#1e293b" : (warn ? "#ef4444" : color + (pulse ? "ff" : "60"))}`,
+      background: dim ? "#f1f5f9" : (warn ? "#7f1d1d" : color + "18"),
+      border: `1.5px solid ${dim ? "#e2e8f0" : (warn ? "#ef4444" : color + (pulse ? "ff" : "60"))}`,
       boxShadow: pulse && !dim ? `0 0 12px ${color}50` : "none",
       transition: "all 0.4s", opacity: dim ? 0.35 : 1,
     }}>
       <div style={{ fontSize: 11, fontWeight: "bold", color: dim ? "#334155" : (warn ? "#fca5a5" : color), fontFamily: "monospace" }}>{label}</div>
-      {sub && <div style={{ fontSize: 9, color: dim ? "#1e293b" : "#475569", marginTop: 2, fontFamily: "monospace" }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 9, color: dim ? "#94a3b8" : "#64748b", marginTop: 2, fontFamily: "monospace" }}>{sub}</div>}
     </div>
   );
 }
 
 function ScenarioArrow({ label, active, color = "#0ea5e9", blocked = false, vertical = false }) {
-  const C = blocked ? "#ef4444" : (active ? color : "#1e293b");
+  const C = blocked ? "#ef4444" : (active ? color : "#94a3b8");
   return (
     <div style={{
       display: "flex", flexDirection: vertical ? "column" : "row",
@@ -2605,19 +3018,19 @@ function HopLane({ hops, arrows }) {
             <div style={{
               padding: "6px 10px", borderRadius: 8, textAlign: "center",
               background: hop.dim ? "#050a14" : (hop.warn ? "#3f0505" : hop.color + "18"),
-              border: `1.5px solid ${hop.dim ? "#111827" : (hop.warn ? "#ef444460" : hop.active ? hop.color : hop.color + "35")}`,
+              border: `1.5px solid ${hop.dim ? "#ffffff" : (hop.warn ? "#ef444460" : hop.active ? hop.color : hop.color + "35")}`,
               boxShadow: hop.active && !hop.dim ? `0 0 10px ${hop.color}30` : "none",
               opacity: hop.dim ? 0.22 : 1, transition: "all 0.35s",
             }}>
-              <div style={{ fontSize: 10, fontWeight: "bold", color: hop.dim ? "#1e293b" : (hop.warn ? "#fca5a5" : hop.color), fontFamily: "monospace" }}>{hop.name}</div>
-              {hop.sub && <div style={{ fontSize: 8, color: hop.dim ? "#111827" : "#475569", marginTop: 1, fontFamily: "monospace" }}>{hop.sub}</div>}
+              <div style={{ fontSize: 10, fontWeight: "bold", color: hop.dim ? "#e2e8f0" : (hop.warn ? "#fca5a5" : hop.color), fontFamily: "monospace" }}>{hop.name}</div>
+              {hop.sub && <div style={{ fontSize: 8, color: hop.dim ? "#ffffff" : "#64748b", marginTop: 1, fontFamily: "monospace" }}>{hop.sub}</div>}
             </div>
             {hop.sidecarAction && (
               <div style={{
                 padding: "2px 6px", borderRadius: 4, fontSize: 8, fontFamily: "monospace",
                 background: hop.warn ? "#3f0505" : "#080f1f",
-                border: `1px solid ${hop.warn ? "#ef444450" : hop.active ? hop.color + "55" : "#1e293b"}`,
-                color: hop.warn ? "#fca5a5" : hop.active ? hop.color : "#334155",
+                border: `1px solid ${hop.warn ? "#ef444450" : hop.active ? hop.color + "55" : "#94a3b8"}`,
+                color: hop.warn ? "#fca5a5" : hop.active ? hop.color : "#94a3b8",
                 textAlign: "center", maxWidth: 108,
               }}>
                 ⬡ {hop.sidecarAction}
@@ -2633,17 +3046,17 @@ function HopLane({ hops, arrows }) {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", paddingTop: 10, gap: 1, minWidth: 38 }}>
               {arrows && arrows[i] ? (
                 <>
-                  <span style={{ fontSize: 7, fontFamily: "monospace", color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#1e293b", whiteSpace: "nowrap" }}>{arrows[i].label}</span>
+                  <span style={{ fontSize: 7, fontFamily: "monospace", color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8", whiteSpace: "nowrap" }}>{arrows[i].label}</span>
                   <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                    <div style={{ flex: 1, height: 1.5, background: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#1e293b" }} />
-                    <span style={{ fontSize: 9, color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#1e293b" }}>{arrows[i].blocked ? "✗" : "▶"}</span>
+                    <div style={{ flex: 1, height: 1.5, background: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8" }} />
+                    <span style={{ fontSize: 9, color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8" }}>{arrows[i].blocked ? "✗" : "▶"}</span>
                   </div>
-                  {arrows[i].proto && <span style={{ fontSize: 7, fontFamily: "monospace", color: "#1e293b" }}>{arrows[i].proto}</span>}
+                  {arrows[i].proto && <span style={{ fontSize: 7, fontFamily: "monospace", color: "#94a3b8" }}>{arrows[i].proto}</span>}
                 </>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", width: "100%", marginTop: 9 }}>
-                  <div style={{ flex: 1, height: 1, background: "#1e293b" }} />
-                  <span style={{ fontSize: 9, color: "#1e293b" }}>▶</span>
+                  <div style={{ flex: 1, height: 1, background: "#94a3b8" }} />
+                  <span style={{ fontSize: 9, color: "#94a3b8" }}>▶</span>
                 </div>
               )}
             </div>
@@ -2656,17 +3069,17 @@ function HopLane({ hops, arrows }) {
 
 function FilterChainBox({ filters, active, color }) {
   return (
-    <div style={{ background: "#020c18", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", minWidth: 210 }}>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#334155", marginBottom: 7, letterSpacing: "0.04em" }}>⚙ ENVOY FILTER CHAIN</div>
+    <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", minWidth: 210 }}>
+      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginBottom: 7, letterSpacing: "0.04em" }}>⚙ ENVOY FILTER CHAIN</div>
       {filters.map((f, i) => (
         <div key={i} style={{
           display: "flex", alignItems: "flex-start", gap: 7, padding: "4px 7px", borderRadius: 6, marginBottom: 3,
           background: i === active ? color + "12" : "transparent",
           border: `1px solid ${i === active ? color + "45" : "transparent"}`, transition: "all 0.3s",
         }}>
-          <div style={{ width: 5, height: 5, borderRadius: "50%", background: i === active ? color : i < active ? color + "45" : "#1e293b", flexShrink: 0, marginTop: 3 }} />
+          <div style={{ width: 5, height: 5, borderRadius: "50%", background: i === active ? color : i < active ? color + "45" : "#94a3b8", flexShrink: 0, marginTop: 3 }} />
           <div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: i === active ? color : i < active ? color + "80" : "#334155", fontWeight: i === active ? "bold" : "normal" }}>{f.name}</div>
+            <div style={{ fontSize: 9, fontFamily: "monospace", color: i === active ? color : i < active ? color + "80" : "#94a3b8", fontWeight: i === active ? "bold" : "normal" }}>{f.name}</div>
             {i === active && f.detail && <div style={{ fontSize: 8, color: "#64748b", marginTop: 2, lineHeight: 1.45 }}>{f.detail}</div>}
           </div>
         </div>
@@ -2677,13 +3090,13 @@ function FilterChainBox({ filters, active, color }) {
 
 function RequestStateBox({ headers, status, color }) {
   return (
-    <div style={{ background: "#020c18", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 200 }}>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#334155", marginBottom: 7, letterSpacing: "0.04em" }}>📋 REQUEST STATE</div>
+    <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 200 }}>
+      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginBottom: 7, letterSpacing: "0.04em" }}>📋 REQUEST STATE</div>
       {status && (
         <div style={{
           fontSize: 9, fontFamily: "monospace", marginBottom: 7,
           color: status.startsWith("2") ? "#22c55e" : status.startsWith("4") ? "#ef4444" : "#f59e0b",
-          padding: "2px 8px", background: "#0a1929", borderRadius: 4, display: "inline-block",
+          padding: "2px 8px", background: "#eff6ff", borderRadius: 4, display: "inline-block",
         }}>HTTP {status}</div>
       )}
       {headers.map((h, i) => (
@@ -2710,8 +3123,8 @@ function RequestStateBox({ headers, status, color }) {
 
 function YamlBox({ code, color }) {
   return (
-    <div style={{ background: "#020c18", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 210 }}>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#334155", marginBottom: 6, letterSpacing: "0.04em" }}>📄 ACTIVE ISTIO CONFIG</div>
+    <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 210 }}>
+      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginBottom: 6, letterSpacing: "0.04em" }}>📄 ACTIVE ISTIO CONFIG</div>
       <pre style={{ margin: 0, fontSize: 8, fontFamily: "monospace", color: "#4ade8090", whiteSpace: "pre-wrap", lineHeight: 1.6, maxHeight: 152, overflowY: "auto" }}>{code}</pre>
     </div>
   );
@@ -2723,18 +3136,18 @@ function ScenarioShell({ icon, name, subtitle, steps, color }) {
   const reset   = useCallback(() => setStep(0), []);
   const S = steps[step];
   return (
-    <div style={{ background: "#030811", border: `1px solid ${color}20`, borderRadius: 14, padding: 20 }}>
+    <div style={{ background: "#f0f9ff", border: `1px solid ${color}20`, borderRadius: 14, padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
         <span style={{ fontSize: 18 }}>{icon}</span>
         <div>
           <div style={{ fontSize: 13, fontWeight: "bold", color: color + "cc", fontFamily: "monospace" }}>{name}</div>
-          <div style={{ fontSize: 10, color: "#475569", fontFamily: "monospace" }}>{subtitle}</div>
+          <div style={{ fontSize: 10, color: "#64748b", fontFamily: "monospace" }}>{subtitle}</div>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
           {steps.map((_, i) => (
             <div key={i} onClick={() => setStep(i)} style={{
               width: 7, height: 7, borderRadius: "50%", cursor: "pointer", transition: "all 0.2s",
-              background: i < step ? color + "50" : i === step ? color : "#1e293b",
+              background: i < step ? color + "50" : i === step ? color : "#94a3b8",
               border: i === step ? `1px solid ${color}` : "1px solid transparent",
             }} />
           ))}
@@ -2753,15 +3166,968 @@ function ScenarioShell({ icon, name, subtitle, steps, color }) {
         {S.yaml && <YamlBox code={S.yaml} color={color} />}
         {(S.headers || S.status) && <RequestStateBox headers={S.headers || []} status={S.status} color={color} />}
       </div>
-      <div style={{ background: "#030b15", borderRadius: 10, padding: "12px 16px", borderLeft: `3px solid ${color}`, marginBottom: 12 }}>
+      <div style={{ background: "#f0faff", borderRadius: 10, padding: "12px 16px", borderLeft: `3px solid ${color}`, marginBottom: 12 }}>
         <div style={{ fontSize: 12, fontWeight: "bold", color, marginBottom: 5 }}>{S.narTitle}</div>
-        <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.68 }}>{S.narBody}</div>
+        <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.68 }}>{S.narBody}</div>
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <button onClick={reset} style={{ padding: "6px 14px", borderRadius: 8, background: "#0f172a", border: "1px solid #1e293b", color: "#475569", fontSize: 11, fontFamily: "monospace", cursor: "pointer" }}>↺ Reset</button>
-        <button onClick={advance} disabled={step === steps.length - 1} style={{ padding: "6px 18px", borderRadius: 8, background: step === steps.length - 1 ? "#0a0a0a" : color + "1a", border: `1px solid ${step === steps.length - 1 ? "#1e293b" : color}`, color: step === steps.length - 1 ? "#1e293b" : color, fontSize: 11, fontFamily: "monospace", cursor: step === steps.length - 1 ? "not-allowed" : "pointer", fontWeight: "bold" }}>Next step →</button>
+        <button onClick={reset} style={{ padding: "6px 14px", borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 11, fontFamily: "monospace", cursor: "pointer" }}>↺ Reset</button>
+        <button onClick={advance} disabled={step === steps.length - 1} style={{ padding: "6px 18px", borderRadius: 8, background: step === steps.length - 1 ? "#f1f5f9" : color + "1a", border: `1px solid ${step === steps.length - 1 ? "#e2e8f0" : color}`, color: step === steps.length - 1 ? "#e2e8f0" : color, fontSize: 11, fontFamily: "monospace", cursor: step === steps.length - 1 ? "not-allowed" : "pointer", fontWeight: "bold" }}>Next step →</button>
         <span style={{ marginLeft: "auto", fontSize: 10, fontFamily: "monospace", color: "#283141" }}>Step {step + 1} / {steps.length}</span>
       </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ─── RabbitMQ Production Lab ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Shared RabbitMQ node renderer
+function RmqNode({ icon, label, sub, role, active, dimmed }) {
+  const colors = {
+    producer:  { bg: "rgba(249,115,22,0.10)", border: "#f97316", text: "#fb923c" },
+    exchange:  { bg: "rgba(168,85,247,0.10)",  border: "#a855f7", text: "#c084fc" },
+    queue:     { bg: "rgba(34,197,94,0.10)",   border: "#22c55e", text: "#4ade80" },
+    consumer:  { bg: "rgba(59,130,246,0.10)",  border: "#3b82f6", text: "#60a5fa" },
+    dlq:       { bg: "rgba(239,68,68,0.10)",   border: "#ef4444", text: "#f87171" },
+    cluster:   { bg: "rgba(6,182,212,0.10)",   border: "#06b6d4", text: "#22d3ee" },
+  };
+  const c = colors[role] || colors.queue;
+  return (
+    <div style={{
+      minWidth: 100, maxWidth: 120, borderRadius: 10, padding: "10px 12px",
+      textAlign: "center", transition: "all 0.25s ease", userSelect: "none",
+      background: active ? c.bg : dimmed ? "rgba(241,245,249,0.70)" : c.bg,
+      border: `1.5px solid ${active ? c.border : dimmed ? "#e2e8f0" : c.border + "60"}`,
+      boxShadow: active ? `0 0 0 3px ${c.border}22, 0 4px 14px rgba(0,0,0,0.3)` : "none",
+      transform: active ? "translateY(-2px)" : "none",
+      opacity: dimmed ? 0.3 : 1,
+    }}>
+      <div style={{ fontSize: 20 }}>{icon}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: active ? "#f1f5f9" : c.text, marginTop: 4, lineHeight: 1.3 }}>{label}</div>
+      {sub && <div style={{ fontSize: 10, color: c.text, opacity: 0.7, marginTop: 2, fontFamily: "monospace" }}>{sub}</div>}
+    </div>
+  );
+}
+
+function RmqArrow({ label, active, color = "#334155", dashed }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 4px", flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <div style={{
+          height: 2, width: 32,
+          background: active ? `linear-gradient(90deg, ${color}60, ${color})` : "#94a3b8",
+          borderRadius: 1,
+          borderTop: dashed ? `2px dashed ${active ? color : "#94a3b8"}` : undefined,
+        }} />
+        <div style={{ width: 0, height: 0, borderTop: "4px solid transparent", borderBottom: "4px solid transparent", borderLeft: `6px solid ${active ? color : "#94a3b8"}` }} />
+      </div>
+      {label && <div style={{ fontSize: 9, color: active ? color : "#94a3b8", fontFamily: "monospace", marginTop: 3, maxWidth: 60, textAlign: "center", lineHeight: 1.3 }}>{label}</div>}
+    </div>
+  );
+}
+
+function RmqMsgBox({ props }) {
+  const colors = { routing_key: "#f97316", delivery_mode: "#22c55e", content_type: "#3b82f6", correlation_id: "#a855f7", reply_to: "#06b6d4", expiration: "#ef4444", headers: "#eab308" };
+  return (
+    <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", overflow: "hidden" }}>
+      <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 13 }}>📨</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", letterSpacing: 0.8, textTransform: "uppercase" }}>Message Properties</span>
+      </div>
+      <div style={{ padding: "10px 14px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
+        {props.map(([k, v, badge]) => (
+          <div key={k} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontFamily: "monospace", fontSize: 11 }}>
+            <span style={{ color: "#64748b", minWidth: 100, flexShrink: 0 }}>{k}:</span>
+            <span style={{ color: "#94a3b8", wordBreak: "break-all" }}>{v}</span>
+            {badge && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, fontWeight: 700, background: (colors[badge] || "#334155") + "22", color: colors[badge] || "#94a3b8", flexShrink: 0 }}>{badge.toUpperCase()}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RmqCodeBox({ title, code }) {
+  return (
+    <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", overflow: "hidden" }}>
+      <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 13 }}>🐍</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", letterSpacing: 0.8, textTransform: "uppercase" }}>{title || "Python / pika"}</span>
+      </div>
+      <pre style={{ margin: 0, padding: "12px 14px", fontSize: 11, fontFamily: "monospace", color: "#64748b", whiteSpace: "pre-wrap", lineHeight: 1.6, overflowX: "auto" }}>{code}</pre>
+    </div>
+  );
+}
+
+function RmqScenarioShell({ title, steps }) {
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const s = steps[step];
+
+  useCallback(() => {
+    if (!playing) return;
+    if (step >= steps.length - 1) { setPlaying(false); return; }
+    const t = setTimeout(() => setStep(i => i + 1), 1800);
+    return () => clearTimeout(t);
+  }, [playing, step, steps.length]);
+
+  // use proper useCallback for effect
+  const { useState: _us, useCallback: uc } = { useState, useCallback };
+
+  return (
+    <div style={{ borderRadius: 16, border: "1px solid #e8edf4", background: "#f8fafc", overflow: "hidden" }}>
+      {/* Header */}
+      <div style={{ padding: "16px 20px 14px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <div>
+          <div style={{ fontSize: 11, color: "#f97316", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Production Scenario</div>
+          <div style={{ fontSize: 17, fontWeight: 800, color: "#0f172a" }}>{title}</div>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button onClick={() => setStep(i => Math.max(0, i - 1))} disabled={step === 0}
+            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === 0 ? "#e2e8f0" : "#64748b", cursor: step === 0 ? "not-allowed" : "pointer" }}>← Prev</button>
+          <button onClick={() => setPlaying(p => !p)}
+            style={{ padding: "6px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: playing ? "#ef444420" : "#f9731620", border: `1px solid ${playing ? "#ef4444" : "#f97316"}`, color: playing ? "#f87171" : "#fb923c", cursor: "pointer" }}>
+            {playing ? "⏸ Pause" : "▶ Play"}</button>
+          <button onClick={() => setStep(i => Math.min(steps.length - 1, i + 1))} disabled={step === steps.length - 1}
+            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === steps.length - 1 ? "#e2e8f0" : "#64748b", cursor: step === steps.length - 1 ? "not-allowed" : "pointer" }}>Next →</button>
+        </div>
+      </div>
+
+      {/* Step progress dots */}
+      <div style={{ display: "flex", gap: 6, padding: "10px 20px", borderBottom: "1px solid #e2e8f0", flexWrap: "wrap" }}>
+        {steps.map((st, i) => (
+          <button key={i} onClick={() => setStep(i)} style={{
+            display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 7, fontSize: 11, fontWeight: i === step ? 700 : 400, border: `1px solid ${i === step ? "#f97316" : "#e8edf4"}`,
+            background: i === step ? "#f9731618" : "transparent", color: i === step ? "#fb923c" : "#94a3b8", cursor: "pointer"
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: i < step ? "#22c55e" : i === step ? "#f97316" : "#94a3b8" }} />
+            {st.stepLabel || `Step ${i + 1}`}
+          </button>
+        ))}
+      </div>
+
+      {/* Main content */}
+      <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+
+        {/* Narration */}
+        <div style={{ borderRadius: 12, padding: "14px 16px", background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.2)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#f97316", marginBottom: 6 }}>{s.narTitle}</div>
+          <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>{s.narBody}</div>
+          {s.status && (
+            <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 6, background: (s.status.ok ? "#22c55e" : "#ef4444") + "18", border: `1px solid ${(s.status.ok ? "#22c55e" : "#ef4444")}30`, fontSize: 11, fontWeight: 700, color: s.status.ok ? "#4ade80" : "#f87171" }}>
+              {s.status.ok ? "✓" : "✗"} {s.status.msg}
+            </div>
+          )}
+        </div>
+
+        {/* Message flow */}
+        <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", padding: "16px 12px", overflowX: "auto" }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Message Flow</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 0, minWidth: "max-content" }}>
+            {s.flow.map((item, i) => (
+              <Fragment key={i}>
+                {item.type === "node" && <RmqNode {...item} />}
+                {item.type === "arrow" && <RmqArrow {...item} />}
+              </Fragment>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom 2-col: message props + code */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <RmqMsgBox props={s.msgProps} />
+          <RmqCodeBox title={s.codeTitle} code={s.code} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── RabbitMQ Prod Scenario 1: E-commerce Order Processing ────────────────────
+function RmqProdEcommerce() {
+  const steps = [
+    {
+      stepLabel: "Topology",
+      narTitle: "E-commerce Order Processing Architecture",
+      narBody: "Three topic exchanges fan traffic to specialised queues: order.created events route to fulfillment, billing, and analytics workers. DLQ captures failed messages for retry.",
+      status: { ok: true, msg: "3 exchanges · 6 queues · DLQ enabled" },
+      flow: [
+        { type: "node", icon: "🛒", label: "Order API", sub: "producer", role: "producer", active: true },
+        { type: "arrow", label: "order.*", active: true, color: "#f97316" },
+        { type: "node", icon: "🔀", label: "orders", sub: "topic exchange", role: "exchange", active: true },
+        { type: "arrow", label: "routing", active: true, color: "#a855f7" },
+        { type: "node", icon: "📋", label: "fulfillment", sub: "durable queue", role: "queue", active: true },
+        { type: "arrow", label: "consume", active: true, color: "#22c55e" },
+        { type: "node", icon: "⚙️", label: "Worker x3", sub: "prefetch=1", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["exchange", "orders", "routing_key"],
+        ["type", "topic", null],
+        ["durable", "True", null],
+        ["queues", "fulfillment, billing, analytics", null],
+        ["dlx", "orders.dead", "routing_key"],
+      ],
+      codeTitle: "Exchange & Queue Declaration",
+      code: `channel.exchange_declare(
+  exchange='orders',
+  exchange_type='topic',
+  durable=True)
+
+channel.queue_declare(
+  queue='fulfillment',
+  durable=True,
+  arguments={
+    'x-dead-letter-exchange': 'orders.dead',
+    'x-message-ttl': 3600000
+  })
+
+channel.queue_bind(
+  exchange='orders',
+  queue='fulfillment',
+  routing_key='order.created.*')`,
+    },
+    {
+      stepLabel: "Publish",
+      narTitle: "Order Published with Routing Key",
+      narBody: "The Order API publishes to the 'orders' topic exchange with routing key 'order.created.electronics'. delivery_mode=2 makes the message persistent — it survives a broker restart.",
+      status: { ok: true, msg: "Message persisted to disk" },
+      flow: [
+        { type: "node", icon: "🛒", label: "Order API", sub: "publish()", role: "producer", active: true },
+        { type: "arrow", label: "order.created\n.electronics", active: true, color: "#f97316" },
+        { type: "node", icon: "🔀", label: "orders", sub: "topic exchange", role: "exchange", active: true },
+        { type: "arrow", label: "matching…", active: false, color: "#a855f7" },
+        { type: "node", icon: "📋", label: "fulfillment", sub: "durable queue", role: "queue", active: false, dimmed: false },
+        { type: "arrow", label: "", active: false, color: "#22c55e" },
+        { type: "node", icon: "⚙️", label: "Worker", sub: "waiting", role: "consumer", active: false, dimmed: true },
+      ],
+      msgProps: [
+        ["routing_key", "order.created.electronics", "routing_key"],
+        ["delivery_mode", "2 (persistent)", "delivery_mode"],
+        ["content_type", "application/json", null],
+        ["message_id", "ord-20240316-4891", null],
+        ["timestamp", "1710590400", null],
+        ["body", '{"order_id":"4891","sku":"E-123"}', null],
+      ],
+      codeTitle: "Publisher Code",
+      code: `channel.basic_publish(
+  exchange='orders',
+  routing_key='order.created.electronics',
+  body=json.dumps(order),
+  properties=pika.BasicProperties(
+    delivery_mode=2,        # persistent
+    content_type='application/json',
+    message_id=str(uuid4()),
+    timestamp=int(time.time()),
+  ))`,
+    },
+    {
+      stepLabel: "Routing",
+      narTitle: "Topic Exchange Pattern Matching",
+      narBody: "'order.created.electronics' matches 'order.created.*' (fulfillment) AND 'order.#' (analytics). The exchange copies the message to BOTH matching queues — this is fan-out with selectivity.",
+      status: { ok: true, msg: "Routed to 2 queues" },
+      flow: [
+        { type: "node", icon: "🛒", label: "Order API", sub: "published", role: "producer", active: false, dimmed: true },
+        { type: "arrow", label: "order.created\n.electronics", active: true, color: "#f97316" },
+        { type: "node", icon: "🔀", label: "orders", sub: "matching keys", role: "exchange", active: true },
+        { type: "arrow", label: "order.created.*\n✓ match", active: true, color: "#22c55e" },
+        { type: "node", icon: "📋", label: "fulfillment", sub: "1 msg queued", role: "queue", active: true },
+        { type: "arrow", label: "order.#\n✓ match", active: true, color: "#22c55e" },
+        { type: "node", icon: "📊", label: "analytics", sub: "1 msg queued", role: "queue", active: true },
+      ],
+      msgProps: [
+        ["binding: fulfillment", "order.created.*", "routing_key"],
+        ["binding: billing",     "order.created.*", "routing_key"],
+        ["binding: analytics",   "order.#",         "routing_key"],
+        ["match: electronics",   "✓ fulfillment, billing, analytics", null],
+        ["copies_made",          "3", null],
+      ],
+      codeTitle: "Binding Patterns",
+      code: `# Bindings registered at startup
+bindings = [
+  ('fulfillment', 'order.created.*'),
+  ('billing',     'order.created.*'),
+  ('analytics',   'order.#'),
+  ('shipping',    'order.shipped.*'),
+  ('refunds',     'order.refunded.#'),
+]
+
+for queue, pattern in bindings:
+  channel.queue_bind(
+    exchange='orders',
+    queue=queue,
+    routing_key=pattern)`,
+    },
+    {
+      stepLabel: "Fair Dispatch",
+      narTitle: "prefetch_count=1 — Fair Worker Dispatch",
+      narBody: "Without prefetch, RabbitMQ round-robins blindly — a slow worker gets flooded. With prefetch_count=1, each worker holds at most 1 unacknowledged message, ensuring faster workers do more work.",
+      status: { ok: true, msg: "prefetch_count=1 active on all workers" },
+      flow: [
+        { type: "node", icon: "📋", label: "fulfillment", sub: "5 msgs", role: "queue", active: true },
+        { type: "arrow", label: "dispatch", active: true, color: "#3b82f6" },
+        { type: "node", icon: "⚙️", label: "Worker 1", sub: "1 in-flight", role: "consumer", active: true },
+        { type: "arrow", label: "dispatch", active: true, color: "#3b82f6" },
+        { type: "node", icon: "⚙️", label: "Worker 2", sub: "1 in-flight", role: "consumer", active: true },
+        { type: "arrow", label: "waiting", active: false, color: "#3b82f6" },
+        { type: "node", icon: "⚙️", label: "Worker 3", sub: "idle", role: "consumer", active: false },
+      ],
+      msgProps: [
+        ["prefetch_count", "1", "headers"],
+        ["worker_1_status", "processing ord-4891", null],
+        ["worker_2_status", "processing ord-4892", null],
+        ["worker_3_status", "idle (waiting)", null],
+        ["queue_depth",     "3 remaining", null],
+      ],
+      codeTitle: "Fair Dispatch Setup",
+      code: `def start_worker(worker_id):
+  channel.basic_qos(
+    prefetch_count=1)  # key setting
+
+  def callback(ch, method, props, body):
+    order = json.loads(body)
+    process_order(order)  # slow work
+    ch.basic_ack(
+      delivery_tag=method.delivery_tag)
+
+  channel.basic_consume(
+    queue='fulfillment',
+    on_message_callback=callback)
+
+  channel.start_consuming()`,
+    },
+    {
+      stepLabel: "DLQ",
+      narTitle: "Dead Letter Queue — Failed Message Handling",
+      narBody: "Payment processing fails for ord-4893 (card declined). After 3 NACK + requeue=False, the message is dead-lettered to orders.dead exchange with original headers preserved for debugging.",
+      status: { ok: false, msg: "ord-4893 → DLQ after 3 failures" },
+      flow: [
+        { type: "node", icon: "📋", label: "billing", sub: "processing", role: "queue", active: true },
+        { type: "arrow", label: "nack × 3", active: true, color: "#ef4444" },
+        { type: "node", icon: "⚙️", label: "Billing\nWorker", sub: "card declined", role: "consumer", active: true },
+        { type: "arrow", label: "dead-letter", active: true, color: "#ef4444", dashed: true },
+        { type: "node", icon: "🔀", label: "orders.dead", sub: "DLX exchange", role: "dlq", active: true },
+        { type: "arrow", label: "route", active: true, color: "#ef4444" },
+        { type: "node", icon: "☠️", label: "billing.dlq", sub: "retry queue", role: "dlq", active: true },
+      ],
+      msgProps: [
+        ["x-death[0].reason",    "rejected",          "routing_key"],
+        ["x-death[0].count",     "3",                 null],
+        ["x-death[0].queue",     "billing",           null],
+        ["x-death[0].exchange",  "orders",            null],
+        ["x-original-routing-key","order.created.electronics", "routing_key"],
+        ["x-first-death-at",     "2024-03-16T09:42Z", null],
+      ],
+      codeTitle: "DLQ & Retry Logic",
+      code: `# Queue declared with DLX
+channel.queue_declare(
+  queue='billing',
+  durable=True,
+  arguments={
+    'x-dead-letter-exchange': 'orders.dead',
+    'x-dead-letter-routing-key': 'billing.failed',
+  })
+
+# Consumer NAKs on failure
+def callback(ch, method, props, body):
+  try:
+    charge_card(json.loads(body))
+    ch.basic_ack(method.delivery_tag)
+  except PaymentError:
+    ch.basic_nack(
+      method.delivery_tag,
+      requeue=False)   # → DLQ`,
+    },
+    {
+      stepLabel: "Publisher Confirms",
+      narTitle: "Publisher Confirms — Guaranteed Delivery",
+      narBody: "channel.confirm_delivery() switches the channel to confirm mode. The broker sends a basic.ack once the message is persisted to disk (both exchange + all bound queues). No ack = retry.",
+      status: { ok: true, msg: "Ack received — message durable on disk" },
+      flow: [
+        { type: "node", icon: "🛒", label: "Order API", sub: "confirm mode", role: "producer", active: true },
+        { type: "arrow", label: "publish", active: true, color: "#f97316" },
+        { type: "node", icon: "🔀", label: "orders", sub: "exchange", role: "exchange", active: true },
+        { type: "arrow", label: "persist\nto disk", active: true, color: "#22c55e" },
+        { type: "node", icon: "💾", label: "Disk", sub: "durable", role: "queue", active: true },
+        { type: "arrow", label: "basic.ack\n←", active: true, color: "#22c55e" },
+        { type: "node", icon: "✅", label: "Confirmed", sub: "delivery_tag=1", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["confirm_mode",   "enabled",         "delivery_mode"],
+        ["delivery_tag",   "1",               null],
+        ["ack_received",   "True",            null],
+        ["nack_received",  "False",           null],
+        ["delivery_mode",  "2 (persistent)",  "delivery_mode"],
+        ["persisted",      "exchange + queue disk", null],
+      ],
+      codeTitle: "Publisher Confirms",
+      code: `channel.confirm_delivery()
+
+def publish_with_confirm(order):
+  channel.basic_publish(
+    exchange='orders',
+    routing_key='order.created.electronics',
+    body=json.dumps(order),
+    properties=pika.BasicProperties(
+      delivery_mode=2))
+
+  # Block until ack/nack
+  if channel.is_open:
+    print("✓ Confirmed — message on disk")
+  else:
+    raise Exception("Nack received — retry")`,
+    },
+    {
+      stepLabel: "Consumer ACK",
+      narTitle: "Consumer ACK Flow — At-Least-Once Delivery",
+      narBody: "The worker calls basic_ack only AFTER successfully writing to the database. If the worker crashes mid-processing, RabbitMQ re-delivers the message to another worker — guaranteeing no loss.",
+      status: { ok: true, msg: "ACK sent — message removed from queue" },
+      flow: [
+        { type: "node", icon: "📋", label: "fulfillment", sub: "msg in-flight", role: "queue", active: true },
+        { type: "arrow", label: "deliver", active: true, color: "#3b82f6" },
+        { type: "node", icon: "⚙️", label: "Worker", sub: "processing", role: "consumer", active: true },
+        { type: "arrow", label: "DB write\n→ ACK", active: true, color: "#22c55e" },
+        { type: "node", icon: "🗄️", label: "Database", sub: "committed", role: "queue", active: true },
+        { type: "arrow", label: "basic_ack\n←", active: true, color: "#22c55e" },
+        { type: "node", icon: "🗑️", label: "Deleted", sub: "from queue", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["delivery_tag",   "42",               null],
+        ["redelivered",    "False",            null],
+        ["ack_mode",       "manual",           "delivery_mode"],
+        ["db_write",       "SUCCESS",          "routing_key"],
+        ["basic_ack",      "delivery_tag=42",  null],
+        ["queue_depth",    "4 remaining",      null],
+      ],
+      codeTitle: "Manual ACK Pattern",
+      code: `def callback(ch, method, props, body):
+  order = json.loads(body)
+  try:
+    # 1. Process (may take time)
+    result = fulfill_order(order)
+
+    # 2. Write to DB atomically
+    db.save_fulfillment(result)
+
+    # 3. ACK only on success
+    ch.basic_ack(
+      delivery_tag=method.delivery_tag)
+
+  except Exception as e:
+    # NACK with requeue for retry
+    ch.basic_nack(
+      delivery_tag=method.delivery_tag,
+      requeue=True)`,
+    },
+  ];
+  return <RmqScenarioShell title="E-commerce Order Processing" steps={steps} />;
+}
+
+// ── RabbitMQ Prod Scenario 2: Financial Event Sourcing ───────────────────────
+function RmqProdFintech() {
+  const steps = [
+    {
+      stepLabel: "Topology",
+      narTitle: "Financial Event Sourcing Architecture",
+      narBody: "A headers exchange routes trade events by asset class and region. Compliance, risk, and audit services subscribe with independent queues. All messages are persistent with mandatory routing.",
+      status: { ok: true, msg: "Headers exchange · persistent · mandatory=True" },
+      flow: [
+        { type: "node", icon: "💹", label: "Trade Engine", sub: "producer", role: "producer", active: true },
+        { type: "arrow", label: "headers", active: true, color: "#f97316" },
+        { type: "node", icon: "🔀", label: "trades", sub: "headers exchange", role: "exchange", active: true },
+        { type: "arrow", label: "x-match: all", active: true, color: "#a855f7" },
+        { type: "node", icon: "📋", label: "compliance", sub: "durable", role: "queue", active: true },
+        { type: "arrow", label: "consume", active: true, color: "#22c55e" },
+        { type: "node", icon: "🔍", label: "Compliance Svc", sub: "audit", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["exchange_type",  "headers",          "headers"],
+        ["x-match",        "all",              null],
+        ["asset_class",    "equity",           "routing_key"],
+        ["region",         "US",               null],
+        ["mandatory",      "True",             "delivery_mode"],
+        ["durable",        "True",             null],
+      ],
+      codeTitle: "Headers Exchange Declaration",
+      code: `channel.exchange_declare(
+  exchange='trades',
+  exchange_type='headers',
+  durable=True)
+
+# Compliance binds on equity + US
+channel.queue_bind(
+  exchange='trades',
+  queue='compliance',
+  arguments={
+    'x-match': 'all',    # ALL headers must match
+    'asset_class': 'equity',
+    'region': 'US',
+  })
+
+# Risk binds on any high-value
+channel.queue_bind(
+  exchange='trades',
+  queue='risk',
+  arguments={
+    'x-match': 'any',    # ANY header matches
+    'notional_usd': 'large',
+  })`,
+    },
+    {
+      stepLabel: "Persistent Msg",
+      narTitle: "Persistent Messages with Mandatory Flag",
+      narBody: "mandatory=True ensures the broker returns an Unroutable error if no queue matches the headers. This prevents silent data loss — critical in financial systems where every trade must be audited.",
+      status: { ok: true, msg: "Routed to compliance + risk queues" },
+      flow: [
+        { type: "node", icon: "💹", label: "Trade Engine", sub: "SELL AAPL", role: "producer", active: true },
+        { type: "arrow", label: "mandatory\npublish", active: true, color: "#f97316" },
+        { type: "node", icon: "🔀", label: "trades", sub: "headers match", role: "exchange", active: true },
+        { type: "arrow", label: "matched\n✓", active: true, color: "#22c55e" },
+        { type: "node", icon: "📋", label: "compliance", sub: "persisted", role: "queue", active: true },
+        { type: "arrow", label: "", active: true, color: "#22c55e" },
+        { type: "node", icon: "📋", label: "risk", sub: "persisted", role: "queue", active: true },
+      ],
+      msgProps: [
+        ["asset_class",    "equity",           "routing_key"],
+        ["region",         "US",               null],
+        ["notional_usd",   "large",            "headers"],
+        ["trade_id",       "TRD-20240316-991", null],
+        ["delivery_mode",  "2 (persistent)",   "delivery_mode"],
+        ["mandatory",      "True",             null],
+      ],
+      codeTitle: "Mandatory Publish",
+      code: `# Return handler for unrouted messages
+def on_return(ch, method, props, body):
+  alert_ops(f"UNROUTED: {body}")
+
+channel.add_on_return_callback(on_return)
+
+channel.basic_publish(
+  exchange='trades',
+  routing_key='',       # ignored by headers exchange
+  mandatory=True,       # error if unroutable
+  body=json.dumps(trade),
+  properties=pika.BasicProperties(
+    delivery_mode=2,
+    headers={
+      'asset_class': 'equity',
+      'region': 'US',
+      'notional_usd': 'large',
+      'trade_id': trade['id'],
+    }))`,
+    },
+    {
+      stepLabel: "Tx & Confirms",
+      narTitle: "AMQP Transactions vs Publisher Confirms",
+      narBody: "For exactly-once publish semantics, choose between AMQP transactions (slower, atomic) or publisher confirms (async, higher throughput). For high-frequency trading, confirms are preferred.",
+      status: { ok: true, msg: "Confirms: 1200 msg/s vs Tx: 80 msg/s" },
+      flow: [
+        { type: "node", icon: "💹", label: "Trade Engine", sub: "confirm mode", role: "producer", active: true },
+        { type: "arrow", label: "batch\npublish", active: true, color: "#f97316" },
+        { type: "node", icon: "🔀", label: "trades", sub: "exchange", role: "exchange", active: true },
+        { type: "arrow", label: "batch ack\n←", active: true, color: "#22c55e" },
+        { type: "node", icon: "✅", label: "Confirmed", sub: "1200/s", role: "consumer", active: true },
+        { type: "arrow", label: "vs tx", active: false, color: "#ef4444" },
+        { type: "node", icon: "🐢", label: "Tx Mode", sub: "80/s", role: "dlq", active: false, dimmed: true },
+      ],
+      msgProps: [
+        ["mode",             "publisher_confirms", "routing_key"],
+        ["throughput",       "1200 msg/s",        null],
+        ["latency",          "~0.8ms avg",        null],
+        ["batch_size",       "100 messages",      "headers"],
+        ["outstanding_acks", "0",                 null],
+      ],
+      codeTitle: "Async Confirms with Coroutine",
+      code: `channel.confirm_delivery()
+pending = {}
+
+def on_ack(delivery_tag, multiple):
+  if multiple:
+    for tag in list(pending):
+      if tag <= delivery_tag:
+        pending.pop(tag).set_result(True)
+  else:
+    pending.pop(delivery_tag, None)
+
+channel.add_on_ack_callback(on_ack)
+channel.add_on_nack_callback(
+  lambda tag, mult: on_nack(tag, mult))
+
+# Publish batch asynchronously
+for trade in batch:
+  fut = asyncio.Future()
+  tag = channel.basic_publish(...)
+  pending[tag] = fut`,
+    },
+    {
+      stepLabel: "Priority Queue",
+      narTitle: "Priority Queue for Regulatory Alerts",
+      narBody: "Regulatory trade alerts use a priority queue (x-max-priority=10). A PRIORITY_10 Reg-NMS violation message skips ahead of thousands of normal audit messages.",
+      status: { ok: true, msg: "Priority 10 msg consumed first" },
+      flow: [
+        { type: "node", icon: "🚨", label: "Risk Engine", sub: "priority=10", role: "producer", active: true },
+        { type: "arrow", label: "high priority\npublish", active: true, color: "#ef4444" },
+        { type: "node", icon: "📋", label: "compliance\n(priority)", sub: "x-max-priority=10", role: "queue", active: true },
+        { type: "arrow", label: "reorder\n→ front", active: true, color: "#ef4444" },
+        { type: "node", icon: "⚙️", label: "Compliance\nWorker", sub: "priority pop", role: "consumer", active: true },
+        { type: "arrow", label: "process\n→", active: true, color: "#22c55e" },
+        { type: "node", icon: "🔍", label: "Reg Alert\nHandler", sub: "< 10ms SLA", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["priority",         "10 (max)",         "routing_key"],
+        ["x-max-priority",   "10",               "headers"],
+        ["queue_depth",       "4200 msgs",       null],
+        ["position_after_insert", "front",       "delivery_mode"],
+        ["consume_order",    "priority-first",   null],
+      ],
+      codeTitle: "Priority Queue",
+      code: `# Declare queue with priority support
+channel.queue_declare(
+  queue='compliance',
+  durable=True,
+  arguments={
+    'x-max-priority': 10  # 0-10 range
+  })
+
+# Publish high-priority alert
+channel.basic_publish(
+  exchange='trades',
+  routing_key='compliance',
+  body=json.dumps(violation),
+  properties=pika.BasicProperties(
+    priority=10,          # jumps to front
+    delivery_mode=2,
+    expiration='10000',   # 10s TTL
+  ))`,
+    },
+    {
+      stepLabel: "TTL & Expiry",
+      narTitle: "Message TTL — Time-Sensitive Market Data",
+      narBody: "Market data quotes expire quickly. x-message-ttl=500ms ensures stale price quotes are dropped from the queue rather than processed by a downstream service with outdated data.",
+      status: { ok: true, msg: "Expired messages discarded silently" },
+      flow: [
+        { type: "node", icon: "📈", label: "Market Feed", sub: "TTL=500ms", role: "producer", active: true },
+        { type: "arrow", label: "publish\n+TTL", active: true, color: "#f97316" },
+        { type: "node", icon: "📋", label: "quotes", sub: "TTL queue", role: "queue", active: true },
+        { type: "arrow", label: "expired\n→ DLX", active: true, color: "#ef4444", dashed: true },
+        { type: "node", icon: "☠️", label: "quotes.dlq", sub: "expired msgs", role: "dlq", active: true },
+        { type: "arrow", label: "fresh\n→ process", active: true, color: "#22c55e" },
+        { type: "node", icon: "⚙️", label: "Pricer", sub: "< 500ms only", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["x-message-ttl",  "500 (ms)",       "headers"],
+        ["x-dead-letter-exchange", "quotes.expired", null],
+        ["msg_age_at_consume", "320ms",       null],
+        ["msg_status",      "FRESH",          "routing_key"],
+        ["expired_count",   "14 in last min", null],
+      ],
+      codeTitle: "Per-Queue and Per-Message TTL",
+      code: `# Per-queue TTL (affects all messages)
+channel.queue_declare(
+  queue='quotes',
+  arguments={
+    'x-message-ttl': 500,  # 500ms
+    'x-dead-letter-exchange': 'quotes.expired',
+  })
+
+# Per-message TTL (overrides queue TTL)
+channel.basic_publish(
+  exchange='market',
+  routing_key='quotes',
+  body=json.dumps(quote),
+  properties=pika.BasicProperties(
+    expiration='200',    # 200ms this msg
+    delivery_mode=1,     # non-persistent ok
+  ))`,
+    },
+    {
+      stepLabel: "Audit Stream",
+      narTitle: "Audit Trail with Shovel + Remote Archival",
+      narBody: "The Shovel plugin forwards a copy of every compliance queue message to a long-term S3-backed audit broker over federation. This creates a tamper-resistant append-only audit log.",
+      status: { ok: true, msg: "Shovel active — 0 message loss" },
+      flow: [
+        { type: "node", icon: "📋", label: "compliance", sub: "primary", role: "queue", active: true },
+        { type: "arrow", label: "shovel\nplugin", active: true, color: "#3b82f6", dashed: true },
+        { type: "node", icon: "🔀", label: "audit.broker", sub: "remote cluster", role: "exchange", active: true },
+        { type: "arrow", label: "persist", active: true, color: "#3b82f6" },
+        { type: "node", icon: "📦", label: "audit.archive", sub: "S3-backed", role: "cluster", active: true },
+        { type: "arrow", label: "index", active: true, color: "#06b6d4" },
+        { type: "node", icon: "🔍", label: "Audit API", sub: "query/replay", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["plugin",          "rabbitmq_shovel", "headers"],
+        ["src-queue",       "compliance",      null],
+        ["dest-uri",        "amqp://audit-broker:5672", null],
+        ["dest-exchange",   "audit.archive",   "routing_key"],
+        ["ack-mode",        "on-confirm",      "delivery_mode"],
+        ["shovel-name",     "compliance-archive", null],
+      ],
+      codeTitle: "Shovel Config (rabbitmq.conf)",
+      code: `## rabbitmq.conf — Shovel plugin
+shovel.compliance_archive.src-uri  = amqp://
+shovel.compliance_archive.src-queue = compliance
+shovel.compliance_archive.dest-uri  = amqp://audit.broker.internal
+shovel.compliance_archive.dest-exchange = audit.archive
+shovel.compliance_archive.ack-mode  = on-confirm
+shovel.compliance_archive.reconnect-delay = 5
+
+## Enable plugin:
+## rabbitmq-plugins enable rabbitmq_shovel
+## rabbitmq-plugins enable rabbitmq_shovel_management`,
+    },
+  ];
+  return <RmqScenarioShell title="Financial Event Sourcing" steps={steps} />;
+}
+
+// ── RabbitMQ Prod Scenario 3: High-Availability Cluster ──────────────────────
+function RmqProdHA() {
+  const steps = [
+    {
+      stepLabel: "Cluster Setup",
+      narTitle: "3-Node RabbitMQ Cluster Topology",
+      narBody: "Three nodes form a cluster sharing metadata (exchanges, bindings, users) but NOT queue data by default. Classic mirrored queues or Quorum queues distribute message data for HA.",
+      status: { ok: true, msg: "Cluster: 3 nodes · Quorum queues enabled" },
+      flow: [
+        { type: "node", icon: "🔄", label: "HAProxy", sub: "load balancer", role: "producer", active: true },
+        { type: "arrow", label: "round-robin", active: true, color: "#06b6d4" },
+        { type: "node", icon: "🐰", label: "rabbit@node1", sub: "leader", role: "cluster", active: true },
+        { type: "arrow", label: "replicate", active: true, color: "#3b82f6" },
+        { type: "node", icon: "🐰", label: "rabbit@node2", sub: "follower", role: "cluster", active: true },
+        { type: "arrow", label: "replicate", active: true, color: "#3b82f6" },
+        { type: "node", icon: "🐰", label: "rabbit@node3", sub: "follower", role: "cluster", active: true },
+      ],
+      msgProps: [
+        ["cluster_name",    "prod-rabbit-cluster", null],
+        ["nodes",           "node1, node2, node3", "routing_key"],
+        ["queue_type",      "quorum",              "headers"],
+        ["min_quorum_size", "2",                   null],
+        ["ha_policy",       "all",                 null],
+        ["total_queues",    "12 mirrored",         null],
+      ],
+      codeTitle: "Cluster Join Commands",
+      code: `## On node2 & node3:
+rabbitmqctl stop_app
+rabbitmqctl reset
+rabbitmqctl join_cluster rabbit@node1
+rabbitmqctl start_app
+
+## Verify cluster status:
+rabbitmqctl cluster_status
+
+## Create quorum queue via API:
+curl -u admin:pass \\
+  -X PUT http://node1:15672/api/queues/%2F/orders \\
+  -d '{"durable":true,
+       "arguments":{"x-queue-type":"quorum"}}'`,
+    },
+    {
+      stepLabel: "Quorum Queue",
+      narTitle: "Quorum Queues — Raft-Based Replication",
+      narBody: "Quorum queues use the Raft consensus algorithm. A message is confirmed only after a majority (quorum) of replicas have persisted it. This guarantees no data loss even on a single node failure.",
+      status: { ok: true, msg: "Raft quorum reached — message durable" },
+      flow: [
+        { type: "node", icon: "🛒", label: "Producer", sub: "publish", role: "producer", active: true },
+        { type: "arrow", label: "write", active: true, color: "#f97316" },
+        { type: "node", icon: "🐰", label: "node1\n(leader)", sub: "Raft leader", role: "cluster", active: true },
+        { type: "arrow", label: "replicate\n→", active: true, color: "#3b82f6" },
+        { type: "node", icon: "🐰", label: "node2", sub: "follower ✓", role: "cluster", active: true },
+        { type: "arrow", label: "replicate\n→", active: true, color: "#3b82f6" },
+        { type: "node", icon: "🐰", label: "node3", sub: "follower ✓", role: "cluster", active: true },
+      ],
+      msgProps: [
+        ["queue_type",       "quorum",               "headers"],
+        ["raft_state",       "leader=node1",         "routing_key"],
+        ["quorum_size",      "3 nodes",              null],
+        ["writes_confirmed", "2/3 (quorum met)",     "delivery_mode"],
+        ["msg_acked",        "True",                 null],
+        ["data_safety",      "survives 1 node loss", null],
+      ],
+      codeTitle: "Declare Quorum Queue",
+      code: `# Quorum queue: preferred for HA
+channel.queue_declare(
+  queue='orders',
+  durable=True,
+  arguments={
+    'x-queue-type': 'quorum',
+    # optional: minimum replicas
+    'x-quorum-initial-group-size': 3,
+    # dead-lettering still works
+    'x-dead-letter-exchange': 'orders.dead',
+  })
+
+# Consumer with manual ACK (required for quorum)
+channel.basic_qos(prefetch_count=10)
+channel.basic_consume(
+  queue='orders',
+  auto_ack=False,
+  on_message_callback=callback)`,
+    },
+    {
+      stepLabel: "Node Failure",
+      narTitle: "Node Failure — Automatic Leader Election",
+      narBody: "node1 crashes. The Raft protocol elects node2 as the new leader within ~5 seconds. Consumers reconnect via HAProxy; no messages are lost because node2 already has all committed data.",
+      status: { ok: false, msg: "node1 down → node2 elected leader in 4.2s" },
+      flow: [
+        { type: "node", icon: "💀", label: "node1", sub: "CRASHED", role: "dlq", active: false, dimmed: true },
+        { type: "arrow", label: "election\n↓", active: true, color: "#f59e0b" },
+        { type: "node", icon: "👑", label: "node2\n(NEW leader)", sub: "Raft elected", role: "cluster", active: true },
+        { type: "arrow", label: "sync", active: true, color: "#3b82f6" },
+        { type: "node", icon: "🐰", label: "node3", sub: "follower", role: "cluster", active: true },
+        { type: "arrow", label: "reconnect", active: true, color: "#22c55e" },
+        { type: "node", icon: "⚙️", label: "Consumers", sub: "reconnecting", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["failed_node",      "rabbit@node1",          "routing_key"],
+        ["election_trigger", "heartbeat timeout",     null],
+        ["new_leader",       "rabbit@node2",          "delivery_mode"],
+        ["election_time",    "4.2 seconds",           null],
+        ["messages_lost",    "0 (quorum guaranteed)", "headers"],
+        ["consumer_downtime","< 5 seconds",           null],
+      ],
+      codeTitle: "Connection Failover (pika)",
+      code: `import pika
+
+# Multi-host connection string
+params = pika.ConnectionParameters(
+  host='haproxy.internal',
+  port=5672,
+  heartbeat=30,
+  blocked_connection_timeout=300,
+  connection_attempts=3,
+  retry_delay=2)
+
+def connect_with_retry():
+  while True:
+    try:
+      conn = pika.BlockingConnection(params)
+      return conn.channel()
+    except pika.exceptions.AMQPConnectionError:
+      time.sleep(2)
+      continue  # HAProxy retries next node`,
+    },
+    {
+      stepLabel: "Rolling Upgrade",
+      narTitle: "Zero-Downtime Rolling Upgrade",
+      narBody: "RabbitMQ supports rolling upgrades one node at a time. Drain the node (remove from LB), upgrade, restart, re-join cluster. Quorum queues maintain availability as long as majority is up.",
+      status: { ok: true, msg: "node3 upgraded — 0 message loss, 0 downtime" },
+      flow: [
+        { type: "node", icon: "🔄", label: "HAProxy", sub: "drain node3", role: "producer", active: true },
+        { type: "arrow", label: "remove\nfrom LB", active: true, color: "#f59e0b" },
+        { type: "node", icon: "⬆️", label: "node3", sub: "upgrading", role: "exchange", active: true },
+        { type: "arrow", label: "traffic\n→ 1 & 2", active: true, color: "#22c55e" },
+        { type: "node", icon: "🐰", label: "node1+2", sub: "active", role: "cluster", active: true },
+        { type: "arrow", label: "re-add\nto LB", active: true, color: "#22c55e" },
+        { type: "node", icon: "✅", label: "node3 v3.13", sub: "rejoined", role: "cluster", active: true },
+      ],
+      msgProps: [
+        ["upgrade_strategy",  "rolling",              "routing_key"],
+        ["current_version",   "3.12.13",              null],
+        ["target_version",    "3.13.2",               null],
+        ["active_nodes_during_upgrade", "2/3",        "headers"],
+        ["quorum_maintained", "True (2 > 3/2)",       "delivery_mode"],
+        ["downtime",          "0 ms",                 null],
+      ],
+      codeTitle: "Rolling Upgrade Steps",
+      code: `## Step 1: Drain node3 from HAProxy
+## (remove from backend pool)
+
+## Step 2: Stop node3 gracefully
+rabbitmqctl drain          # no new connections
+rabbitmqctl stop_app
+
+## Step 3: Upgrade package
+apt-get install rabbitmq-server=3.13.2
+
+## Step 4: Start & re-join
+rabbitmqctl start_app
+
+## Step 5: Verify cluster health
+rabbitmqctl cluster_status
+rabbitmqctl list_queues name \
+  messages consumers synchronised_slave_pids
+
+## Step 6: Re-add to HAProxy`,
+    },
+    {
+      stepLabel: "Monitoring",
+      narTitle: "Production Monitoring — Prometheus + Grafana",
+      narBody: "The rabbitmq_prometheus plugin exposes /metrics. Key SLOs: queue depth < 10k, consumer utilisation > 0.8, memory < 70% of watermark, disk free > 5GB. Alert on any breach.",
+      status: { ok: true, msg: "All SLOs green — cluster healthy" },
+      flow: [
+        { type: "node", icon: "🐰", label: "RabbitMQ\nCluster", sub: ":15692/metrics", role: "cluster", active: true },
+        { type: "arrow", label: "scrape\n15s", active: true, color: "#f97316" },
+        { type: "node", icon: "📊", label: "Prometheus", sub: "time-series", role: "exchange", active: true },
+        { type: "arrow", label: "query", active: true, color: "#3b82f6" },
+        { type: "node", icon: "📈", label: "Grafana", sub: "dashboard", role: "queue", active: true },
+        { type: "arrow", label: "alert", active: true, color: "#ef4444" },
+        { type: "node", icon: "🔔", label: "PagerDuty", sub: "on-call", role: "consumer", active: true },
+      ],
+      msgProps: [
+        ["plugin",           "rabbitmq_prometheus", "headers"],
+        ["scrape_port",      "15692",               null],
+        ["key_metric_1",     "rabbitmq_queue_messages < 10000", "routing_key"],
+        ["key_metric_2",     "rabbitmq_queue_consumer_utilisation > 0.8", null],
+        ["key_metric_3",     "rabbitmq_node_mem_used < 70%", null],
+        ["alert_channel",    "PagerDuty + Slack",   null],
+      ],
+      codeTitle: "Prometheus Alert Rules",
+      code: `# prometheus-alerts.yml
+groups:
+- name: rabbitmq
+  rules:
+  - alert: HighQueueDepth
+    expr: rabbitmq_queue_messages > 10000
+    for: 2m
+    labels: { severity: warning }
+    annotations:
+      summary: "Queue depth > 10k"
+
+  - alert: LowConsumerUtilisation
+    expr: rabbitmq_queue_consumer_utilisation < 0.5
+    for: 5m
+    labels: { severity: critical }
+
+  - alert: MemoryWatermark
+    expr: rabbitmq_node_mem_used /
+      rabbitmq_node_mem_limit > 0.7
+    for: 1m
+    labels: { severity: critical }`,
+    },
+  ];
+  return <RmqScenarioShell title="High-Availability Cluster" steps={steps} />;
+}
+
+// ── RabbitMQ Production Lab tab selector ────────────────────────────────────
+function RabbitMQProductionLab() {
+  const [tab, setTab] = useState(0);
+  const tabs = [
+    { label: "🛒 E-commerce Pipeline", comp: RmqProdEcommerce },
+    { label: "💹 Financial Event Sourcing", comp: RmqProdFintech },
+    { label: "🔄 HA Cluster", comp: RmqProdHA },
+  ];
+  const Active = tabs[tab].comp;
+  return (
+    <div style={{ marginTop: 40 }}>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#f97316", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>Production Grade</div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: -0.4, marginBottom: 4 }}>RabbitMQ in Production</div>
+        <div style={{ fontSize: 13, color: "#64748b" }}>Real-world architectures with step-by-step message flow, AMQP properties, and Python code for each scenario.</div>
+      </div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+        {tabs.map((t, i) => (
+          <button key={i} onClick={() => setTab(i)} style={{
+            padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: i === tab ? 700 : 500, cursor: "pointer",
+            background: i === tab ? "#f9731620" : "#ffffff",
+            border: `1px solid ${i === tab ? "#f97316" : "#e8edf4"}`,
+            color: i === tab ? "#f97316" : "#64748b",
+            transition: "all 0.15s",
+          }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <Active />
     </div>
   );
 }
@@ -2773,7 +4139,7 @@ function ProdEcommerce() {
     {
       title: "Service Mesh Topology — 6 services, every pod Envoy-injected",
       hops: [
-        { name: "Browser", sub: "user agent", color: "#94a3b8", active: true },
+        { name: "Browser", sub: "user agent", color: "#64748b", active: true },
         { name: "Ingress GW", sub: "istio-ingress", color: C, active: true, sidecarAction: "TLS + JWT", sidecarNote: ":443 listener" },
         { name: "Frontend", sub: ":8080", color: C, active: true, sidecarAction: "iptables :15001", sidecarNote: "outbound capture" },
         { name: "Cart", sub: ":9090", color: "#22c55e", active: true, sidecarAction: "iptables :15006", sidecarNote: "inbound capture" },
@@ -2837,7 +4203,7 @@ iptables -t nat -A PREROUTING -p tcp \\
     {
       title: "JWT Auth Filter — validating the Bearer token at the Ingress edge",
       hops: [
-        { name: "Browser", sub: "Authorization: Bearer eyJ...", color: "#94a3b8", active: true },
+        { name: "Browser", sub: "Authorization: Bearer eyJ...", color: "#64748b", active: true },
         { name: "Ingress GW", sub: "istio-ingressgateway", color: C, active: true, sidecarAction: "JWT Auth Filter", sidecarNote: "JWKS RS256 verify" },
         { name: "Frontend", sub: "v1", color: C, active: true },
         { name: "Cart", sub: "v1", color: "#22c55e", active: false, dim: true },
@@ -2889,7 +4255,7 @@ spec:
         { name: "Cart App", sub: ":9090 plain", color: "#22c55e", active: true },
       ],
       arrows: [
-        { label: "plain HTTP", active: true, color: "#94a3b8" },
+        { label: "plain HTTP", active: true, color: "#64748b" },
         { label: "TLS 1.3 / mTLS", active: true, color: "#22c55e", proto: "SPIFFE SVIDs" },
         { label: "plain HTTP", active: true, color: "#22c55e" },
       ],
@@ -3115,7 +4481,7 @@ function ProdFintech() {
     {
       title: "Zero-Trust API Topology — JWT + SPIFFE + Egress Audit",
       hops: [
-        { name: "Mobile App", sub: "Bearer JWT", color: "#94a3b8", active: true },
+        { name: "Mobile App", sub: "Bearer JWT", color: "#64748b", active: true },
         { name: "Ingress GW", sub: "JWT + TLS", color: C, active: true, sidecarAction: "RequestAuthn", sidecarNote: "JWKS verify" },
         { name: "Account Svc", sub: ":8080", color: "#22c55e", active: true, sidecarAction: "AuthzPolicy", sidecarNote: "role=user" },
         { name: "Transaction", sub: ":8080", color: "#0ea5e9", active: true, sidecarAction: "AuthzPolicy", sidecarNote: "role=verified" },
@@ -3136,7 +4502,7 @@ function ProdFintech() {
     {
       title: "JWT Validation — JWKS fetch, signature verification, claim extraction",
       hops: [
-        { name: "Mobile App", sub: "Authorization: Bearer eyJ...", color: "#94a3b8", active: true },
+        { name: "Mobile App", sub: "Authorization: Bearer eyJ...", color: "#64748b", active: true },
         { name: "Ingress GW", sub: "JWT Auth Filter", color: C, active: true, sidecarAction: "RS256 verify", sidecarNote: "JWKS cached 5m" },
         { name: "Auth Service", sub: "IdP (external)", color: "#f59e0b", active: false, dim: true },
         { name: "Account Svc", sub: "claims forwarded", color: "#22c55e", active: true },
@@ -3226,7 +4592,7 @@ spec:
     {
       title: "WasmPlugin Rate Limiter — request counting at the AUTHZ phase",
       hops: [
-        { name: "Mobile App", sub: "200+ req/min", color: "#94a3b8", active: true },
+        { name: "Mobile App", sub: "200+ req/min", color: "#64748b", active: true },
         { name: "Ingress GW", sub: "JWT validated", color: C, active: true },
         { name: "WasmPlugin", sub: "AUTHZ phase", color: "#f59e0b", active: true, sidecarAction: "rate: 201/min", sidecarNote: "LIMIT exceeded → 429" },
         { name: "Account Svc", sub: "protected", color: "#22c55e", active: false, dim: true },
@@ -3515,7 +4881,7 @@ spec:
     {
       title: "Traffic Mirroring — dark launch of API-A v2 under real load",
       hops: [
-        { name: "Client", sub: "live request", color: "#94a3b8", active: true },
+        { name: "Client", sub: "live request", color: "#64748b", active: true },
         { name: "API-A v1", sub: "live → 200 OK", color: C, active: true, sidecarAction: "respond normally" },
         { name: "API-A v2", sub: "shadow copy 👻", color: "#f59e0b", active: true, sidecarAction: "mirror: receive", sidecarNote: "response DISCARDED" },
         { name: "Metrics", sub: "compare v1 vs v2", color: "#0ea5e9", active: true, sidecarAction: "latency diff" },
@@ -3565,7 +4931,7 @@ spec:
         { name: "API-A Pod", sub: "before scoping", color: "#ef4444", active: true, sidecarAction: "200 clusters", sidecarNote: "~180MB Envoy RAM" },
         { name: "Sidecar CRD", sub: "applied", color: C, active: true, sidecarAction: "scope: ./*, platform/*", sidecarNote: "allowlist only" },
         { name: "API-A Pod", sub: "after scoping", color: C, active: true, sidecarAction: "12 clusters", sidecarNote: "~45MB Envoy RAM" },
-        { name: "Other tenants", sub: "invisible", color: "#334155", active: false, dim: true },
+        { name: "Other tenants", sub: "invisible", color: "#94a3b8", active: false, dim: true },
       ],
       arrows: [
         { label: "xDS push: 200 clusters", active: true, color: "#ef4444" },
@@ -3714,8 +5080,8 @@ function IstioProductionLab() {
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #0f172a" }}>
         <div style={{ width: 3, height: 32, background: "linear-gradient(180deg,#0ea5e9,#34d399)", borderRadius: 2 }} />
         <div>
-          <div style={{ fontSize: 14, fontWeight: "bold", color: "#f1f5f9", fontFamily: "monospace" }}>🏭 Production Scenarios</div>
-          <div style={{ fontSize: 10, color: "#475569", fontFamily: "monospace" }}>End-to-end animated walkthroughs — how Istio works in real production systems</div>
+          <div style={{ fontSize: 14, fontWeight: "bold", color: "#0f172a", fontFamily: "monospace" }}>🏭 Production Scenarios</div>
+          <div style={{ fontSize: 10, color: "#64748b", fontFamily: "monospace" }}>End-to-end animated walkthroughs — how Istio works in real production systems</div>
         </div>
       </div>
 
@@ -3728,8 +5094,8 @@ function IstioProductionLab() {
             style={{
               padding: "8px 16px", borderRadius: 10, fontSize: 11, fontFamily: "monospace", cursor: "pointer",
               background: active === i ? s.color + "18" : "#0a0f1a",
-              border: `1.5px solid ${active === i ? s.color : "#1e293b"}`,
-              color: active === i ? s.color : "#475569",
+              border: `1.5px solid ${active === i ? s.color : "#94a3b8"}`,
+              color: active === i ? s.color : "#64748b",
               fontWeight: active === i ? "bold" : "normal",
               transition: "all 0.2s",
             }}
@@ -3758,6 +5124,11 @@ const LESSON_COMPONENTS = {
   "rpc":                 RPCLesson,
   "stream-hello":        StreamHelloLesson,
   "stream-offset":       StreamOffsetLesson,
+  "rmq-dlx":             DlxLesson,
+  "rmq-confirms":        PublisherConfirmsLesson,
+  "rmq-quorum":          QuorumQueuesLesson,
+  "rmq-flow":            FlowControlLesson,
+  "rmq-cluster":         ClusteringLesson,
   "kafka-partitions":    KafkaPartitionsLesson,
   "kafka-groups":        KafkaGroupsLesson,
   "kafka-offsets":       KafkaOffsetsLesson,
@@ -3788,53 +5159,49 @@ const LESSON_COMPONENTS = {
 };
 
 const GROUP_LABELS = { rabbitmq: "🐰 RabbitMQ", kafka: "⚡ Kafka", sqs: "☁️ AWS SQS", istio: "🔷 Istio" };
-const GROUP_COLORS = { rabbitmq: "#3b82f6", kafka: "#6366f1", sqs: "#f59e0b", istio: "#0ea5e9" };
+const GROUP_COLORS = { rabbitmq: "#f97316", kafka: "#6366f1", sqs: "#f59e0b", istio: "#0ea5e9" };
 
 // ─── Home page data ───────────────────────────────────────────────────────────
 const HOME_CARDS = [
   {
-    key: "rabbitmq",
-    icon: "🐰",
+    key: "rabbitmq", num: "01",
     name: "RabbitMQ",
     subtitle: "AMQP Message Broker",
-    color: "#3b82f6",
-    bg: "#0c1e38",
-    description: "Master message queuing with exchanges, bindings, and consumer patterns. Covers pub/sub, routing, topics, RPC, and streams.",
-    features: ["Hello World & Work Queues", "Pub/Sub, Routing & Topics", "RPC Request/Reply", "Streams & Offset Tracking"],
-    lessonCount: 8,
+    color: "#f97316",
+    bg: "#fff7f0",
+    description: "From fundamentals to production-grade architecture. Covers exchanges, routing, streams, plus real-world scenarios: e-commerce pipelines, financial event sourcing, and HA cluster design.",
+    features: ["Exchanges, Routing & Pub/Sub", "Publisher Confirms & Quorum Queues", "DLX, Flow Control & Clustering", "Production: E-commerce, Fintech & HA Cluster"],
+    lessonCount: 13,
     stack: "Python · pika 1.3 · rstream",
   },
   {
-    key: "kafka",
-    icon: "⚡",
+    key: "kafka", num: "02",
     name: "Apache Kafka",
     subtitle: "Distributed Event Streaming",
     color: "#6366f1",
-    bg: "#0a0a28",
+    bg: "#f0f0ff",
     description: "Understand distributed log-based messaging: partitions, consumer groups, offsets, replication, transactions, and log compaction.",
     features: ["Partitions & Key Routing", "Consumer Groups & Rebalance", "Offsets, Commits & Replay", "Transactions & Log Compaction"],
     lessonCount: 6,
     stack: "Python · confluent-kafka",
   },
   {
-    key: "sqs",
-    icon: "☁️",
+    key: "sqs", num: "03",
     name: "AWS SQS",
     subtitle: "Managed Cloud Queue Service",
     color: "#f59e0b",
-    bg: "#1a0e00",
+    bg: "#fffbf0",
     description: "Explore AWS fully managed queues — Standard queues with at-least-once delivery and FIFO queues with strict ordering and deduplication.",
     features: ["Standard Queue & Visibility Timeout", "Long Polling & At-Least-Once", "FIFO & Deduplication IDs", "Dead Letter Queues (DLQ)"],
     lessonCount: 2,
     stack: "Python · boto3",
   },
   {
-    key: "istio",
-    icon: "🔷",
+    key: "istio", num: "04",
     name: "Istio Service Mesh",
     subtitle: "Kubernetes-Native Service Mesh",
     color: "#0ea5e9",
-    bg: "#031520",
+    bg: "#f0faff",
     description: "Learn service mesh patterns: sidecar architecture, intelligent traffic management, mutual TLS security, and zero-code observability.",
     features: ["Sidecar Injection & Architecture", "Canary, Fault Injection & Circuit Breaker", "Ingress Gateway & TLS", "mTLS, AuthzPolicy & Kiali"],
     lessonCount: 19,
@@ -3842,96 +5209,404 @@ const HOME_CARDS = [
   },
 ];
 
+// ─── Official Brand Logos ───────────────────────────────────────────────────────
+// Images live in public/logos/ — import.meta.env.BASE_URL ensures correct
+// prefix in both `vite dev` (/) and GitHub Pages (/messaging-queue-learning/)
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function RabbitMQLogo({ size = 48 }) {
+  return (
+    <img
+      src={`${BASE}/logos/rabbitmq.jpeg`}
+      alt="RabbitMQ"
+      width={size} height={size}
+      style={{ borderRadius: 12, objectFit: "contain", display: "block" }}
+    />
+  );
+}
+
+function KafkaLogo({ size = 48 }) {
+  return (
+    <img
+      src={`${BASE}/logos/kafka.svg`}
+      alt="Apache Kafka"
+      width={size} height={size}
+      style={{ borderRadius: 12, objectFit: "contain", display: "block", background: "#fff" }}
+    />
+  );
+}
+
+function SQSLogo({ size = 48 }) {
+  return (
+    <img
+      src={`${BASE}/logos/images.png`}
+      alt="Amazon SQS"
+      width={size} height={size}
+      style={{ borderRadius: 12, objectFit: "contain", display: "block" }}
+    />
+  );
+}
+
+function IstioLogo({ size = 48 }) {
+  return (
+    <img
+      src={`${BASE}/logos/istio-logo.png`}
+      alt="Istio"
+      width={size} height={size}
+      style={{ borderRadius: 12, objectFit: "contain", display: "block", background: "#fff" }}
+    />
+  );
+}
+
+const LOGO_COMPONENTS = {
+  rabbitmq: RabbitMQLogo,
+  kafka:    KafkaLogo,
+  sqs:      SQSLogo,
+  istio:    IstioLogo,
+};
+
+// ─── Platform Navbar ──────────────────────────────────────────────────────────
+function PlatformNav({ onHome, courseColor, courseName }) {
+  return (
+    <nav style={{
+      position: "sticky", top: 0, zIndex: 100,
+      background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)",
+      borderBottom: "1px solid #e2e8f0",
+      padding: "0 24px", height: 58,
+      display: "flex", alignItems: "center", gap: 20,
+    }}>
+      {/* Logo */}
+      <div
+        onClick={onHome}
+        style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer", flexShrink: 0, userSelect: "none" }}
+      >
+        <div style={{
+          width: 34, height: 34, borderRadius: 10,
+          background: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 17, boxShadow: "0 2px 12px #6366f150",
+        }}>⚡</div>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", letterSpacing: -0.4, lineHeight: 1 }}>DevMesh</div>
+          <div style={{ fontSize: 9, color: "#94a3b8", letterSpacing: 1, textTransform: "uppercase", lineHeight: 1, marginTop: 2 }}>Learn</div>
+        </div>
+      </div>
+
+      {/* Breadcrumb */}
+      {courseName ? (
+        <>
+          <div style={{ width: 1, height: 20, background: "#e8edf4", flexShrink: 0 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, minWidth: 0 }}>
+            <span
+              onClick={onHome}
+              style={{ color: "#64748b", cursor: "pointer", whiteSpace: "nowrap", transition: "color 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.color = "#94a3b8"}
+              onMouseLeave={e => e.currentTarget.style.color = "#475569"}
+            >Courses</span>
+            <span style={{ color: "#94a3b8", fontSize: 16, lineHeight: 1 }}>›</span>
+            <span style={{ color: courseColor, fontWeight: 700, whiteSpace: "nowrap" }}>{courseName}</span>
+          </div>
+        </>
+      ) : (
+        <div style={{ display: "flex", gap: 24, marginLeft: 8 }}>
+          {["Courses", "Community", "Docs"].map(item => (
+            <span key={item} style={{ fontSize: 13, color: "#64748b", cursor: "pointer", transition: "color 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.color = "#94a3b8"}
+              onMouseLeave={e => e.currentTarget.style.color = "#475569"}
+            >{item}</span>
+          ))}
+        </div>
+      )}
+
+      {/* Right side */}
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{
+          height: 30, padding: "0 14px", borderRadius: 8,
+          background: "transparent", border: "1px solid #d1d9e6",
+          display: "flex", alignItems: "center", fontSize: 12, color: "#64748b",
+          cursor: "pointer", transition: "all 0.15s",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#475569"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "#d1d9e6"; e.currentTarget.style.color = "#64748b"; }}
+        >Sign in</div>
+        <div style={{
+          width: 32, height: 32, borderRadius: "50%",
+          background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 12, fontWeight: 700, color: "#fff", cursor: "pointer",
+          boxShadow: "0 2px 8px #7c3aed40",
+        }}>R</div>
+      </div>
+    </nav>
+  );
+}
+
 // ─── Home Page ────────────────────────────────────────────────────────────────
 function HomePage({ onNavigate }) {
   return (
-    <div style={{ minHeight: "100vh", background: "#020617", color: "#f1f5f9" }}>
+    <div style={{ minHeight: "100vh", background: "#f8fafc", color: "#94a3b8" }}>
       <style>{ANIM_CSS}</style>
+      <PlatformNav onHome={() => {}} />
 
       {/* Hero */}
-      <div style={{ textAlign: "center", padding: "56px 20px 44px" }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "7px 20px", borderRadius: 9999, background: "#0c1e38", border: "1px solid #3b82f640", marginBottom: 18 }}>
-          <span style={{ fontSize: 20 }}>💬</span>
-          <span style={{ fontSize: 14, fontFamily: "monospace", fontWeight: "bold", color: "#93c5fd" }}>Messaging & Service Mesh Tutorials</span>
+      <div style={{
+        position: "relative", overflow: "hidden",
+        background: "linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%)",
+        padding: "72px 24px 64px",
+        borderBottom: "1px solid #e2e8f0",
+      }}>
+        {/* Grid bg */}
+        <div style={{
+          position: "absolute", inset: 0, opacity: 0.04,
+          backgroundImage: "linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px)",
+          backgroundSize: "32px 32px", pointerEvents: "none",
+        }} />
+        {/* Glow orbs */}
+        <div style={{ position: "absolute", top: -80, left: "20%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, #6366f118 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: -60, right: "15%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, #0ea5e912 0%, transparent 70%)", pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: 820, margin: "0 auto", textAlign: "center", position: "relative" }}>
+          {/* Badge */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "5px 16px 5px 10px", borderRadius: 99,
+            background: "#ffffff", border: "1px solid #d1d9e6",
+            marginBottom: 28, fontSize: 12, color: "#64748b",
+          }}>
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e80" }} />
+            Interactive learning platform · No signup required
+          </div>
+
+          {/* Headline */}
+          <h1 style={{ fontSize: "clamp(28px, 5vw, 50px)", fontWeight: 800, color: "#0f172a", letterSpacing: -1.2, lineHeight: 1.12, margin: "0 0 22px" }}>
+            Master Modern{" "}
+            <span style={{ background: "linear-gradient(90deg, #818cf8, #60a5fa, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Messaging</span>
+            {" & "}
+            <span style={{ background: "linear-gradient(90deg, #38bdf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Service Mesh</span>
+          </h1>
+
+          <p style={{ fontSize: 17, color: "#64748b", lineHeight: 1.75, maxWidth: 540, margin: "0 auto 44px" }}>
+            Step-through animated visualizations with runnable code examples and real-world analogies. Learn how distributed systems work, one interaction at a time.
+          </p>
+
+          {/* CTAs */}
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 52 }}>
+            <button
+              onClick={() => onNavigate("rabbitmq")}
+              style={{
+                padding: "12px 28px", borderRadius: 10, border: "none",
+                background: "linear-gradient(135deg, #6366f1, #3b82f6)",
+                color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                boxShadow: "0 4px 20px #6366f140",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 30px #6366f160"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px #6366f140"; }}
+            >Start Learning Free →</button>
+            <button
+              onClick={() => document.getElementById("courses-section")?.scrollIntoView({ behavior: "smooth" })}
+              style={{
+                padding: "12px 28px", borderRadius: 10,
+                background: "transparent", border: "1px solid #d1d9e6",
+                color: "#64748b", fontSize: 14, fontWeight: 600, cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#1e293b"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "#d1d9e6"; e.currentTarget.style.color = "#94a3b8"; }}
+            >Browse Courses</button>
+          </div>
+
+          {/* Stats */}
+          <div style={{
+            display: "inline-flex",
+            background: "#ffffff", border: "1px solid #e8edf4", borderRadius: 16,
+            overflow: "hidden",
+          }}>
+            {[
+              { val: "4", lbl: "Courses", icon: "📚" },
+              { val: "25+", lbl: "Lessons", icon: "🎯" },
+              { val: "100%", lbl: "Free", icon: "🎁" },
+              { val: "Live", lbl: "Visualizers", icon: "⚡" },
+            ].map(({ val, lbl, icon }, i, arr) => (
+              <div key={lbl} style={{
+                padding: "18px 28px", textAlign: "center",
+                borderRight: i < arr.length - 1 ? "1px solid #e8edf4" : "none",
+              }}>
+                <div style={{ fontSize: 18, marginBottom: 6 }}>{icon}</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>{val}</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginTop: 4, letterSpacing: 0.3 }}>{lbl}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <h1 style={{ fontSize: 34, fontWeight: "bold", color: "#f1f5f9", margin: "0 0 14px", letterSpacing: -0.5, lineHeight: 1.2 }}>
-          Interactive Learning Visualizer
-        </h1>
-        <p style={{ fontSize: 13, color: "#64748b", fontFamily: "monospace", maxWidth: 500, margin: "0 auto 10px", lineHeight: 1.75 }}>
-          Step-through animated visualizations with runnable code examples<br />
-          and real-world analogies for every concept.
-        </p>
-        <div style={{ display: "inline-flex", gap: 16, marginTop: 6 }}>
-          {[["25", "Lessons"], ["4", "Technologies"], ["YAML + Python", "Code Examples"]].map(([val, lbl]) => (
-            <div key={lbl} style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 18, fontWeight: "bold", fontFamily: "monospace", color: "#e2e8f0" }}>{val}</div>
-              <div style={{ fontSize: 10, fontFamily: "monospace", color: "#475569" }}>{lbl}</div>
+      </div>
+
+      {/* Courses section */}
+      <div id="courses-section" style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 24px 80px" }}>
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>What you'll learn</div>
+          <h2 style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", margin: "0 0 10px", letterSpacing: -0.5 }}>Browse Courses</h2>
+          <p style={{ fontSize: 14, color: "#64748b", margin: 0, maxWidth: 480 }}>Pick a technology and start learning through interactive step-by-step visualizations</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 24 }}>
+          {HOME_CARDS.map((card, i) => (
+            <TechCard key={card.key} card={card} onNavigate={onNavigate} index={i} />
+          ))}
+        </div>
+      </div>
+
+      {/* Features strip */}
+      <div style={{ borderTop: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", padding: "40px 24px" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 32 }}>
+          {[
+            { icon: "🎬", title: "Animated Visualizers", desc: "Step through each concept with live animated diagrams" },
+            { icon: "🔬", title: "Real World Analogies", desc: "Every lesson comes with an intuitive real-world explanation" },
+            { icon: "💻", title: "Runnable Code", desc: "Copy-paste Python and YAML examples for every scenario" },
+            { icon: "📈", title: "Track Progress", desc: "Pick up exactly where you left off in any course" },
+          ].map(f => (
+            <div key={f.title} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+              <div style={{ fontSize: 24, flexShrink: 0, marginTop: 2 }}>{f.icon}</div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8", marginBottom: 4 }}>{f.title}</div>
+                <div style={{ fontSize: 12.5, color: "#64748b", lineHeight: 1.6 }}>{f.desc}</div>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Cards grid */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 20, justifyContent: "center", padding: "0 24px 60px", maxWidth: 1080, margin: "0 auto" }}>
-        {HOME_CARDS.map(card => (
-          <TechCard key={card.key} card={card} onNavigate={onNavigate} />
-        ))}
-      </div>
-
       {/* Footer */}
-      <div style={{ textAlign: "center", paddingBottom: 32, fontSize: 11, color: "#1e293b", fontFamily: "monospace" }}>
-        RabbitMQ pika 1.3.x / rstream  ·  Kafka confluent-kafka  ·  AWS SQS boto3  ·  Istio 1.20+
+      <div style={{ padding: "28px 24px", textAlign: "center" }}>
+        <div style={{ fontSize: 12, color: "#94a3b8" }}>
+          RabbitMQ pika 1.3 · Kafka confluent-kafka · AWS SQS boto3 · Istio 1.20+
+        </div>
       </div>
     </div>
   );
 }
 
-function TechCard({ card, onNavigate }) {
+// ─── Course Card ──────────────────────────────────────────────────────────────
+function TechCard({ card, onNavigate, index = 0 }) {
   const [hovered, setHovered] = useState(false);
+  const ratings  = { rabbitmq: { stars: 4.9, count: "3.4k" }, kafka: { stars: 4.7, count: "1.8k" }, sqs: { stars: 4.6, count: "945" }, istio: { stars: 4.9, count: "3.2k" } };
+  const levels   = { rabbitmq: "Advanced", kafka: "Intermediate", sqs: "Beginner", istio: "Advanced" };
+  const durations = { rabbitmq: "~6 hrs", kafka: "~2.5 hrs", sqs: "~1 hr", istio: "~6 hrs" };
+  const levelColor = { Beginner: "#22c55e", Intermediate: "#f59e0b", Advanced: "#ef4444" };
+  const rating = ratings[card.key];
+  const level  = levels[card.key];
+
   return (
     <div
       onClick={() => onNavigate(card.key)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        width: 230, borderRadius: 18, padding: "22px 20px", cursor: "pointer", userSelect: "none",
-        background: card.bg,
-        border: `2px solid ${hovered ? card.color + "90" : card.color + "20"}`,
-        boxShadow: hovered ? `0 8px 36px ${card.color}22` : "none",
-        transform: hovered ? "translateY(-5px)" : "none",
-        transition: "all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        borderRadius: 16, overflow: "hidden", cursor: "pointer", userSelect: "none",
+        background: "#ffffff",
+        border: `1px solid ${hovered ? card.color + "50" : "#94a3b8"}`,
+        boxShadow: hovered ? `0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px ${card.color}20` : "0 2px 8px rgba(0,0,0,0.3)",
+        transform: hovered ? "translateY(-6px)" : "translateY(0)",
+        transition: "all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        animation: `fadeUp 0.4s ease-out ${index * 0.08}s backwards`,
       }}
     >
-      {/* Icon + name */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: card.color + "18", border: `1px solid ${card.color}35`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
-          {card.icon}
-        </div>
-        <div>
-          <div style={{ fontSize: 15, fontWeight: "bold", color: "#f1f5f9", lineHeight: 1.2 }}>{card.name}</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: card.color, marginTop: 2 }}>{card.subtitle}</div>
-        </div>
-      </div>
-
-      {/* Description */}
-      <p style={{ fontSize: 11.5, color: "#94a3b8", lineHeight: 1.7, margin: "0 0 14px" }}>{card.description}</p>
-
-      {/* Feature bullets */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 16 }}>
-        {card.features.map(f => (
-          <div key={f} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: card.color, flexShrink: 0, marginTop: 5 }} />
-            <span style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", lineHeight: 1.5 }}>{f}</span>
+      {/* Thumbnail */}
+      {(() => {
+        const LogoComp = LOGO_COMPONENTS[card.key];
+        return (
+          <div style={{
+            height: 148, position: "relative",
+            background: `linear-gradient(145deg, ${card.bg} 0%, ${card.color}18 100%)`,
+            borderBottom: `1px solid ${card.color}15`,
+            display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden",
+          }}>
+            {/* Subtle dot grid */}
+            <div style={{
+              position: "absolute", inset: 0, opacity: 0.05,
+              backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)",
+              backgroundSize: "20px 20px", pointerEvents: "none",
+            }} />
+            {/* Glow behind logo */}
+            <div style={{
+              position: "absolute", width: 100, height: 100, borderRadius: "50%",
+              background: `radial-gradient(circle, ${card.color}30 0%, transparent 70%)`,
+              pointerEvents: "none",
+            }} />
+            {/* Official logo */}
+            <div style={{
+              position: "relative", zIndex: 1,
+              filter: "drop-shadow(0 6px 24px rgba(0,0,0,0.5))",
+              transform: hovered ? "scale(1.1)" : "scale(1)",
+              transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)",
+            }}>
+              {LogoComp ? <LogoComp size={60} /> : null}
+            </div>
+            {/* Course number — top left */}
+            <div style={{
+              position: "absolute", top: 12, left: 12,
+              fontSize: 11, fontWeight: 800, letterSpacing: 0.5,
+              color: card.color,
+              background: "rgba(255,255,255,0.88)", backdropFilter: "blur(8px)",
+              padding: "3px 9px", borderRadius: 6,
+              border: `1px solid ${card.color}30`,
+            }}>Course {card.num}</div>
+            {/* Level badge — top right */}
+            <div style={{
+              position: "absolute", top: 12, right: 12,
+              padding: "3px 10px", borderRadius: 6, fontSize: 10, fontWeight: 700,
+              background: "rgba(255,255,255,0.88)", backdropFilter: "blur(8px)",
+              color: levelColor[level], border: `1px solid ${levelColor[level]}30`,
+              letterSpacing: 0.3,
+            }}>{level}</div>
+            {/* Lessons count — bottom left */}
+            <div style={{
+              position: "absolute", bottom: 12, left: 12,
+              padding: "3px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600,
+              background: "rgba(255,255,255,0.88)", backdropFilter: "blur(8px)",
+              color: "#64748b",
+            }}>📖 {card.lessonCount} lessons</div>
           </div>
-        ))}
-      </div>
+        );
+      })()}
 
-      {/* Footer row */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto", paddingTop: 12, borderTop: `1px solid ${card.color}18` }}>
-        <span style={{ fontSize: 10, fontFamily: "monospace", color: "#334155" }}>{card.stack}</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 10, fontFamily: "monospace", color: card.color, background: card.color + "15", padding: "2px 8px", borderRadius: 6 }}>{card.lessonCount} lessons</span>
-          <span style={{ fontSize: 13, color: hovered ? card.color : "#334155", transition: "color 0.2s", fontWeight: "bold" }}>→</span>
+      {/* Content */}
+      <div style={{ padding: "18px 18px 20px" }}>
+        <div style={{
+          fontSize: 10, color: card.color, fontWeight: 700,
+          letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6,
+        }}>{card.subtitle}</div>
+
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", lineHeight: 1.3, letterSpacing: -0.2 }}>{card.name}</h3>
+
+        <p style={{
+          fontSize: 12.5, color: "#64748b", lineHeight: 1.65, margin: "0 0 14px",
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+        }}>{card.description}</p>
+
+        {/* Star rating */}
+        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 16 }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: "#fbbf24" }}>{rating.stars}</span>
+          <div style={{ display: "flex", gap: 1 }}>
+            {[1, 2, 3, 4, 5].map(s => (
+              <span key={s} style={{ fontSize: 11, color: s <= Math.floor(rating.stars) ? "#fbbf24" : "#94a3b8" }}>★</span>
+            ))}
+          </div>
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>({rating.count} ratings)</span>
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: `1px solid #e8edf4` }}>
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>⏱ {durations[card.key]}</span>
+          <div style={{
+            padding: "6px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+            background: hovered ? card.color : card.color + "18",
+            color: hovered ? "#fff" : card.color,
+            border: `1px solid ${hovered ? "transparent" : card.color + "30"}`,
+            transition: "all 0.2s",
+            boxShadow: hovered ? `0 2px 12px ${card.color}50` : "none",
+          }}>
+            {hovered ? "Enroll Now →" : "View Course"}
+          </div>
         </div>
       </div>
     </div>
@@ -3942,118 +5617,231 @@ function TechCard({ card, onNavigate }) {
 function TechPage({ group, onHome }) {
   const groupLessons = LESSONS_META.filter(l => l.group === group);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const safeIdx = Math.min(activeIdx, groupLessons.length - 1);
   const lesson = groupLessons[safeIdx];
   const LessonComp = LESSON_COMPONENTS[lesson.id];
   const color = GROUP_COLORS[group];
   const card = HOME_CARDS.find(c => c.key === group);
+  const progress = Math.round(((safeIdx + 1) / groupLessons.length) * 100);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#020617", padding: "16px", color: "#f1f5f9" }}>
+    <div style={{ minHeight: "100vh", background: "#f8fafc", color: "#94a3b8", display: "flex", flexDirection: "column" }}>
       <style>{ANIM_CSS}</style>
+      <PlatformNav onHome={onHome} courseColor={color} courseName={card?.name} />
 
-      {/* Top nav bar */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, maxWidth: 1120, margin: "0 auto 18px", flexWrap: "wrap" }}>
-        <button
-          onClick={onHome}
+      {/* Thin progress bar under nav */}
+      <div style={{ height: 3, background: "#94a3b8", flexShrink: 0 }}>
+        <div style={{
+          height: "100%", width: `${progress}%`,
+          background: `linear-gradient(90deg, ${color}88, ${color})`,
+          transition: "width 0.5s ease", borderRadius: "0 2px 2px 0",
+        }} />
+      </div>
+
+      {/* Page body */}
+      <div style={{ display: "flex", flex: 1, minHeight: 0, position: "relative" }}>
+
+        {/* ── Sidebar ── */}
+        <aside style={{
+          width: sidebarOpen ? 288 : 0,
+          minWidth: sidebarOpen ? 288 : 0,
+          background: "#f5f7fa",
+          borderRight: "1px solid #e2e8f0",
+          height: "calc(100vh - 61px)",
+          overflowY: sidebarOpen ? "auto" : "hidden",
+          overflowX: "hidden",
+          position: "sticky",
+          top: 61,
+          flexShrink: 0,
+          transition: "width 0.28s ease, min-width 0.28s ease",
+        }}>
+          {sidebarOpen && (
+            <div>
+              {/* Sidebar course header */}
+              <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid #e2e8f0" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                  {(() => {
+                    const SidebarLogo = LOGO_COMPONENTS[group];
+                    return (
+                      <div style={{ flexShrink: 0 }}>
+                        {SidebarLogo ? <SidebarLogo size={42} /> : null}
+                      </div>
+                    );
+                  })()}
+                  <div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Course {card?.num}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>{card?.name}</div>
+                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{card?.subtitle}</div>
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <span style={{ fontSize: 11, color: "#64748b" }}>Course progress</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color }}>
+                    {safeIdx + 1}/{groupLessons.length} lessons
+                  </span>
+                </div>
+                <div style={{ height: 6, background: "#e8edf4", borderRadius: 99, overflow: "hidden" }}>
+                  <div style={{
+                    height: "100%", width: `${progress}%`,
+                    background: `linear-gradient(90deg, ${color}90, ${color})`,
+                    transition: "width 0.4s ease", borderRadius: 99,
+                  }} />
+                </div>
+                <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 6 }}>{progress}% complete</div>
+              </div>
+
+              {/* Lesson list */}
+              <div style={{ padding: "10px 0 20px" }}>
+                <div style={{
+                  padding: "8px 20px 6px", fontSize: 10, fontWeight: 700,
+                  color: "#94a3b8", letterSpacing: 1.2, textTransform: "uppercase",
+                }}>Course Content</div>
+
+                {groupLessons.map((l, i) => (
+                  <div
+                    key={l.id}
+                    onClick={() => setActiveIdx(i)}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 12,
+                      padding: "10px 20px", cursor: "pointer",
+                      background: i === safeIdx ? `${color}14` : "transparent",
+                      borderLeft: `3px solid ${i === safeIdx ? color : "transparent"}`,
+                      transition: "all 0.15s",
+                    }}
+                    onMouseEnter={e => { if (i !== safeIdx) e.currentTarget.style.background = "#ffffff"; }}
+                    onMouseLeave={e => { if (i !== safeIdx) e.currentTarget.style.background = "transparent"; }}
+                  >
+                    {/* Step indicator */}
+                    <div style={{
+                      width: 24, height: 24, borderRadius: "50%", flexShrink: 0, marginTop: 1,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: i < safeIdx ? color : i === safeIdx ? color + "22" : "#94a3b8",
+                      border: `1.5px solid ${i <= safeIdx ? color : "#e8edf4"}`,
+                      fontSize: 10, fontWeight: 800,
+                      color: i < safeIdx ? "#fff" : i === safeIdx ? color : "#94a3b8",
+                    }}>
+                      {i < safeIdx ? "✓" : l.num}
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: 12.5, fontWeight: i === safeIdx ? 700 : 400,
+                        lineHeight: 1.4,
+                        color: i === safeIdx ? "#f1f5f9" : i < safeIdx ? "#475569" : "#64748b",
+                      }}>
+                        {l.title.split("–")[1]?.trim() || l.title}
+                      </div>
+                      <div style={{ fontSize: 10.5, color: "#94a3b8", marginTop: 2, lineHeight: 1.4 }}>
+                        {(l.subtitle || "").slice(0, 48)}{(l.subtitle || "").length > 48 ? "…" : ""}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </aside>
+
+        {/* Sidebar toggle tab */}
+        <div
+          onClick={() => setSidebarOpen(o => !o)}
           style={{
-            display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 10,
-            background: "#0f172a", border: "1px solid #1e293b", color: "#94a3b8",
-            fontSize: 12, fontFamily: "monospace", cursor: "pointer", transition: "all 0.15s",
-            fontWeight: "bold",
+            position: "sticky", top: "50vh", alignSelf: "flex-start",
+            width: 20, height: 56, marginTop: "20vh",
+            background: "#ffffff", border: "1px solid #e8edf4",
+            borderLeft: "none", borderRadius: "0 8px 8px 0",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", flexShrink: 0, zIndex: 10,
+            color: "#94a3b8", fontSize: 10, transition: "all 0.15s",
           }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.color = color; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = "#1e293b"; e.currentTarget.style.color = "#94a3b8"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#e8edf4"; e.currentTarget.style.color = color; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.color = "#334155"; }}
         >
-          ← Home
-        </button>
+          {sidebarOpen ? "‹" : "›"}
+        </div>
 
-        {/* Group title */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 20 }}>{card?.icon}</span>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: "bold", color: "#f1f5f9", fontFamily: "monospace" }}>{card?.name}</div>
-            <div style={{ fontSize: 10, fontFamily: "monospace", color }}>
-              {card?.subtitle}  ·  {groupLessons.length} lessons
+        {/* ── Main content ── */}
+        <main style={{ flex: 1, minWidth: 0, padding: "28px 32px 56px", overflowX: "hidden" }}>
+
+          {/* Lesson header card */}
+          <div style={{
+            background: "#ffffff", border: "1px solid #e2e8f0",
+            borderRadius: 16, padding: "22px 24px", marginBottom: 24,
+          }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 20, flexWrap: "wrap" }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                  <span style={{
+                    padding: "3px 12px", borderRadius: 6,
+                    background: color + "18", color, fontSize: 11, fontWeight: 700,
+                    border: `1px solid ${color}28`, letterSpacing: 0.3,
+                  }}>Lesson {lesson.num}</span>
+                  <span style={{ fontSize: 11, color: "#94a3b8" }}>·</span>
+                  <span style={{ fontSize: 11, color: "#94a3b8" }}>{card?.name}</span>
+                </div>
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", letterSpacing: -0.4, lineHeight: 1.25 }}>
+                  {lesson.title}
+                </h1>
+                <p style={{ fontSize: 13.5, color: "#64748b", margin: 0, lineHeight: 1.6 }}>{lesson.subtitle}</p>
+              </div>
+
+              {/* Prev / Next controls */}
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+                <button
+                  onClick={() => setActiveIdx(i => Math.max(0, i - 1))}
+                  disabled={safeIdx === 0}
+                  style={{
+                    padding: "8px 16px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                    background: "#e8edf4",
+                    border: `1px solid ${safeIdx === 0 ? "#ffffff" : "#d1d9e6"}`,
+                    color: safeIdx === 0 ? "#e2e8f0" : "#64748b",
+                    cursor: safeIdx === 0 ? "not-allowed" : "pointer", transition: "all 0.15s",
+                  }}
+                  onMouseEnter={e => { if (safeIdx > 0) { e.currentTarget.style.color = "#0f172a"; e.currentTarget.style.borderColor = "#94a3b8"; } }}
+                  onMouseLeave={e => { e.currentTarget.style.color = safeIdx === 0 ? "#e2e8f0" : "#64748b"; e.currentTarget.style.borderColor = safeIdx === 0 ? "#ffffff" : "#d1d9e6"; }}
+                >← Prev</button>
+
+                <button
+                  onClick={() => setActiveIdx(i => Math.min(groupLessons.length - 1, i + 1))}
+                  disabled={safeIdx === groupLessons.length - 1}
+                  style={{
+                    padding: "8px 20px", borderRadius: 9, fontSize: 13, fontWeight: 700,
+                    background: safeIdx < groupLessons.length - 1 ? color : "#ffffff",
+                    border: `1px solid ${safeIdx < groupLessons.length - 1 ? "transparent" : "#ffffff"}`,
+                    color: safeIdx < groupLessons.length - 1 ? "#fff" : "#94a3b8",
+                    cursor: safeIdx === groupLessons.length - 1 ? "not-allowed" : "pointer",
+                    transition: "all 0.15s",
+                    boxShadow: safeIdx < groupLessons.length - 1 ? `0 3px 16px ${color}50` : "none",
+                  }}
+                >Next →</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Progress indicator */}
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ fontSize: 11, fontFamily: "monospace", color: "#334155" }}>
-            Lesson {safeIdx + 1} / {groupLessons.length}
+          {/* Concept + Visualizer columns */}
+          <div style={{ display: "flex", gap: 22, alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div style={{ width: 272, minWidth: 248, flexShrink: 0 }}>
+              <ConceptPanel lesson={lesson} color={color} />
+            </div>
+            <div style={{ flex: 1, minWidth: 300, display: "flex", flexDirection: "column", gap: 14 }}>
+              <LessonComp key={lesson.id} meta={lesson} />
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 3 }}>
-            {groupLessons.map((_, i) => (
-              <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: i === safeIdx ? color : i < safeIdx ? color + "50" : "#1e293b", transition: "all 0.2s", cursor: "pointer" }} onClick={() => setActiveIdx(i)} />
-            ))}
-          </div>
-        </div>
+
+          {/* Production Scenarios — RabbitMQ */}
+          {group === "rabbitmq" && <RabbitMQProductionLab />}
+
+          {/* Production Scenarios — Istio */}
+          {group === "istio" && (
+            <div style={{ marginTop: 40 }}>
+              <IstioProductionLab />
+            </div>
+          )}
+        </main>
       </div>
-
-      {/* Lesson tabs */}
-      <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 18, maxWidth: 1120, margin: "0 auto 18px" }}>
-        {groupLessons.map((l, i) => (
-          <button
-            key={l.id}
-            onClick={() => setActiveIdx(i)}
-            style={{
-              padding: "5px 12px", borderRadius: 8, fontSize: 11, fontFamily: "monospace",
-              background: i === safeIdx ? l.color + "20" : "rgba(15,23,42,0.6)",
-              border: `1px solid ${i === safeIdx ? l.color : "rgba(51,65,85,0.4)"}`,
-              color: i === safeIdx ? l.color : "#475569",
-              cursor: "pointer", transition: "all 0.15s",
-              fontWeight: i === safeIdx ? "bold" : "normal",
-            }}
-          >
-            {l.num} {l.title.split("–")[1]?.trim() || l.title}
-          </button>
-        ))}
-      </div>
-
-      {/* Two-column layout */}
-      <div style={{ display: "flex", gap: 18, alignItems: "flex-start", flexWrap: "wrap", maxWidth: 1120, margin: "0 auto" }}>
-        <div style={{ width: 278, minWidth: 260, flexShrink: 0 }}>
-          <ConceptPanel lesson={lesson} />
-        </div>
-        <div style={{ flex: 1, minWidth: 300, display: "flex", flexDirection: "column", gap: 12 }}>
-          <LessonComp key={lesson.id} meta={lesson} />
-        </div>
-      </div>
-
-      {/* Prev / Next lesson nav */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: 1120, margin: "24px auto 8px", flexWrap: "wrap", gap: 8 }}>
-        <button
-          onClick={() => setActiveIdx(i => Math.max(0, i - 1))}
-          disabled={safeIdx === 0}
-          style={{
-            padding: "8px 16px", borderRadius: 10, fontSize: 12, fontFamily: "monospace",
-            background: safeIdx === 0 ? "#0a0a0a" : "#0f172a",
-            border: `1px solid ${safeIdx === 0 ? "#1a1a1a" : color + "50"}`,
-            color: safeIdx === 0 ? "#1e293b" : "#94a3b8", cursor: safeIdx === 0 ? "not-allowed" : "pointer",
-          }}
-        >← Prev lesson</button>
-
-        <span style={{ fontSize: 11, fontFamily: "monospace", color: "#1e293b" }}>
-          {lesson.num} · {lesson.title}
-        </span>
-
-        <button
-          onClick={() => setActiveIdx(i => Math.min(groupLessons.length - 1, i + 1))}
-          disabled={safeIdx === groupLessons.length - 1}
-          style={{
-            padding: "8px 16px", borderRadius: 10, fontSize: 12, fontFamily: "monospace",
-            background: safeIdx === groupLessons.length - 1 ? "#0a0a0a" : "#0f172a",
-            border: `1px solid ${safeIdx === groupLessons.length - 1 ? "#1a1a1a" : color + "50"}`,
-            color: safeIdx === groupLessons.length - 1 ? "#1e293b" : "#94a3b8",
-            cursor: safeIdx === groupLessons.length - 1 ? "not-allowed" : "pointer",
-          }}
-        >Next lesson →</button>
-      </div>
-
-      {/* Production Scenarios — Istio only */}
-      {group === "istio" && <IstioProductionLab />}
     </div>
   );
 }
