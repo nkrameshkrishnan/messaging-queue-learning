@@ -16,13 +16,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from rabbitmq.connection import get_connection
 from shared.models import Order
 
+# '04_dead_letter' starts with a digit so we insert this file's directory
+# into sys.path to make `import setup` work without dot-notation.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from setup import EXCHANGE, MAIN_QUEUE, setup_queues  # noqa: E402
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [DLQ-CONSUMER] %(message)s")
 logger = logging.getLogger(__name__)
-
-MAIN_QUEUE = "orders_dlq_demo"
-EXCHANGE   = "dlq_exchange"
-DLQ_EXCHANGE = "dlq_dead_exchange"
-DLQ_NAME   = "orders_dead_letter"
 
 message_count = 0
 
@@ -53,22 +53,9 @@ def start() -> None:
     connection = get_connection()
     channel = connection.channel()
 
-    # Re-declare to ensure queues exist (idempotent)
-    channel.exchange_declare(exchange=DLQ_EXCHANGE, exchange_type="direct", durable=True)
-    channel.queue_declare(queue=DLQ_NAME, durable=True)
-    channel.queue_bind(queue=DLQ_NAME, exchange=DLQ_EXCHANGE, routing_key=DLQ_NAME)
-
-    channel.exchange_declare(exchange=EXCHANGE, exchange_type="direct", durable=True)
-    channel.queue_declare(
-        queue=MAIN_QUEUE,
-        durable=True,
-        arguments={
-            "x-dead-letter-exchange":    DLQ_EXCHANGE,
-            "x-dead-letter-routing-key": DLQ_NAME,
-            "x-message-ttl":             30_000,
-        },
-    )
-    channel.queue_bind(queue=MAIN_QUEUE, exchange=EXCHANGE, routing_key=MAIN_QUEUE)
+    # Ensure the full DLQ topology exists (idempotent — safe to call even if
+    # producer already ran; defined once in setup.py to avoid duplication).
+    setup_queues(channel)
     channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue=MAIN_QUEUE, on_message_callback=on_message)
 

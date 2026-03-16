@@ -1,0 +1,44 @@
+# Lesson 18 – Ambient Mesh: Waypoint Proxy
+# A waypoint proxy adds Envoy-based L7 processing to ambient mesh namespaces.
+# Create one per service account to enable VirtualService, fault injection, etc.
+---
+# ── Waypoint Gateway (managed by Istio — do not edit manually) ────────────────
+# This is what `istioctl waypoint apply` creates under the hood.
+# You can also apply it directly for GitOps.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: backend-waypoint
+  namespace: ambient-demo
+  labels:
+    istio.io/waypoint-for: service   # "service" = processes inbound to this SA
+spec:
+  gatewayClassName: istio-waypoint
+  listeners:
+    - name: mesh
+      port: 15008
+      protocol: HBONE                # HTTP-Based Overlay Network Encapsulation
+
+---
+# ── AuthorizationPolicy scoped to the waypoint namespace ─────────────────────
+# In ambient mode, AuthorizationPolicy on HTTP attributes requires a waypoint.
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-allow-get
+  namespace: ambient-demo
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: backend-waypoint         # Enforced AT the waypoint, not the pod
+  action: ALLOW
+  rules:
+    - to:
+        - operation:
+            methods: ["GET"]
+
+# ── Check waypoint is running ─────────────────────────────────────────────────
+# kubectl get gateway -n ambient-demo
+# kubectl get pods -n ambient-demo -l gateway.networking.k8s.io/gateway-name=backend-waypoint
+# Should show a running pod — this is the dedicated waypoint Envoy

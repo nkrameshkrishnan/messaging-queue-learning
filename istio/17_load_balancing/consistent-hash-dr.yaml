@@ -1,0 +1,85 @@
+# Lesson 17 – Load Balancing Algorithms
+# Istio DestinationRule lets you choose the LB algorithm per service subset.
+# Default: ROUND_ROBIN (if no DestinationRule is applied).
+---
+# ── ROUND_ROBIN (default) ─────────────────────────────────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-round-robin
+  namespace: istio-demo
+spec:
+  host: backend
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN            # Equal distribution, request by request
+
+---
+# ── LEAST_REQUEST ─────────────────────────────────────────────────────────────
+# Picks the endpoint with fewest active requests. Best for unequal request cost.
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-least-request
+  namespace: istio-demo
+spec:
+  host: backend
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+
+---
+# ── RANDOM ────────────────────────────────────────────────────────────────────
+# Good benchmark baseline; distributes statistically evenly at high volume.
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-random
+  namespace: istio-demo
+spec:
+  host: backend
+  trafficPolicy:
+    loadBalancer:
+      simple: RANDOM
+
+---
+# ── CONSISTENT_HASH — sticky sessions by header ───────────────────────────────
+# Same header value → always routes to the same backend pod.
+# Use case: session state, ML model inference affinity, cache locality.
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-sticky-header
+  namespace: istio-demo
+spec:
+  host: backend
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: "x-user-id"   # Hash on this header value
+
+---
+# ── CONSISTENT_HASH — sticky sessions by cookie ──────────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-sticky-cookie
+  namespace: istio-demo
+spec:
+  host: backend
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpCookie:
+          name: "BACKEND_AFFINITY"
+          ttl: 3600s                  # Cookie lifetime; Envoy sets it if absent
+
+# ── Algorithm comparison ──────────────────────────────────────────────────────
+# Algorithm          | Sticky? | Best for
+# -------------------|---------|--------------------------------------------
+# ROUND_ROBIN        | No      | Stateless services, uniform request cost
+# LEAST_REQUEST      | No      | Mixed-cost workloads, prevents hot spots
+# RANDOM             | No      | High-throughput baseline
+# CONSISTENT_HASH    | Yes     | Session state, cache affinity, ML models
+# RING_HASH          | Yes     | Large clusters, minimal redistribution on scale
+# MAGLEV             | Yes     | Ultra-stable hashing (Google Maglev algorithm)

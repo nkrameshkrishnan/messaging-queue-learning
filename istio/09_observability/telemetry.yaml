@@ -1,0 +1,76 @@
+# Lesson 09 – Observability: Telemetry Configuration
+# Fine-tune access logging, tracing sampling, and metrics for istio-demo.
+---
+# ── Enable access logging for the namespace ───────────────────────────────────
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: access-logging
+  namespace: istio-demo
+spec:
+  accessLogging:
+    - providers:
+        - name: envoy   # Log to stdout (visible via kubectl logs <pod> -c istio-proxy)
+
+---
+# ── Distributed tracing: 100% sampling for learning (use 1% in production) ───
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: tracing-config
+  namespace: istio-demo
+spec:
+  tracing:
+    - providers:
+        - name: jaeger
+      randomSamplingPercentage: 100.0   # Sample every request (dev/learning only)
+                                         # Production: 0.1 to 1.0
+
+---
+# ── Prometheus metrics (enabled by default, explicit for clarity) ─────────────
+# Istio automatically exposes these metrics per-service:
+#
+# istio_requests_total{
+#   reporter="source|destination",
+#   source_workload="frontend",
+#   destination_workload="backend",
+#   request_protocol="http",
+#   response_code="200",
+#   ...
+# }
+#
+# istio_request_duration_milliseconds (histogram: p50, p90, p99)
+# istio_request_bytes (request body size)
+# istio_response_bytes (response body size)
+# istio_tcp_connections_opened_total
+# istio_tcp_connections_closed_total
+
+---
+# ── Generate load to see data in dashboards ───────────────────────────────────
+# kubectl exec -n istio-demo <frontend-pod> -- \
+#   sh -c 'while true; do curl -s http://backend:9090 > /dev/null; sleep 0.5; done &'
+#
+# Then open Kiali (istioctl dashboard kiali) and navigate to:
+#   Graph → Namespace: istio-demo → Display: Traffic Animation
+#
+# In Jaeger (istioctl dashboard jaeger):
+#   Service: frontend.istio-demo → Find Traces
+#   Click a trace to see the full call chain with per-hop latency
+#
+# In Grafana (istioctl dashboard grafana):
+#   Dashboards → Istio → Istio Service Dashboard
+#   Select: Namespace=istio-demo, Service=backend
+#   View: Request Rate, Error Rate, P50/P90/P99 latency
+
+# ── Key Prometheus queries for golden signals ─────────────────────────────────
+# Request rate (RPS):
+#   sum(rate(istio_requests_total{destination_workload="backend",namespace="istio-demo"}[5m]))
+#
+# Error rate (%):
+#   sum(rate(istio_requests_total{response_code=~"5..",destination_workload="backend"}[5m]))
+#   / sum(rate(istio_requests_total{destination_workload="backend"}[5m])) * 100
+#
+# P99 latency (ms):
+#   histogram_quantile(0.99, sum(rate(
+#     istio_request_duration_milliseconds_bucket{destination_workload="backend"}[5m]
+#   )) by (le))

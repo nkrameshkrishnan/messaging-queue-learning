@@ -1,0 +1,62 @@
+# Lesson 16 – Sidecar Resource (Envoy Config Scoping)
+# By default every Envoy sidecar holds the FULL mesh config (~200 MB for large meshes).
+# The Sidecar CRD limits which hosts/namespaces each proxy needs to know about,
+# dramatically reducing memory and xDS push frequency.
+---
+# ── Namespace-scoped Sidecar (applies to all pods in istio-demo) ───────────────
+# This pod only needs to communicate with:
+#   1. Services in its own namespace
+#   2. The payment service in the payments namespace
+#   3. Istio system services (for telemetry)
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: frontend-sidecar-scope
+  namespace: istio-demo
+spec:
+  workloadSelector:
+    labels:
+      app: frontend                 # Only affects frontend pods
+  egress:
+    - hosts:
+        - "./backend"               # ./  = same namespace (istio-demo)
+        - "./cache"
+        - "payments/payment-svc"    # Cross-namespace explicit allowlist
+        - "istio-system/*"          # Istio control plane services
+  ingress:
+    - port:
+        number: 8080
+        protocol: HTTP
+        name: http
+      defaultEndpoint: 0.0.0.0:8080
+
+---
+# ── Mesh-wide default Sidecar (reduces blast radius for all pods) ─────────────
+# Placed in the root namespace (istio-system or the mesh's root namespace).
+# Restricts all pods unless overridden by a namespace/workload-specific Sidecar.
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: default
+  namespace: istio-system           # Root namespace = mesh-wide default
+spec:
+  egress:
+    - hosts:
+        - "./*"                     # Allow all services in the same namespace
+        - "istio-system/*"          # Always allow control plane
+
+# ── Memory impact (approximate) ───────────────────────────────────────────────
+# Mesh size         | Without Sidecar | With Sidecar scoping
+# ------------------|-----------------|------------------------
+# 10 services       | ~50 MB          | ~30 MB
+# 100 services      | ~120 MB         | ~45 MB
+# 1000 services     | ~500 MB         | ~60 MB
+#
+# Verification:
+#   kubectl top pod -n istio-demo -c istio-proxy
+#   Before: 180Mi  After: 55Mi  (for a 200-service mesh)
+
+# ── Check what a pod's Envoy currently knows ──────────────────────────────────
+# istioctl proxy-config clusters <frontend-pod> -n istio-demo | wc -l
+# Before scoping: 200+ entries
+# After scoping:  ~10 entries

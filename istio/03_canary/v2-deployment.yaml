@@ -1,0 +1,56 @@
+# Lesson 03 – Canary Deployments: v2 Deployment
+# Deploy alongside v1 (from lesson 01). The Kubernetes Service selects BOTH
+# because it matches on app=backend (no version label in selector).
+# Traffic split is controlled by the VirtualService below.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-v2
+  namespace: istio-demo
+  labels:
+    app: backend
+    version: v2
+spec:
+  replicas: 2   # Same replica count as v1 — weight controls traffic, not replica count
+  selector:
+    matchLabels:
+      app: backend
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: backend
+        version: v2
+    spec:
+      serviceAccountName: backend-sa
+      containers:
+        - name: backend
+          image: nicholasjackson/fake-service:v0.26.2
+          ports:
+            - containerPort: 9090
+          env:
+            - name: LISTEN_ADDR
+              value: "0.0.0.0:9090"
+            - name: NAME
+              value: "backend-v2"
+            - name: MESSAGE
+              value: "Response from backend v2 (canary)"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 9090
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+# KEY INSIGHT: Kubernetes Service "backend" selects both v1 and v2 pods.
+# Without Istio, traffic would be distributed equally based on replica count.
+# With Istio + VirtualService weights, we control exact percentages regardless
+# of replica count — 10% v2 even with 10 v2 replicas and 1 v1 replica.

@@ -1,0 +1,126 @@
+# Lesson 08 – Authorization Policy (Zero-Trust Access Control)
+# Control which services can talk to each other using SPIFFE identity.
+# Requires mTLS (lesson 07) to be active — principals are based on mTLS certs.
+---
+# ── Step 1: Default deny-all for the namespace ────────────────────────────────
+# Applying an empty AuthorizationPolicy with no rules creates a deny-all baseline.
+# This is the zero-trust starting point.
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: istio-demo
+spec:
+  {}   # Empty spec = deny ALL ingress traffic to all pods in this namespace
+
+---
+# ── Step 2: Allow frontend → backend ─────────────────────────────────────────
+# Only the frontend service account may call GET/POST on /api/* of backend.
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-allow-frontend
+  namespace: istio-demo
+spec:
+  selector:
+    matchLabels:
+      app: backend   # This policy applies to the backend pods
+
+  action: ALLOW
+
+  rules:
+    # Allow from frontend service account only
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-demo/sa/frontend-sa"   # SPIFFE identity
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            paths: ["/api/*", "/"]
+
+    # Allow health checks from anywhere (e.g., Kubernetes liveness probe)
+    - to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/ready", "/live", "/healthz"]
+
+---
+# ── Allow ingress gateway → frontend ─────────────────────────────────────────
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: frontend-allow-gateway
+  namespace: istio-demo
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+
+  action: ALLOW
+
+  rules:
+    # Allow from the ingress gateway service account
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"
+            namespaces:
+              - "istio-system"
+
+    # Allow health checks
+    - to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/ready", "/live"]
+
+---
+# ── Explicit DENY: block a specific compromised service account ───────────────
+# DENY rules are evaluated BEFORE ALLOW rules.
+# apiVersion: security.istio.io/v1beta1
+# kind: AuthorizationPolicy
+# metadata:
+#   name: deny-attacker
+#   namespace: istio-demo
+# spec:
+#   action: DENY
+#   rules:
+#     - from:
+#         - source:
+#             principals:
+#               - "cluster.local/ns/default/sa/attacker"
+
+---
+# ── JWT-based end-user authorization ─────────────────────────────────────────
+# Combine service identity (mTLS) with JWT claims for user-level auth.
+# apiVersion: security.istio.io/v1beta1
+# kind: AuthorizationPolicy
+# metadata:
+#   name: backend-jwt-authz
+#   namespace: istio-demo
+# spec:
+#   selector:
+#     matchLabels:
+#       app: backend
+#   action: ALLOW
+#   rules:
+#     - from:
+#         - source:
+#             requestPrincipals: ["*"]   # Any authenticated JWT
+#       when:
+#         - key: request.auth.claims[role]
+#           values: ["admin", "editor"]  # Only users with these JWT roles
+
+# ── Test authorization ────────────────────────────────────────────────────────
+# Authorized call (frontend → backend):
+#   kubectl exec -n istio-demo <frontend-pod> -- curl http://backend:9090
+#   Expected: 200 OK
+#
+# Unauthorized call (from a pod without frontend-sa identity):
+#   kubectl run test --image=curlimages/curl -n istio-demo --restart=Never -- sleep 3600
+#   kubectl exec test -n istio-demo -- curl http://backend:9090
+#   Expected: RBAC: access denied (403)
+#
+# Check which policies are active:
+#   kubectl get authorizationpolicies -n istio-demo
+#   istioctl analyze -n istio-demo

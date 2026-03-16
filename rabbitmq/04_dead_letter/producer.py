@@ -38,38 +38,15 @@ import pika
 from rabbitmq.connection import get_connection
 from shared.models import OrderRegion, make_sample_order
 
+# Import the shared topology from this lesson's setup module.
+# sys.path already includes the project root (added above), but
+# '04_dead_letter' starts with a digit so it's not importable as a package.
+# We insert this file's own directory so `import setup` works cleanly.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from setup import EXCHANGE, MAIN_QUEUE, setup_queues  # noqa: E402
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [DLQ-PRODUCER] %(message)s")
 logger = logging.getLogger(__name__)
-
-MAIN_QUEUE = "orders_dlq_demo"
-DLQ_NAME   = "orders_dead_letter"
-EXCHANGE   = "dlq_exchange"
-DLQ_EXCHANGE = "dlq_dead_exchange"
-
-
-def setup_queues(channel) -> None:  # type: ignore[no-untyped-def]
-    """Declare main queue with DLQ configuration and the dead letter queue."""
-    # ── Step 1: Create the dead-letter exchange and queue ────────────────
-    channel.exchange_declare(exchange=DLQ_EXCHANGE, exchange_type="direct", durable=True)
-    channel.queue_declare(queue=DLQ_NAME, durable=True)
-    channel.queue_bind(queue=DLQ_NAME, exchange=DLQ_EXCHANGE, routing_key=DLQ_NAME)
-
-    # ── Step 2: Create the main queue with DLQ settings ──────────────────
-    # x-dead-letter-exchange: where failed messages go
-    # x-dead-letter-routing-key: routing key in the DLX
-    # x-message-ttl: messages expire after 30s if not consumed (also dead-lettered)
-    channel.exchange_declare(exchange=EXCHANGE, exchange_type="direct", durable=True)
-    channel.queue_declare(
-        queue=MAIN_QUEUE,
-        durable=True,
-        arguments={
-            "x-dead-letter-exchange":    DLQ_EXCHANGE,
-            "x-dead-letter-routing-key": DLQ_NAME,
-            "x-message-ttl":             30_000,  # 30 seconds TTL
-        },
-    )
-    channel.queue_bind(queue=MAIN_QUEUE, exchange=EXCHANGE, routing_key=MAIN_QUEUE)
-    logger.info("⚙️  Main queue '%s' configured with DLQ → '%s'", MAIN_QUEUE, DLQ_NAME)
 
 
 def publish_orders() -> None:

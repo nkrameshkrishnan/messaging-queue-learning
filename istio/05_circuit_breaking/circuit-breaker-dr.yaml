@@ -1,0 +1,69 @@
+# Lesson 05 – Circuit Breaking (Outlier Detection)
+# Automatically eject failing pods from the load balancing pool.
+# Apply: kubectl apply -f circuit-breaker-dr.yaml
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-circuit-breaker
+  namespace: istio-demo
+spec:
+  host: backend
+
+  trafficPolicy:
+    # ── Connection Pool Limits (fast-fail) ──────────────────────────────────
+    # Requests that exceed these limits are rejected immediately with 503.
+    # This prevents queue buildup and cascading slowness.
+    connectionPool:
+      tcp:
+        maxConnections: 50         # Max active TCP connections to the backend
+        connectTimeout: 3s
+      http:
+        http1MaxPendingRequests: 50   # Max pending HTTP/1.1 requests before fast-fail
+        http2MaxRequests: 100         # Max active HTTP/2 requests
+        maxRequestsPerConnection: 10  # Force connection recycling (prevents stale conns)
+        h2UpgradePolicy: UPGRADE
+
+    # ── Outlier Detection (circuit breaker) ─────────────────────────────────
+    # Monitors each upstream host (pod) and ejects those that are failing.
+    outlierDetection:
+      consecutive5xxErrors: 3     # Eject after 3 consecutive 5xx responses
+      interval: 10s               # Check for consecutive errors every 10s
+      baseEjectionTime: 30s       # First ejection lasts 30s; doubles each time
+      maxEjectionPercent: 100     # Allow ejecting ALL hosts if needed (aggressive)
+      minHealthPercent: 0         # Don't stop ejecting even if all hosts are out
+      # splitExternalLocalOriginErrors: true  # Count local errors (connect timeout) separately
+      # consecutiveLocalOriginFailures: 3
+
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+    - name: v2
+      labels:
+        version: v2
+
+---
+# ── Simulate circuit breaker with a slow/failing pod ─────────────────────────
+# Install fortio load-testing tool:
+#   kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/httpbin/httpbin.yaml -n istio-demo
+#
+# Send concurrent requests to trigger the connection pool limits:
+#   kubectl exec -n istio-demo fortio -- fortio load -c 10 -qps 0 -n 100 \
+#     -H "x-version: v1" http://backend:9090
+#
+# Watch for 503 responses (circuit breaker tripping):
+#   Expected output includes "Code 503: ..."
+#
+# Check Envoy's circuit breaker stats:
+#   kubectl exec -n istio-demo <pod> -c istio-proxy -- \
+#     pilot-agent request GET stats | grep "outlier_detection"
+#   Look for: "ejections_active", "ejections_total", "ejections_consecutive_error"
+
+# ── Real-world settings for production ───────────────────────────────────────
+# Recommended starting values for a production service with 10+ replicas:
+#   consecutive5xxErrors: 5
+#   interval: 30s
+#   baseEjectionTime: 60s
+#   maxEjectionPercent: 50   (never eject more than half the pool)
+#   connectionPool.http.http1MaxPendingRequests: 1000

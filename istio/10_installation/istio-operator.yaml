@@ -1,0 +1,91 @@
+# Lesson 10 – Installation Profiles & IstioOperator CRD
+# Declarative Istio installation — version-pinned, GitOps-friendly.
+# Apply: istioctl install -f istio-operator.yaml
+---
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: production-mesh
+  namespace: istio-system
+spec:
+  # ── Profile ──────────────────────────────────────────────────────────────────
+  # minimal   : Istiod only (no gateway). Smallest footprint.
+  # default   : Istiod + IngressGateway. Recommended for most prod deployments.
+  # demo      : All components + high verbosity. Use for learning/evaluation.
+  # remote    : Multi-cluster secondary cluster.
+  # empty     : Nothing — build up from scratch.
+  profile: default
+
+  # ── Pin Istio version ─────────────────────────────────────────────────────
+  # tag: 1.20.0   # uncomment to pin exact version
+
+  # ── Global settings ──────────────────────────────────────────────────────────
+  meshConfig:
+    defaultConfig:
+      tracing:
+        sampling: 1.0                   # 1% in prod; 100 for dev
+    outboundTrafficPolicy:
+      mode: REGISTRY_ONLY               # Block all egress not in ServiceRegistry
+    accessLogFile: /dev/stdout          # Enable access logs
+
+  # ── Component-level tuning ───────────────────────────────────────────────────
+  components:
+    pilot:
+      k8s:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 1Gi
+        replicaCount: 2                 # HA for production
+        hpaSpec:
+          minReplicas: 2
+          maxReplicas: 5
+          metrics:
+            - type: Resource
+              resource:
+                name: cpu
+                target:
+                  type: Utilization
+                  averageUtilization: 70
+
+    ingressGateways:
+      - name: istio-ingressgateway
+        enabled: true
+        k8s:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          service:
+            type: LoadBalancer
+
+    egressGateways:
+      - name: istio-egressgateway
+        enabled: true                   # Disabled in default profile; enable for REGISTRY_ONLY
+
+  # ── Values passthrough (helm values) ─────────────────────────────────────────
+  values:
+    global:
+      proxy:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+      mtls:
+        auto: true                      # Automatically upgrade to mTLS where possible
+
+# ── Profile comparison reference ──────────────────────────────────────────────
+#
+# Profile       | istiod | IngressGW | EgressGW | Tracing | Use case
+# --------------|--------|-----------|----------|---------|-------------------
+# minimal       |   ✓    |     ✗     |    ✗     |    ✗    | Sidecar-only
+# default       |   ✓    |     ✓     |    ✗     |    ✗    | Most production
+# demo          |   ✓    |     ✓     |    ✓     |    ✓    | Learning/eval
+# remote        |   ✗    |     ✗     |    ✗     |    ✗    | Multi-cluster secondary
+# empty         |   ✗    |     ✗     |    ✗     |    ✗    | Custom builds

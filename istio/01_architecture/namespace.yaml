@@ -1,0 +1,13 @@
+# Lesson 01 – Istio Architecture & Sidecar Injection
+# Apply: kubectl apply -f namespace.yaml
+# Then: kubectl apply -f deployment.yaml
+# Check: kubectl get pods -n istio-demo -o wide  (should show 2/2 READY)
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-demo
+  labels:
+    istio-injection: enabled   # ← This label triggers automatic sidecar injection
+    # Every pod created in this namespace will get an Envoy sidecar container injected
+    # by the Istio MutatingAdmissionWebhook before the pod starts.

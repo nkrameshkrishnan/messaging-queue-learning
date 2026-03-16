@@ -1,0 +1,43 @@
+# Lesson 11 – ServiceEntry: TLS Origination via VirtualService + DestinationRule
+# Lets pods call http://api.stripe.com:80 while Envoy upgrades to HTTPS internally.
+# App code stays simple; TLS handled by the sidecar.
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: external-payment-tls
+  namespace: istio-demo
+spec:
+  host: api.stripe.com
+  trafficPolicy:
+    tls:
+      mode: SIMPLE                  # Originate TLS to external host
+      sni: api.stripe.com           # Send correct SNI header
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: external-payment-vs
+  namespace: istio-demo
+spec:
+  hosts:
+    - api.stripe.com
+  http:
+    - timeout: 10s                  # Global timeout for all external payment calls
+      retries:
+        attempts: 3
+        retryOn: connect-failure,refused-stream,503
+      route:
+        - destination:
+            host: api.stripe.com
+            port:
+              number: 443
+
+# ── Key insight ───────────────────────────────────────────────────────────────
+# ServiceEntry  → tells Envoy "this external host exists"
+# DestinationRule → configures TLS / connection policies for that host
+# VirtualService  → optional: add timeouts, retries, header manipulation
+#
+# Without DestinationRule.tls.mode=SIMPLE, calls to port 443 would be
+# treated as plain TCP passthrough (no Istio retry/timeout logic applies).

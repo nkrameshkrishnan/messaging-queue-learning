@@ -1,0 +1,50 @@
+# Lesson 18 – Ambient Mesh
+# Istio's sidecar-free mode: uses a per-node ztunnel DaemonSet for L4 mTLS,
+# and an optional per-namespace waypoint proxy for L7 features.
+#
+# Key difference from sidecar mode:
+#   Sidecar: Envoy injected INTO each pod (2 containers per pod)
+#   Ambient: ztunnel on each NODE handles mTLS transparently (no pod changes)
+---
+# ── Step 1: Install Istio with ambient profile ────────────────────────────────
+# istioctl install --set profile=ambient -y
+# Installs: istiod, ztunnel (DaemonSet), CNI plugin (ambient mode)
+
+---
+# ── Step 2: Enroll a namespace into ambient mesh ──────────────────────────────
+# Just add a label — no pod restart required, no sidecar injection.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ambient-demo
+  labels:
+    istio.io/dataplane-mode: ambient   # ← This is all you need for L4 mTLS
+
+---
+# ── Step 3 (Optional): Add a waypoint proxy for L7 features ──────────────────
+# A waypoint proxy is an Envoy deployment scoped to a service account.
+# Required for: VirtualService routing, fault injection, AuthorizationPolicy on HTTP headers.
+# Without waypoint: only L4 mTLS and basic L4 authorization work.
+#
+# Create waypoint for the backend service account:
+#   istioctl waypoint apply --service-account backend-sa -n ambient-demo
+#   kubectl get gateway -n ambient-demo   # Should show a Gateway of class istio-waypoint
+
+# ── Verify ambient mesh is active ─────────────────────────────────────────────
+# kubectl get pods -n ambient-demo       # Notice: only 1/1 container (no sidecar!)
+# kubectl get ztunnel -n istio-system    # ztunnel DaemonSet (one per node)
+#
+# Test mTLS is working:
+#   kubectl exec -n ambient-demo <pod> -- curl http://other-svc:9090
+#   This uses HBONE (HTTP-based Overlay Network Environment) tunneled through ztunnel
+
+# ── Sidecar vs Ambient comparison ─────────────────────────────────────────────
+# Feature                 | Sidecar           | Ambient
+# ------------------------|-------------------|-----------------------------
+# mTLS                    | ✓ (Envoy in pod)  | ✓ (ztunnel on node)
+# L7 routing (VS/DR)      | ✓                 | ✓ with waypoint proxy
+# Resource overhead       | ~50-128 MB/pod    | ~1-2 MB/pod (ztunnel shared)
+# Pod restart to enroll   | Yes (inject)      | No (label namespace)
+# Fault injection         | ✓                 | ✓ with waypoint
+# Per-request telemetry   | ✓                 | ✓ with waypoint
+# Maturity (2024)         | GA                | Beta

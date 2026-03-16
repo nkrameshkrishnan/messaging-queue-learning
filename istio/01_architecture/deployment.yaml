@@ -1,0 +1,155 @@
+# Lesson 01 – Demo application (frontend + backend)
+# The app containers themselves have NO Istio-specific code.
+# Envoy sidecar is injected transparently.
+---
+# ServiceAccount for frontend
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-sa
+  namespace: istio-demo
+---
+# Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: istio-demo
+  labels:
+    app: frontend
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: v1
+    spec:
+      serviceAccountName: frontend-sa
+      containers:
+        - name: frontend
+          image: nicholasjackson/fake-service:v0.26.2
+          ports:
+            - containerPort: 9090
+          env:
+            - name: LISTEN_ADDR
+              value: "0.0.0.0:9090"
+            - name: NAME
+              value: "frontend"
+            - name: MESSAGE
+              value: "Hello from frontend!"
+            - name: UPSTREAM_URIS
+              value: "http://backend:9090"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 9090
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+# Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: istio-demo
+  labels:
+    app: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 9090
+      targetPort: 9090
+      name: http   # Istio uses the port name to detect protocol (http/grpc/tcp)
+---
+# ServiceAccount for backend
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backend-sa
+  namespace: istio-demo
+---
+# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: istio-demo
+  labels:
+    app: backend
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        version: v1
+    spec:
+      serviceAccountName: backend-sa
+      containers:
+        - name: backend
+          image: nicholasjackson/fake-service:v0.26.2
+          ports:
+            - containerPort: 9090
+          env:
+            - name: LISTEN_ADDR
+              value: "0.0.0.0:9090"
+            - name: NAME
+              value: "backend"
+            - name: MESSAGE
+              value: "Response from backend v1"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 9090
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+# Backend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: istio-demo
+  labels:
+    app: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 9090
+      targetPort: 9090
+      name: http
+
+# ── Verify sidecar injection ──────────────────────────────────────────────────
+# kubectl get pods -n istio-demo
+# Expected: READY shows 2/2 (app container + envoy sidecar)
+#
+# kubectl describe pod -n istio-demo -l app=frontend | grep "istio-proxy"
+# Expected: Container "istio-proxy" with image "docker.io/istio/proxyv2:..."
+#
+# kubectl logs -n istio-demo -l app=backend -c istio-proxy --tail=5
+# Envoy logs show intercepted traffic

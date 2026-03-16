@@ -1,0 +1,62 @@
+# Lesson 06 – Ingress Gateway: VirtualService binding
+# This VirtualService binds to the Gateway above and routes external traffic
+# to the internal frontend service.
+# Apply: kubectl apply -f gateway-virtual-service.yaml
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: frontend-external
+  namespace: istio-demo
+spec:
+  hosts:
+    - "myapp.example.com"   # Must match the Gateway's server host
+
+  gateways:
+    - myapp-gateway         # Binds this VS to the Gateway (external traffic)
+    - mesh                  # Also applies for internal mesh-to-mesh calls
+
+  http:
+    # Route /api/* to the backend service
+    - match:
+        - uri:
+            prefix: /api/
+      route:
+        - destination:
+            host: backend
+            subset: v1
+            port:
+              number: 9090
+      timeout: 10s
+      retries:
+        attempts: 3
+        perTryTimeout: 3s
+        retryOn: "connect-failure,refused-stream,503"
+
+    # All other paths go to the frontend service
+    - route:
+        - destination:
+            host: frontend
+            port:
+              number: 9090
+      timeout: 30s
+
+# ── Test externally ───────────────────────────────────────────────────────────
+# Get the ingress gateway external IP:
+#   INGRESS_HOST=$(kubectl get svc istio-ingressgateway -n istio-system \
+#     -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+#
+# For local kind/minikube, use port-forward instead:
+#   kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80
+#
+# Test HTTP redirect:
+#   curl -v http://$INGRESS_HOST -H "Host: myapp.example.com"
+#   Expected: 301 redirect to https://
+#
+# Test HTTPS (skip cert verification for self-signed):
+#   curl -k https://$INGRESS_HOST -H "Host: myapp.example.com"
+#   Expected: frontend service response
+#
+# Test API route:
+#   curl -k https://$INGRESS_HOST/api/orders -H "Host: myapp.example.com"
+#   Expected: backend service response

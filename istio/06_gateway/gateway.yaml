@@ -1,0 +1,56 @@
+# Lesson 06 – Ingress Gateway
+# Expose the frontend service externally via the Istio Ingress Gateway.
+# Apply: kubectl apply -f gateway.yaml && kubectl apply -f gateway-virtual-service.yaml
+---
+# ── Step 1: Create TLS Secret ─────────────────────────────────────────────────
+# For local/kind clusters use a self-signed cert:
+#   openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+#     -keyout /tmp/tls.key -out /tmp/tls.crt \
+#     -subj "/CN=myapp.example.com/O=demo"
+#   kubectl create secret tls myapp-tls-secret \
+#     --key /tmp/tls.key --cert /tmp/tls.crt -n istio-system
+---
+# ── Step 2: Gateway CRD ───────────────────────────────────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: myapp-gateway
+  namespace: istio-demo
+spec:
+  selector:
+    istio: ingressgateway   # Target the istio-ingressgateway pod in istio-system
+
+  servers:
+    # HTTP server — redirects all traffic to HTTPS
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "myapp.example.com"
+      tls:
+        httpsRedirect: true   # 301 redirect HTTP → HTTPS
+
+    # HTTPS server — terminates TLS
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - "myapp.example.com"
+      tls:
+        mode: SIMPLE                    # TLS termination (not passthrough)
+        credentialName: myapp-tls-secret  # Name of the Secret in istio-system
+
+    # ── Optional: TCP passthrough (e.g., for databases) ──────────────────────
+    # - port:
+    #     number: 5432
+    #     name: tcp-postgres
+    #     protocol: TCP
+    #   hosts:
+    #     - "*"
+
+# ── Verify Gateway ────────────────────────────────────────────────────────────
+# kubectl get gateway -n istio-demo
+# kubectl get svc istio-ingressgateway -n istio-system   (get EXTERNAL-IP)
+# curl -k https://<EXTERNAL-IP> -H "Host: myapp.example.com"

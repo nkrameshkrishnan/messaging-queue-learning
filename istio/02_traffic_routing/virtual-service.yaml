@@ -1,0 +1,53 @@
+# Lesson 02 – Traffic Routing: VirtualService
+# Apply: kubectl apply -f virtual-service.yaml
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend   # All traffic to the "backend" Kubernetes Service is controlled here
+
+  http:
+    # Route 1: Header-based routing — testers can force v2
+    - match:
+        - headers:
+            x-version:
+              exact: "v2"   # Only requests with this header go to v2
+      route:
+        - destination:
+            host: backend
+            subset: v2   # Must match a subset name in the DestinationRule
+
+    # Route 2: URI prefix routing
+    - match:
+        - uri:
+            prefix: /api/v2
+      route:
+        - destination:
+            host: backend
+            subset: v2
+
+    # Route 3: Default — all other traffic goes to v1
+    - route:
+        - destination:
+            host: backend
+            subset: v1
+      timeout: 10s   # Fail-fast: don't wait more than 10s
+      retries:
+        attempts: 3
+        perTryTimeout: 3s
+        retryOn: "connect-failure,refused-stream,503"
+
+# ── Test header-based routing ─────────────────────────────────────────────────
+# From inside the cluster (exec into frontend pod):
+#   curl -H "x-version: v2" http://backend:9090
+#   Expected: "Response from backend v2"
+#
+#   curl http://backend:9090
+#   Expected: "Response from backend v1"
+#
+# Verify route decisions:
+#   istioctl proxy-config routes <frontend-pod> -n istio-demo

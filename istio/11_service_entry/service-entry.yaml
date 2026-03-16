@@ -1,0 +1,75 @@
+# Lesson 11 – ServiceEntry: Registering External Services
+# When outboundTrafficPolicy=REGISTRY_ONLY (set in IstioOperator or MeshConfig),
+# all egress traffic is blocked unless the external host is registered here.
+---
+# ── Register an external HTTPS API ────────────────────────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-payment-api
+  namespace: istio-demo
+spec:
+  hosts:
+    - api.stripe.com              # DNS name Envoy will recognize
+  ports:
+    - number: 443
+      name: https
+      protocol: HTTPS
+  location: MESH_EXTERNAL         # Traffic originates outside the mesh
+  resolution: DNS                  # Resolve via DNS (vs STATIC for fixed IPs)
+
+---
+# ── Register an external HTTP service ────────────────────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-httpbin
+  namespace: istio-demo
+spec:
+  hosts:
+    - httpbin.org
+  ports:
+    - number: 80
+      name: http
+      protocol: HTTP
+    - number: 443
+      name: https
+      protocol: HTTPS
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+---
+# ── Register with static IP (e.g. on-prem legacy system) ─────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: legacy-database
+  namespace: istio-demo
+spec:
+  hosts:
+    - legacy-db.internal           # Virtual hostname (not real DNS)
+  addresses:
+    - 10.10.20.5/32                # Actual IP of the legacy system
+  ports:
+    - number: 5432
+      name: postgres
+      protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: STATIC               # Don't resolve — use addresses above
+  endpoints:
+    - address: 10.10.20.5
+
+# ── Test the ServiceEntry ─────────────────────────────────────────────────────
+# From a sidecar-injected pod:
+#
+#   kubectl exec -n istio-demo <frontend-pod> -- \
+#     curl -s https://httpbin.org/get | jq .origin
+#
+# Without ServiceEntry (REGISTRY_ONLY mode), this returns:
+#   upstream connect error or disconnect/reset before headers. reset reason: connection failure
+#
+# With ServiceEntry applied:
+#   { "origin": "<pod-ip>" }
+#
+# Verify Envoy knows about the host:
+#   istioctl proxy-config clusters <pod> -n istio-demo | grep httpbin

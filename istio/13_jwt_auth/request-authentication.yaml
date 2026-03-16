@@ -1,0 +1,93 @@
+# Lesson 13 – JWT Authentication (RequestAuthentication)
+# Validates JSON Web Tokens on inbound requests using a public JWKS endpoint.
+# Complements mTLS (service identity) with end-user identity from JWTs.
+---
+# ── RequestAuthentication: validate the JWT signature ─────────────────────────
+# Applied to the backend service — any request with a JWT must pass validation.
+# Requests WITHOUT a JWT are still allowed here; use AuthorizationPolicy to block them.
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: backend-jwt-authn
+  namespace: istio-demo
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  jwtRules:
+    - issuer: "https://accounts.google.com"
+      jwksUri: "https://www.googleapis.com/oauth2/v3/certs"
+      # Optionally forward the JWT to the upstream service
+      forwardOriginalToken: false
+      # Where to look for the JWT (default: Authorization: Bearer <token>)
+      # fromHeaders:
+      #   - name: Authorization
+      #     prefix: "Bearer "
+      # fromParams:
+      #   - "token"
+
+    # Support multiple issuers (e.g., Google + your own IdP)
+    - issuer: "https://auth.mycompany.com"
+      jwksUri: "https://auth.mycompany.com/.well-known/jwks.json"
+      audiences:
+        - "my-backend-api"            # Validate the 'aud' claim
+
+# ── AuthorizationPolicy: require a valid JWT ──────────────────────────────────
+# Without this policy, unauthenticated requests (no JWT) still pass through.
+# Adding requiresPresenter ensures every request MUST have a valid token.
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-require-jwt
+  namespace: istio-demo
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  action: ALLOW
+  rules:
+    # Allow requests from any authenticated JWT principal
+    - from:
+        - source:
+            requestPrincipals: ["*"]    # Any valid JWT (issuer/subject)
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/api/*", "/"]
+
+    # Allow admin operations only for users with role=admin JWT claim
+    - from:
+        - source:
+            requestPrincipals: ["*"]
+      to:
+        - operation:
+            methods: ["POST", "DELETE"]
+            paths: ["/api/admin/*"]
+      when:
+        - key: request.auth.claims[role]
+          values: ["admin"]
+
+    # Health checks don't need a JWT
+    - to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/healthz", "/ready"]
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+# Get a test JWT (Google example):
+#   TOKEN=$(gcloud auth print-identity-token)
+#
+# Authorized call:
+#   kubectl exec -n istio-demo <frontend-pod> -- \
+#     curl -H "Authorization: Bearer $TOKEN" http://backend:9090/api/data
+#   Expected: 200 OK
+#
+# No token:
+#   kubectl exec -n istio-demo <frontend-pod> -- curl http://backend:9090/api/data
+#   Expected: 403 Forbidden (from AuthorizationPolicy)
+#
+# Invalid token:
+#   kubectl exec -n istio-demo <frontend-pod> -- \
+#     curl -H "Authorization: Bearer invalid.jwt.token" http://backend:9090/api/data
+#   Expected: 401 Jwt verification fails

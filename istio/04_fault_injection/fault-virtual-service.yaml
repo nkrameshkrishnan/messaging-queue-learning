@@ -1,0 +1,101 @@
+# Lesson 04 – Fault Injection
+# Test resilience by injecting delays and aborts without changing any app code.
+# Apply: kubectl apply -f fault-virtual-service.yaml
+# Remove: kubectl delete -f fault-virtual-service.yaml
+---
+# ── Scenario A: Delay fault (tests timeout handling) ─────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-fault-delay
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+  http:
+    # Fault only fires for requests with the test header (production-safe)
+    - match:
+        - headers:
+            x-test-fault:
+              exact: "delay"
+      fault:
+        delay:
+          percentage:
+            value: 100.0   # 100% of matching requests get delayed
+          fixedDelay: 5s   # 5-second artificial delay before forwarding
+      route:
+        - destination:
+            host: backend
+            subset: v1
+      timeout: 3s   # If client timeout < fixedDelay, client sees a timeout error
+                    # This tests whether upstream callers handle slow responses
+
+    # Normal traffic (no fault header) routes normally
+    - route:
+        - destination:
+            host: backend
+            subset: v1
+---
+# ── Scenario B: Abort fault (tests retry and error handling) ─────────────────
+# kubectl apply -f - <<EOF
+# apiVersion: networking.istio.io/v1beta1
+# kind: VirtualService
+# metadata:
+#   name: backend-fault-abort
+#   namespace: istio-demo
+# spec:
+#   hosts:
+#     - backend
+#   http:
+#     - match:
+#         - headers:
+#             x-test-fault:
+#               exact: "abort"
+#       fault:
+#         abort:
+#           percentage:
+#             value: 50.0   # 50% of matching requests get aborted immediately
+#           httpStatus: 503  # Return 503 without touching the upstream service
+#       route:
+#         - destination:
+#             host: backend
+#             subset: v1
+#     - route:
+#         - destination:
+#             host: backend
+#             subset: v1
+# EOF
+---
+# ── Scenario C: Combined delay + abort (chaos engineering) ───────────────────
+# apiVersion: networking.istio.io/v1beta1
+# kind: VirtualService
+# metadata:
+#   name: backend-fault-combined
+#   namespace: istio-demo
+# spec:
+#   hosts:
+#     - backend
+#   http:
+#     - fault:
+#         delay:
+#           percentage:
+#             value: 30.0
+#           fixedDelay: 2s
+#         abort:
+#           percentage:
+#             value: 10.0
+#           httpStatus: 503
+#       route:
+#         - destination:
+#             host: backend
+#             subset: v1
+
+# ── Test commands ─────────────────────────────────────────────────────────────
+# Test delay fault (should see 5s response time or timeout):
+#   curl -H "x-test-fault: delay" -w "\nTime: %{time_total}s\n" http://backend:9090
+#
+# Test abort fault (should see HTTP 503):
+#   curl -H "x-test-fault: abort" -w "\nHTTP: %{http_code}\n" http://backend:9090
+#
+# Normal request (no fault):
+#   curl -w "\nTime: %{time_total}s\n" http://backend:9090

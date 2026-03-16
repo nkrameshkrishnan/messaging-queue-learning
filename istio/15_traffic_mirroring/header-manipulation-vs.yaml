@@ -1,0 +1,51 @@
+# Lesson 15 – Header Manipulation
+# Add, set, or remove HTTP headers on requests and responses at the mesh level —
+# zero application code changes required.
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-header-manipulation
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+  http:
+    - match:
+        - headers:
+            x-env:
+              exact: staging        # Only apply to staging-tagged requests
+      headers:
+        request:
+          add:
+            x-mesh-injected: "true"        # Always add this header upstream
+            x-request-id: "%REQ(x-b3-traceid)%"  # Propagate trace ID
+          set:
+            x-forwarded-proto: "https"     # Overwrite (set replaces existing)
+          remove:
+            - x-internal-secret            # Strip before sending to upstream
+        response:
+          add:
+            x-served-by: "backend-v1"      # Inject into response for debugging
+          remove:
+            - x-powered-by                 # Strip framework fingerprinting
+      route:
+        - destination:
+            host: backend
+            subset: v1
+
+    # Default route (no header manipulation)
+    - route:
+        - destination:
+            host: backend
+            subset: v1
+
+# ── Test header manipulation ──────────────────────────────────────────────────
+# Send staging request:
+#   kubectl exec -n istio-demo <frontend-pod> -- \
+#     curl -v -H "x-env: staging" http://backend:9090 2>&1 | grep "x-mesh-injected"
+#
+# Verify secret header stripped:
+#   kubectl exec -n istio-demo <frontend-pod> -- \
+#     curl -H "x-internal-secret: my-secret" http://backend:9090
+#   (backend logs should NOT show x-internal-secret)

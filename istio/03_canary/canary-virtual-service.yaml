@@ -1,0 +1,62 @@
+# Lesson 03 – Canary Deployments: VirtualService with weighted routing
+# Gradually increase v2 weight from 10 → 50 → 90 → 100
+# Apply: kubectl apply -f canary-virtual-service.yaml
+# Edit the weights and re-apply to advance the canary.
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-canary
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+
+  http:
+    # ── Step 1: Initial canary (10% to v2) ──
+    # Change weights to advance the rollout:
+    #   Step 1:  v1=90  v2=10   (validate: error rate, p99 latency)
+    #   Step 2:  v1=50  v2=50   (A/B comparison at scale)
+    #   Step 3:  v1=10  v2=90   (nearly fully shifted)
+    #   Step 4:  v1=0   v2=100  (complete cutover)
+    - route:
+        - destination:
+            host: backend
+            subset: v1
+          weight: 90
+        - destination:
+            host: backend
+            subset: v2
+          weight: 10   # ← Edit this number and kubectl apply to advance canary
+
+---
+# ── Mirror traffic to v2 (zero user impact validation) ────────────────────────
+# Uncomment to enable traffic mirroring before shifting weights:
+#
+# apiVersion: networking.istio.io/v1beta1
+# kind: VirtualService
+# metadata:
+#   name: backend-mirror
+#   namespace: istio-demo
+# spec:
+#   hosts:
+#     - backend
+#   http:
+#     - route:
+#         - destination:
+#             host: backend
+#             subset: v1
+#       mirror:
+#         host: backend
+#         subset: v2
+#       mirrorPercentage:
+#         value: 100.0   # Mirror 100% of traffic; v2 responses discarded
+
+# ── Rollback ──────────────────────────────────────────────────────────────────
+# Instant rollback: set v1=100, v2=0 and kubectl apply
+# No pod changes needed — traffic shifts in seconds.
+
+# ── Monitor during canary ─────────────────────────────────────────────────────
+# kubectl exec -n istio-demo -it $(kubectl get pod -n istio-demo -l app=frontend -o name | head -1) -- \
+#   sh -c 'for i in $(seq 1 20); do curl -s http://backend:9090 | grep NAME; done'
+# Expected: ~10% "backend-v2", ~90% "backend"

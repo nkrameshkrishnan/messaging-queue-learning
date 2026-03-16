@@ -1,0 +1,84 @@
+# Lesson 19 – WasmPlugin: Custom Envoy Filters
+# Extend Envoy's behavior with WebAssembly modules — without recompiling Istio.
+# Filters run inside a sandbox: no host file/network access, safe to deploy.
+#
+# Use cases: custom auth, rate limiting, request transformation, telemetry.
+---
+# ── Example 1: Custom header injection filter ─────────────────────────────────
+# Applies a Wasm module that injects a custom header on every request.
+# The OCI image contains the compiled .wasm binary.
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: custom-header-injector
+  namespace: istio-demo
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  url: oci://ghcr.io/my-org/header-injector:v1.2.0   # OCI image registry
+  phase: AUTHN                    # Run in authentication phase (before routing)
+  priority: 10                    # Higher = runs first (within the same phase)
+  pluginConfig:                   # Passed to the Wasm module as JSON
+    header_name: "x-wasm-injected"
+    header_value: "true"
+
+---
+# ── Example 2: Custom rate limiter ───────────────────────────────────────────
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: rate-limiter
+  namespace: istio-demo
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  url: oci://ghcr.io/my-org/rate-limiter:latest
+  phase: AUTHZ                    # Run in authorization phase
+  pluginConfig:
+    requests_per_second: 100
+    burst: 20
+
+---
+# ── Example 3: Custom telemetry / stats enrichment ────────────────────────────
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: custom-metrics
+  namespace: istio-demo
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  url: oci://ghcr.io/my-org/custom-metrics:v2.0
+  phase: STATS                    # Run in stats phase (after response)
+  pluginConfig:
+    business_metric: "order_value"
+    header_to_extract: "x-order-amount"
+
+# ── Phase execution order ─────────────────────────────────────────────────────
+# UNSPECIFIED_PHASE → AUTHN → AUTHZ → STATS
+#
+# Phase    | Purpose                         | Common uses
+# ---------|----------------------------------|-----------------------------------
+# AUTHN    | Before authentication            | Custom token validation, API keys
+# AUTHZ    | Before authorization             | Rate limiting, IP allowlists
+# STATS    | After response, collect metrics  | Business metrics, custom logging
+
+# ── Building a Wasm filter ────────────────────────────────────────────────────
+# Use the proxy-wasm SDK (Rust, Go, C++, AssemblyScript):
+#
+# Rust example:
+#   cargo install wasm-pack
+#   # implement proxy_on_request_headers() in src/lib.rs
+#   wasm-pack build --target web
+#   docker buildx build --platform linux/amd64 -t ghcr.io/my-org/my-filter:v1 .
+#   docker push ghcr.io/my-org/my-filter:v1
+#
+# The WasmPlugin controller pulls the OCI image, extracts the .wasm binary,
+# and distributes it to all matching sidecars via the xDS API (no restart needed).
+
+# ── Verify WasmPlugin is loaded ───────────────────────────────────────────────
+# kubectl get wasmplugin -n istio-demo
+# istioctl proxy-config listener <backend-pod> -n istio-demo -o json | grep wasm

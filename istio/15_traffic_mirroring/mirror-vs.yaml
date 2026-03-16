@@ -1,0 +1,57 @@
+# Lesson 15 – Traffic Mirroring (Shadow Traffic)
+# Send a copy of live requests to a shadow service — responses are discarded.
+# Use cases: dark launches, production load testing, ML model comparison.
+#
+# Key property: zero user impact — the shadow's response is never returned.
+---
+# ── DestinationRule: define v1 and v2 subsets ─────────────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-subsets-mirror
+  namespace: istio-demo
+spec:
+  host: backend
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+    - name: v2
+      labels:
+        version: v2
+
+---
+# ── VirtualService: route to v1 + mirror to v2 ────────────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-mirror
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+  http:
+    - route:
+        - destination:
+            host: backend
+            subset: v1            # 100% of traffic goes to v1 (live)
+          weight: 100
+      mirror:
+        host: backend
+        subset: v2                # Copy sent to v2 (shadow — response ignored)
+      mirrorPercentage:
+        value: 100.0              # Mirror 100% of requests; use 10.0 for gentle start
+
+# ── What the shadow receives ──────────────────────────────────────────────────
+# Mirror requests arrive with an extra header:
+#   x-envoy-original-dst-host: backend.istio-demo
+#   Host: backend-shadow           (Envoy appends "-shadow" to the host)
+#
+# Use this to identify mirror traffic in your logs:
+#   kubectl logs -n istio-demo -l version=v2 | grep shadow
+
+# ── Gradually increase mirror percentage ────────────────────────────────────
+# Start at 5%:  mirrorPercentage.value: 5.0
+# Ramp to 50%:  mirrorPercentage.value: 50.0
+# Full mirror:  mirrorPercentage.value: 100.0
+# Remove mirror when confident: delete the 'mirror' and 'mirrorPercentage' fields

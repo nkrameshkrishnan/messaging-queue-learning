@@ -1,0 +1,76 @@
+# Lesson 07 – mTLS & PeerAuthentication
+# Enforce mutual TLS across the entire istio-demo namespace.
+# Migration path: PERMISSIVE → STRICT (never jump straight to STRICT in production)
+---
+# ── Stage 1: Permissive mode (safe for migration) ─────────────────────────────
+# Sidecars accept BOTH mTLS and plaintext. Existing clients continue working.
+# Apply first to validate everything still works before enforcing STRICT.
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: istio-demo
+spec:
+  mtls:
+    mode: PERMISSIVE   # Change to STRICT once all clients have sidecars
+
+---
+# ── Stage 2: Strict mode (zero-trust, apply after validation) ────────────────
+# Uncomment and apply to enforce mTLS. All plaintext requests are rejected.
+#
+# apiVersion: security.istio.io/v1beta1
+# kind: PeerAuthentication
+# metadata:
+#   name: default
+#   namespace: istio-demo
+# spec:
+#   mtls:
+#     mode: STRICT
+
+---
+# ── Per-workload exception (legacy services without sidecars) ─────────────────
+# Keep one specific workload in PERMISSIVE while namespace is STRICT.
+# apiVersion: security.istio.io/v1beta1
+# kind: PeerAuthentication
+# metadata:
+#   name: legacy-permissive
+#   namespace: istio-demo
+# spec:
+#   selector:
+#     matchLabels:
+#       app: legacy-db-client   # Only this workload stays permissive
+#   mtls:
+#     mode: PERMISSIVE
+
+---
+# ── Mesh-wide mTLS (apply to ALL namespaces) ─────────────────────────────────
+# Applying to istio-system sets policy for the entire mesh.
+# apiVersion: security.istio.io/v1beta1
+# kind: PeerAuthentication
+# metadata:
+#   name: default
+#   namespace: istio-system   # ← istio-system scope = mesh-wide
+# spec:
+#   mtls:
+#     mode: STRICT
+
+# ── Verify mTLS status ────────────────────────────────────────────────────────
+# Check mTLS mode in Kiali (traffic graph shows 🔒 padlock icons when STRICT)
+#
+# Via istioctl:
+#   istioctl authn tls-check <pod-name>.<namespace> backend.istio-demo.svc.cluster.local
+#   Expected columns: STATUS=OK, SERVER=mTLS, CLIENT=mTLS
+#
+# Test that plaintext is rejected in STRICT mode:
+#   # Create a pod WITHOUT sidecar (in a non-injection namespace)
+#   kubectl run test --image=curlimages/curl:8.5.0 -n default -- sleep 3600
+#   kubectl exec test -n default -- curl http://backend.istio-demo:9090
+#   Expected: connection refused or SSL handshake error (plaintext blocked)
+#
+# Confirm mTLS is working (from a sidecar-injected pod):
+#   kubectl exec -n istio-demo <frontend-pod> -- curl http://backend:9090
+#   Expected: 200 OK (Envoy handles the mTLS handshake transparently)
+#
+# View certificate issued to a sidecar:
+#   istioctl proxy-config secret <frontend-pod> -n istio-demo
+#   Look for: CERT CHAIN, VALID CERT, expiry date

@@ -1,0 +1,104 @@
+# Lesson 12 – Egress Gateway
+# Route all outbound traffic through a dedicated gateway pod for:
+#   - Centralized audit logging of external calls
+#   - Egress firewall / policy enforcement at a single point
+#   - IP whitelisting: only the gateway's IP needs to be allowed by external firewalls
+#
+# Traffic flow:
+#   App pod → (sidecar) → EgressGateway pod → External service
+---
+# ── Step 1: ServiceEntry (register external host) ────────────────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: egress-httpbin
+  namespace: istio-demo
+spec:
+  hosts:
+    - httpbin.org
+  ports:
+    - number: 80
+      name: http
+      protocol: HTTP
+    - number: 443
+      name: https
+      protocol: HTTPS
+  resolution: DNS
+  location: MESH_EXTERNAL
+
+---
+# ── Step 2: Gateway (open a port on the egress gateway pod) ──────────────────
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: egress-httpbin-gateway
+  namespace: istio-demo
+spec:
+  selector:
+    istio: egressgateway              # Targets the istio-egressgateway pod
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - httpbin.org
+
+---
+# ── Step 3: DestinationRule (subset for the egress gateway itself) ────────────
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: egressgateway-for-httpbin
+  namespace: istio-demo
+spec:
+  host: istio-egressgateway.istio-system.svc.cluster.local
+  subsets:
+    - name: httpbin
+      labels:
+        app: istio-egressgateway
+
+---
+# ── Step 4: VirtualService (route sidecar → gateway → external) ───────────────
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: egress-httpbin-vs
+  namespace: istio-demo
+spec:
+  hosts:
+    - httpbin.org
+  gateways:
+    - mesh                            # Rule for all sidecar proxies (internal mesh)
+    - egress-httpbin-gateway          # Rule for traffic leaving via the egress gateway
+  http:
+    # Rule 1: Sidecar traffic → send to egress gateway
+    - match:
+        - gateways:
+            - mesh
+          port: 80
+      route:
+        - destination:
+            host: istio-egressgateway.istio-system.svc.cluster.local
+            subset: httpbin
+            port:
+              number: 80
+          weight: 100
+
+    # Rule 2: Egress gateway → forward to external
+    - match:
+        - gateways:
+            - egress-httpbin-gateway
+          port: 80
+      route:
+        - destination:
+            host: httpbin.org
+            port:
+              number: 80
+          weight: 100
+
+# ── Verify egress gateway is routing ────────────────────────────────────────
+# kubectl exec -n istio-demo <frontend-pod> -- curl -s http://httpbin.org/ip
+# Check egress gateway logs:
+#   kubectl logs -n istio-system -l app=istio-egressgateway -c istio-proxy | tail -20
+# Logs should show httpbin.org requests passing through.
