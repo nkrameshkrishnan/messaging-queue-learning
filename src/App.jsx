@@ -144,7 +144,7 @@ function Narrative({ text, color = "#a855f7", step, total }) {
       fontFamily: "system-ui, -apple-system, sans-serif", lineHeight: 1.6, transition: "all 0.3s",
       background: `linear-gradient(135deg, ${color}08, ${color}12)`, 
       border: `1px solid ${color}30`, 
-      color: "#94a3b8",
+      color: "#475569",
       backdropFilter: "blur(8px)"
     }}>
       {step != null && total != null && (
@@ -259,7 +259,7 @@ function ConceptPanel({ lesson, color }) {
                 justifyContent: "center", fontSize: 17,
               }}>{t.icon}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14.5, fontWeight: 700, color: "#94a3b8", marginBottom: 2 }}>{t.term}</div>
+                <div style={{ fontSize: 14.5, fontWeight: 700, color: "#475569", marginBottom: 2 }}>{t.term}</div>
                 <div style={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6 }}>{t.def}</div>
               </div>
             </div>
@@ -821,7 +821,7 @@ const LESSONS_META = [
   {
     id: "istio-install", num: "10", title: "Istio – Installation & Profiles",
     subtitle: "Istio ships four profiles: minimal, default, demo, and production. IstioOperator lets you customize every control plane component declaratively.",
-    color: "#38bdf8", group: "istio",
+    color: "#0284c7", group: "istio",
     analogy: { icon: "🏗️", scenario: "Building Blueprints", text: "Like choosing a house blueprint — minimal is a studio apartment (just the structure), default is a family home, demo adds every feature for inspection, and production is a hardened custom build. The IstioOperator CRD is your architect's instruction sheet — change any room without rebuilding from scratch." },
     terms: [
       { icon: "📋", term: "Installation Profiles", def: "demo: all components, for learning. default: control plane + ingress gateway, for most clusters. minimal: control plane only. production: hardened, resource-tuned." },
@@ -893,7 +893,7 @@ const LESSONS_META = [
   {
     id: "istio-sidecar", num: "16", title: "Istio – Sidecar Resource",
     subtitle: "By default every Envoy sidecar tracks ALL services in the mesh. The Sidecar resource scopes each proxy's config to only the services it needs, slashing memory by up to 80% in large meshes.",
-    color: "#4ade80", group: "istio",
+    color: "#15803d", group: "istio",
     analogy: { icon: "📦", scenario: "Warehouse Stock List", text: "A warehouse worker (pod) doesn't need the full catalogue of every product in every warehouse worldwide — just the items on today's pick list. By default Istio sends every Envoy the full 10,000-item catalogue. The Sidecar resource is the manager saying: you only need items 42, 67, and 88. Smaller list = faster lookups, less memory, faster config updates." },
     terms: [
       { icon: "📋", term: "Sidecar CRD", def: "Scopes what services an Envoy tracks. egress.hosts controls which namespaces/services appear in the proxy's outbound config. ingress.port configures inbound listeners." },
@@ -948,17 +948,17 @@ function HelloWorldLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Declare the queue</b><br/><br/>
-      <span style={{color:"#a3e635"}}>channel.queue_declare(queue='hello')</span><br/><br/>
+      <span style={{color:"#166534"}}>channel.queue_declare(queue='hello')</span><br/><br/>
       Safe to call every time — only creates the queue if it doesn't exist yet. Both producer and consumer can declare the same queue.</>,
     <><b style={{color:meta.color}}>Step 2 — Publish a message</b><br/><br/>
-      <span style={{color:"#a3e635"}}>channel.basic_publish(exchange='',<br/>{"    "}routing_key='hello', body='Hello World!')</span><br/><br/>
+      <span style={{color:"#166534"}}>channel.basic_publish(exchange='',<br/>{"    "}routing_key='hello', body='Hello World!')</span><br/><br/>
       exchange='' is the <b>default (nameless) exchange</b>. With it, routing_key is just the queue name.</>,
     <><b style={{color:meta.color}}>Step 3 — Message enters the queue</b><br/><br/>
       Default exchange delivers the message into 'hello'. The message sits here safely even if no consumer is running yet. <b>Producers and consumers are fully decoupled.</b></>,
     <><b style={{color:meta.color}}>Step 4 — Consumer receives the message</b><br/><br/>
-      <span style={{color:"#a3e635"}}>def callback(ch, method, props, body):<br/>{"    "}print(f"Received {"{body}"}")<br/><br/>channel.basic_consume(queue='hello',<br/>{"    "}on_message_callback=callback)</span></>,
+      <span style={{color:"#166534"}}>def callback(ch, method, props, body):<br/>{"    "}print(f"Received {"{body}"}")<br/><br/>channel.basic_consume(queue='hello',<br/>{"    "}on_message_callback=callback)</span></>,
     <><b style={{color:meta.color}}>Step 5 — Acknowledgement (ACK)</b><br/><br/>
-      <span style={{color:"#a3e635"}}>ch.basic_ack(delivery_tag=method.delivery_tag)</span><br/><br/>
+      <span style={{color:"#166534"}}>ch.basic_ack(delivery_tag=method.delivery_tag)</span><br/><br/>
       ✅ RabbitMQ deletes the message only after ACK.<br/>
       💡 Consumer crashes before ACK? RabbitMQ automatically re-delivers to another consumer!</>,
   ];
@@ -975,7 +975,7 @@ function HelloWorldLesson({ meta }) {
           <Arrow on={stage>=4} color={T.queue.border}/>
           <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={stage>=5?"✅ ACK sent":"receive.py"} active={stage===4||stage===5}/>
         </div>
-        {stage>=5&&<div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:"rgba(34, 197, 94, 0.1)",border:"1px solid rgba(34, 197, 94, 0.3)",fontSize: 14,fontFamily:"monospace",color:"#4ade80"}}>✅ ACK received → message deleted permanently</div>}
+        {stage>=5&&<div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:"rgba(34, 197, 94, 0.1)",border:"1px solid rgba(34, 197, 94, 0.3)",fontSize: 14,fontFamily:"monospace",color:"#15803d"}}>✅ ACK received → message deleted permanently</div>}
       </div>
       <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
       <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
@@ -992,11 +992,11 @@ function WorkQueuesLesson({ meta }) {
   const TASKS = [{id:1,label:"Task 1 🖼️"},{id:2,label:"Task 2 📊"},{id:3,label:"Task 3 🎥"},{id:4,label:"Task 4 📝"}];
   const taken = (id) => (id===1&&stage>=3)||(id===2&&stage>=4)||(id===3&&stage>=5)||(id===4&&stage>=6);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Declare a durable queue</b><br/><br/><span style={{color:"#a3e635"}}>channel.queue_declare(queue='task_queue', durable=True)</span><br/><br/>durable=True means the queue survives a RabbitMQ restart. Without this, all waiting tasks vanish on restart.</>,
-    <><b style={{color:meta.color}}>Step 2 — Send persistent tasks</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(exchange='', routing_key='task_queue', body='Task 1',<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}delivery_mode=pika.DeliveryMode.Persistent))</span><br/><br/>PERSISTENT ensures each message also survives restart. Both queue AND messages must be durable.</>,
-    <><b style={{color:meta.color}}>Step 3 — Worker 1 picks Task 1 (round-robin)</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_qos(prefetch_count=1)</span><br/><br/>prefetch=1: "Don't give me Task 2 until I ACK Task 1." Prevents a fast worker from being flooded while a slow one sits idle.</>,
+    <><b style={{color:meta.color}}>Step 1 — Declare a durable queue</b><br/><br/><span style={{color:"#166534"}}>channel.queue_declare(queue='task_queue', durable=True)</span><br/><br/>durable=True means the queue survives a RabbitMQ restart. Without this, all waiting tasks vanish on restart.</>,
+    <><b style={{color:meta.color}}>Step 2 — Send persistent tasks</b><br/><br/><span style={{color:"#166534"}}>channel.basic_publish(exchange='', routing_key='task_queue', body='Task 1',<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}delivery_mode=pika.DeliveryMode.Persistent))</span><br/><br/>PERSISTENT ensures each message also survives restart. Both queue AND messages must be durable.</>,
+    <><b style={{color:meta.color}}>Step 3 — Worker 1 picks Task 1 (round-robin)</b><br/><br/><span style={{color:"#166534"}}>channel.basic_qos(prefetch_count=1)</span><br/><br/>prefetch=1: "Don't give me Task 2 until I ACK Task 1." Prevents a fast worker from being flooded while a slow one sits idle.</>,
     <><b style={{color:meta.color}}>Step 4 — Worker 2 picks Task 2 simultaneously</b><br/><br/>Round-robin: Task 1→Worker 1, Task 2→Worker 2, Task 3→Worker 1, Task 4→Worker 2.<br/><br/>Both workers process <b>in parallel</b> — just add more workers to scale automatically.</>,
-    <><b style={{color:meta.color}}>Step 5 — Worker 1 ACKs Task 1 and picks Task 3</b><br/><br/><span style={{color:"#a3e635"}}>ch.basic_ack(delivery_tag=method.delivery_tag)</span><br/><br/>After ACK, Worker 1 is free and picks up the next available task.</>,
+    <><b style={{color:meta.color}}>Step 5 — Worker 1 ACKs Task 1 and picks Task 3</b><br/><br/><span style={{color:"#166534"}}>ch.basic_ack(delivery_tag=method.delivery_tag)</span><br/><br/>After ACK, Worker 1 is free and picks up the next available task.</>,
     <><b style={{color:meta.color}}>Step 6 — All 4 tasks complete!</b><br/><br/>💥 <b>Crash scenario:</b> If Worker 1 dies mid-task, its un-ACK'd task is re-queued and delivered to Worker 2. <b>No data ever lost</b> as long as you ACK only after successful processing.</>,
   ];
   return (
@@ -1039,9 +1039,9 @@ function PubSubLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Declare a fanout exchange</b><br/><br/><span style={{color:"#a3e635"}}>channel.exchange_declare(exchange='logs', exchange_type='fanout')</span><br/><br/>The producer now publishes to an <b>exchange</b>, not a queue. fanout = "broadcast to everyone".</>,
-    <><b style={{color:meta.color}}>Step 2 — Each consumer creates its own private queue</b><br/><br/><span style={{color:"#a3e635"}}>result = channel.queue_declare(queue='', exclusive=True)<br/>q_name = result.method.queue  # 'amq.gen-XsdfR'<br/>channel.queue_bind(exchange='logs', queue=q_name)</span><br/><br/>exclusive=True: auto-deleted when consumer disconnects. Each consumer gets their own private queue.</>,
-    <><b style={{color:meta.color}}>Step 3 — Producer broadcasts the message</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(exchange='logs', routing_key='', body=message)</span><br/><br/>The fanout exchange <b>copies</b> the message to every bound queue simultaneously. routing_key is ignored.</>,
+    <><b style={{color:meta.color}}>Step 1 — Declare a fanout exchange</b><br/><br/><span style={{color:"#166534"}}>channel.exchange_declare(exchange='logs', exchange_type='fanout')</span><br/><br/>The producer now publishes to an <b>exchange</b>, not a queue. fanout = "broadcast to everyone".</>,
+    <><b style={{color:meta.color}}>Step 2 — Each consumer creates its own private queue</b><br/><br/><span style={{color:"#166534"}}>result = channel.queue_declare(queue='', exclusive=True)<br/>q_name = result.method.queue  # 'amq.gen-XsdfR'<br/>channel.queue_bind(exchange='logs', queue=q_name)</span><br/><br/>exclusive=True: auto-deleted when consumer disconnects. Each consumer gets their own private queue.</>,
+    <><b style={{color:meta.color}}>Step 3 — Producer broadcasts the message</b><br/><br/><span style={{color:"#166534"}}>channel.basic_publish(exchange='logs', routing_key='', body=message)</span><br/><br/>The fanout exchange <b>copies</b> the message to every bound queue simultaneously. routing_key is ignored.</>,
     <><b style={{color:meta.color}}>Step 4 — Both consumers receive independently</b><br/><br/>✅ Consumer A received it (e.g. writes to disk)<br/>✅ Consumer B received the same message (e.g. shows on screen)<br/><br/>💡 Add a 3rd consumer? Zero code changes on the producer side!</>,
   ];
   return (
@@ -1086,8 +1086,8 @@ function RoutingLesson({ meta }) {
   const errorMatch = ["error"].includes(rKey);
   const allMatch = ["error","warning","info"].includes(rKey);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Declare a direct exchange</b><br/><br/><span style={{color:"#a3e635"}}>channel.exchange_declare(exchange='direct_logs', exchange_type='direct')</span><br/><br/>You chose routing_key=<b>'{rKey}'</b>. Direct exchange = <b>exact match only</b> against binding keys.</>,
-    <><b style={{color:meta.color}}>Step 2 — Publish with routing key</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(exchange='direct_logs',<br/>{"    "}routing_key='{rKey}', body=message)</span><br/><br/>The exchange checks every bound queue: "does your binding key = '{rKey}'?"</>,
+    <><b style={{color:meta.color}}>Step 1 — Declare a direct exchange</b><br/><br/><span style={{color:"#166534"}}>channel.exchange_declare(exchange='direct_logs', exchange_type='direct')</span><br/><br/>You chose routing_key=<b>'{rKey}'</b>. Direct exchange = <b>exact match only</b> against binding keys.</>,
+    <><b style={{color:meta.color}}>Step 2 — Publish with routing key</b><br/><br/><span style={{color:"#166534"}}>channel.basic_publish(exchange='direct_logs',<br/>{"    "}routing_key='{rKey}', body=message)</span><br/><br/>The exchange checks every bound queue: "does your binding key = '{rKey}'?"</>,
     <><b style={{color:meta.color}}>Step 3 — Exchange checks bindings</b><br/><br/>• queue_errors → bound to ['error'] → {errorMatch?"✅ MATCH!":"❌ no match"}<br/>• queue_all → bound to ['error','warning','info'] → {allMatch?"✅ MATCH!":"❌ no match"}</>,
     <><b style={{color:meta.color}}>Step 4 — Messages delivered</b><br/><br/>{errorMatch?"📨 queue_errors RECEIVES it":"⛔ queue_errors SKIPPED"}<br/>{allMatch?"📨 queue_all RECEIVES it":"⛔ queue_all SKIPPED"}<br/><br/>{!errorMatch&&!allMatch?"⚠️ No matching queue — message is DROPPED silently.":""}</>,
     <><b style={{color:meta.color}}>Step 5 — Consumers process their messages</b><br/><br/>💡 A queue can bind with multiple keys — call queue_bind() multiple times.<br/>💡 Same queue, same exchange, different routing_key each time.<br/><br/>Reset and try a different key to see what gets dropped!</>,
@@ -1145,8 +1145,8 @@ function TopicsLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const matches = TOPIC_BINDINGS.map(b => topicMatch(b.pattern, rKey));
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Declare a topic exchange</b><br/><br/><span style={{color:"#a3e635"}}>channel.exchange_declare(exchange='topic_logs', exchange_type='topic')</span><br/><br/>You chose routing_key=<b>'{rKey}'</b>. Words separated by dots. The exchange pattern-matches this against binding patterns.</>,
-    <><b style={{color:meta.color}}>Step 2 — Publish with topic key</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(exchange='topic_logs',<br/>{"    "}routing_key='{rKey}', body=message)</span><br/><br/>The exchange tests '{rKey}' against each binding pattern using wildcard rules.</>,
+    <><b style={{color:meta.color}}>Step 1 — Declare a topic exchange</b><br/><br/><span style={{color:"#166534"}}>channel.exchange_declare(exchange='topic_logs', exchange_type='topic')</span><br/><br/>You chose routing_key=<b>'{rKey}'</b>. Words separated by dots. The exchange pattern-matches this against binding patterns.</>,
+    <><b style={{color:meta.color}}>Step 2 — Publish with topic key</b><br/><br/><span style={{color:"#166534"}}>channel.basic_publish(exchange='topic_logs',<br/>{"    "}routing_key='{rKey}', body=message)</span><br/><br/>The exchange tests '{rKey}' against each binding pattern using wildcard rules.</>,
     <><b style={{color:meta.color}}>Step 3 — Pattern matching for '{rKey}'</b><br/><br/>{TOPIC_BINDINGS.map((b,i)=><span key={i}>• <b>'{b.pattern}'</b> → {matches[i]?"✅ MATCH":"❌ no match"}<br/></span>)}<br/>* = exactly 1 word &nbsp;&nbsp; # = 0 or more words</>,
     <><b style={{color:meta.color}}>Step 4 — Messages delivered to {matches.filter(Boolean).length} queue(s)</b><br/><br/>{TOPIC_BINDINGS.map((b,i)=><span key={i}>{matches[i]?`📨 ${b.icon} ${b.queue} — RECEIVES it`:`⛔ ${b.icon} ${b.queue} — skipped`}<br/></span>)}</>,
     <><b style={{color:meta.color}}>Step 5 — Try different keys!</b><br/><br/>• 'kern.critical' → matches kern.*, *.critical, kern.#<br/>• 'kern.info' → matches kern.*, kern.# (not *.critical)<br/>• 'cron.warning' → matches nothing above!<br/>• 'kern.warning.disk' → only kern.# (* fails on multi-word)<br/><br/>Reset and try a different key.</>,
@@ -1191,12 +1191,12 @@ function RPCLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const CORR = "f7a3b2c1-8e5d"; const RQNAME = "amq.gen-R9xQ7";
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Client creates reply queue & correlation ID</b><br/><br/><span style={{color:"#a3e635"}}>result = channel.queue_declare(queue='', exclusive=True)<br/>callback_queue = result.method.queue  # '{RQNAME}'<br/>corr_id = str(uuid.uuid4())  # '{CORR}'</span><br/><br/>The reply queue is where the server sends back the result. The correlation_id is a unique tag to match response to request.</>,
-    <><b style={{color:meta.color}}>Step 2 — Client sends the RPC request</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(exchange='', routing_key='rpc_queue',<br/>{"    "}body='fib(30)',<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}reply_to='{RQNAME}', correlation_id='{CORR}'))</span></>,
-    <><b style={{color:meta.color}}>Step 3 — Server receives and processes</b><br/><br/><span style={{color:"#a3e635"}}>def on_request(ch, method, props, body):<br/>{"    "}n = int(body)  # 30<br/>{"    "}result = fib(n)  # computing fibonacci(30)…</span><br/><br/>fib(30) = 832040. The server is running channel.start_consuming() on 'rpc_queue'.</>,
-    <><b style={{color:meta.color}}>Step 4 — Server publishes result to reply queue</b><br/><br/><span style={{color:"#a3e635"}}>ch.basic_publish(exchange='', routing_key=props.reply_to,<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}correlation_id=props.correlation_id),<br/>{"    "}body=str(result))</span><br/><br/>Server sends to '{RQNAME}' and echoes back the correlation_id.</>,
-    <><b style={{color:meta.color}}>Step 5 — Client receives response</b><br/><br/>Client was polling in a loop:<br/><span style={{color:"#a3e635"}}>while self.response is None:<br/>{"    "}self.connection.process_data_events(time_limit=1)</span><br/><br/>A message arrived in '{RQNAME}' — checking if correlation_id matches...</>,
-    <><b style={{color:meta.color}}>Step 6 — Match confirmed! Result delivered.</b><br/><br/><span style={{color:"#a3e635"}}>if self.corr_id == props.correlation_id:<br/>{"    "}self.response = int(body)  # 832040 ✅</span><br/><br/>fib(30) = <b style={{color:meta.color}}>832040</b><br/><br/>💡 Why correlation_id? Multiple RPC calls can be in flight — each has a unique ID so responses never get mixed up.</>,
+    <><b style={{color:meta.color}}>Step 1 — Client creates reply queue & correlation ID</b><br/><br/><span style={{color:"#166534"}}>result = channel.queue_declare(queue='', exclusive=True)<br/>callback_queue = result.method.queue  # '{RQNAME}'<br/>corr_id = str(uuid.uuid4())  # '{CORR}'</span><br/><br/>The reply queue is where the server sends back the result. The correlation_id is a unique tag to match response to request.</>,
+    <><b style={{color:meta.color}}>Step 2 — Client sends the RPC request</b><br/><br/><span style={{color:"#166534"}}>channel.basic_publish(exchange='', routing_key='rpc_queue',<br/>{"    "}body='fib(30)',<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}reply_to='{RQNAME}', correlation_id='{CORR}'))</span></>,
+    <><b style={{color:meta.color}}>Step 3 — Server receives and processes</b><br/><br/><span style={{color:"#166534"}}>def on_request(ch, method, props, body):<br/>{"    "}n = int(body)  # 30<br/>{"    "}result = fib(n)  # computing fibonacci(30)…</span><br/><br/>fib(30) = 832040. The server is running channel.start_consuming() on 'rpc_queue'.</>,
+    <><b style={{color:meta.color}}>Step 4 — Server publishes result to reply queue</b><br/><br/><span style={{color:"#166534"}}>ch.basic_publish(exchange='', routing_key=props.reply_to,<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}correlation_id=props.correlation_id),<br/>{"    "}body=str(result))</span><br/><br/>Server sends to '{RQNAME}' and echoes back the correlation_id.</>,
+    <><b style={{color:meta.color}}>Step 5 — Client receives response</b><br/><br/>Client was polling in a loop:<br/><span style={{color:"#166534"}}>while self.response is None:<br/>{"    "}self.connection.process_data_events(time_limit=1)</span><br/><br/>A message arrived in '{RQNAME}' — checking if correlation_id matches...</>,
+    <><b style={{color:meta.color}}>Step 6 — Match confirmed! Result delivered.</b><br/><br/><span style={{color:"#166534"}}>if self.corr_id == props.correlation_id:<br/>{"    "}self.response = int(body)  # 832040 ✅</span><br/><br/>fib(30) = <b style={{color:meta.color}}>832040</b><br/><br/>💡 Why correlation_id? Multiple RPC calls can be in flight — each has a unique ID so responses never get mixed up.</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -1234,9 +1234,9 @@ function StreamHelloLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const MSGS = ["Hello!","World!","Streams!"];
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Create stream and publish</b><br/><br/>RabbitMQ Streams uses the <b>rstream</b> library (not pika):<br/><br/><span style={{color:"#a3e635"}}>pip install rstream<br/><br/>async with Producer(host='localhost') as producer:<br/>{"    "}await producer.create_stream('mystream')<br/>{"    "}await producer.send('mystream',<br/>{"        "}[AMQPMessage(body=b'Hello!'), ...])</span></>,
+    <><b style={{color:meta.color}}>Step 1 — Create stream and publish</b><br/><br/>RabbitMQ Streams uses the <b>rstream</b> library (not pika):<br/><br/><span style={{color:"#166534"}}>pip install rstream<br/><br/>async with Producer(host='localhost') as producer:<br/>{"    "}await producer.create_stream('mystream')<br/>{"    "}await producer.send('mystream',<br/>{"        "}[AMQPMessage(body=b'Hello!'), ...])</span></>,
     <><b style={{color:meta.color}}>Step 2 — Messages persist in the log</b><br/><br/>Unlike queues, stream messages are stored in a <b>persistent append-only log</b>.<br/><br/>Messages are NOT deleted after being consumed. Each has an <b>offset</b> — a sequential integer position.</>,
-    <><b style={{color:meta.color}}>Step 3 — Consumer A subscribes from the beginning</b><br/><br/><span style={{color:"#a3e635"}}>await consumer.subscribe('mystream',<br/>{"    "}callback=on_message,<br/>{"    "}offset_specification=ConsumerOffsetSpecification(<br/>{"        "}OffsetType.FIRST, None))</span><br/><br/>OffsetType.FIRST = start from message at offset 0.</>,
+    <><b style={{color:meta.color}}>Step 3 — Consumer A subscribes from the beginning</b><br/><br/><span style={{color:"#166534"}}>await consumer.subscribe('mystream',<br/>{"    "}callback=on_message,<br/>{"    "}offset_specification=ConsumerOffsetSpecification(<br/>{"        "}OffsetType.FIRST, None))</span><br/><br/>OffsetType.FIRST = start from message at offset 0.</>,
     <><b style={{color:meta.color}}>Step 4 — Consumer A reads all 3 messages</b><br/><br/>Received "Hello!", "World!", "Streams!" ✅<br/><br/><b>The messages are still in the stream!</b> Consuming does NOT delete them — this is the fundamental difference from queues.</>,
     <><b style={{color:meta.color}}>Step 5 — Consumer B reads the same messages independently</b><br/><br/>Consumer B subscribes with OffsetType.FIRST and also reads all 3 messages — the exact same ones Consumer A read.<br/><br/>🔑 With a queue, Consumer B would get nothing. With a stream, every consumer independently replays the full history.</>,
   ];
@@ -1291,11 +1291,11 @@ function StreamOffsetLesson({ meta }) {
   const ALL = ["msg0","msg1","msg2","msg3","msg4","msg5"];
   const crashed = stage === 4;
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Consumer subscribes from offset 0</b><br/><br/><span style={{color:"#a3e635"}}>await consumer.subscribe('mystream',<br/>{"    "}offset_specification=ConsumerOffsetSpecification(<br/>{"        "}OffsetType.OFFSET, 0))</span><br/><br/>Consumer reads messages one by one starting at the beginning.</>,
-    <><b style={{color:meta.color}}>Step 2 — Process msgs 0,1,2 and save offset</b><br/><br/><span style={{color:"#a3e635"}}>async def on_message(msg, message_context):<br/>{"    "}await process(msg)  # do the work<br/>{"    "}await consumer.store_offset(<br/>{"        "}'myapp', 'mystream', message_context.offset)</span><br/><br/>Offset 2 is now saved server-side in RabbitMQ.</>,
+    <><b style={{color:meta.color}}>Step 1 — Consumer subscribes from offset 0</b><br/><br/><span style={{color:"#166534"}}>await consumer.subscribe('mystream',<br/>{"    "}offset_specification=ConsumerOffsetSpecification(<br/>{"        "}OffsetType.OFFSET, 0))</span><br/><br/>Consumer reads messages one by one starting at the beginning.</>,
+    <><b style={{color:meta.color}}>Step 2 — Process msgs 0,1,2 and save offset</b><br/><br/><span style={{color:"#166534"}}>async def on_message(msg, message_context):<br/>{"    "}await process(msg)  # do the work<br/>{"    "}await consumer.store_offset(<br/>{"        "}'myapp', 'mystream', message_context.offset)</span><br/><br/>Offset 2 is now saved server-side in RabbitMQ.</>,
     <><b style={{color:meta.color}}>Step 3 — Offset 2 saved on RabbitMQ server</b><br/><br/>The offset is stored <b>server-side</b> — not in the consumer process. It survives consumer crashes, restarts, and redeployments.<br/><br/>saved_offset['myapp'] = 2 means: "I processed everything up to and including offset 2."</>,
     <><b style={{color:meta.color}}>Step 4 — Consumer CRASHES! 💥</b><br/><br/>All in-memory state is lost. But saved_offset = 2 is still safely on the RabbitMQ server.<br/><br/>Messages 3, 4, 5 were NOT processed — and we know this because the bookmark is at 2, not 5.</>,
-    <><b style={{color:meta.color}}>Step 5 — Consumer restarts and queries offset</b><br/><br/><span style={{color:"#a3e635"}}>offset = await client.query_offset('myapp', 'mystream')<br/># returns: 2<br/>resume_from = offset + 1  # = 3</span><br/><br/>Consumer subscribes with OffsetType.OFFSET(3) — skipping the already-processed messages.</>,
+    <><b style={{color:meta.color}}>Step 5 — Consumer restarts and queries offset</b><br/><br/><span style={{color:"#166534"}}>offset = await client.query_offset('myapp', 'mystream')<br/># returns: 2<br/>resume_from = offset + 1  # = 3</span><br/><br/>Consumer subscribes with OffsetType.OFFSET(3) — skipping the already-processed messages.</>,
     <><b style={{color:meta.color}}>Step 6 — Resumed from offset 3 ✅</b><br/><br/>Consumer reads msg3, msg4, msg5 — exactly where it left off.<br/><br/>✅ No messages lost &nbsp;&nbsp; ✅ No duplicates<br/><br/>💡 Always store_offset() AFTER processing. Worst case on crash = one re-process (at-least-once). That's safe!</>,
   ];
   return (
@@ -1336,11 +1336,11 @@ function DlxLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const retryNum = Math.max(0, stage - 4);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Declare queues with DLX and TTL</b><br/><br/><span style={{color:"#a3e635"}}>channel.queue_declare('orders',<br/>{"    "}arguments={"{"}<br/>{"        "}'x-dead-letter-exchange': 'dlx.orders',<br/>{"        "}'x-message-ttl': 5000,  # 5 s TTL<br/>{"        "}'x-max-length': 1000<br/>{"    "}{"}"})<br/>channel.queue_declare('orders.retry', arguments={"{"}<br/>{"    "}'x-dead-letter-exchange': '',        # default exchange<br/>{"    "}'x-dead-letter-routing-key': 'orders',<br/>{"    "}'x-message-ttl': 10000 # 10 s hold<br/>{"}"})</span><br/><br/>Two queues: <b>orders</b> (main) and <b>orders.retry</b> (delay buffer). DLX links them together.</>,
-    <><b style={{color:meta.color}}>Step 2 — Producer publishes to orders queue</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(<br/>{"    "}exchange='',<br/>{"    "}routing_key='orders',<br/>{"    "}body=json.dumps({"{'order_id':'ORD-99','amount':250}"}),<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}delivery_mode=2,  # persistent<br/>{"        "}headers={"{'x-retry-count': 0}"}<br/>{"    "})<br/>)</span><br/><br/>Message enters the <b>orders</b> queue. Consumer picks it up and tries to process.</>,
-    <><b style={{color:meta.color}}>Step 3 — Consumer nacks / message TTL expires</b><br/><br/><span style={{color:"#a3e635"}}>def on_message(ch, method, props, body):<br/>{"    "}try:<br/>{"        "}process_order(body)<br/>{"        "}ch.basic_ack(method.delivery_tag)<br/>{"    "}except Exception:<br/>{"        "}# nack without requeue → triggers DLX<br/>{"        "}ch.basic_nack(method.delivery_tag, requeue=False)</span><br/><br/>basic_nack(requeue=<b>False</b>) tells RabbitMQ: "this message failed — do not put it back." RabbitMQ immediately routes it to the DLX.</>,
+    <><b style={{color:meta.color}}>Step 1 — Declare queues with DLX and TTL</b><br/><br/><span style={{color:"#166534"}}>channel.queue_declare('orders',<br/>{"    "}arguments={"{"}<br/>{"        "}'x-dead-letter-exchange': 'dlx.orders',<br/>{"        "}'x-message-ttl': 5000,  # 5 s TTL<br/>{"        "}'x-max-length': 1000<br/>{"    "}{"}"})<br/>channel.queue_declare('orders.retry', arguments={"{"}<br/>{"    "}'x-dead-letter-exchange': '',        # default exchange<br/>{"    "}'x-dead-letter-routing-key': 'orders',<br/>{"    "}'x-message-ttl': 10000 # 10 s hold<br/>{"}"})</span><br/><br/>Two queues: <b>orders</b> (main) and <b>orders.retry</b> (delay buffer). DLX links them together.</>,
+    <><b style={{color:meta.color}}>Step 2 — Producer publishes to orders queue</b><br/><br/><span style={{color:"#166534"}}>channel.basic_publish(<br/>{"    "}exchange='',<br/>{"    "}routing_key='orders',<br/>{"    "}body=json.dumps({"{'order_id':'ORD-99','amount':250}"}),<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}delivery_mode=2,  # persistent<br/>{"        "}headers={"{'x-retry-count': 0}"}<br/>{"    "})<br/>)</span><br/><br/>Message enters the <b>orders</b> queue. Consumer picks it up and tries to process.</>,
+    <><b style={{color:meta.color}}>Step 3 — Consumer nacks / message TTL expires</b><br/><br/><span style={{color:"#166534"}}>def on_message(ch, method, props, body):<br/>{"    "}try:<br/>{"        "}process_order(body)<br/>{"        "}ch.basic_ack(method.delivery_tag)<br/>{"    "}except Exception:<br/>{"        "}# nack without requeue → triggers DLX<br/>{"        "}ch.basic_nack(method.delivery_tag, requeue=False)</span><br/><br/>basic_nack(requeue=<b>False</b>) tells RabbitMQ: "this message failed — do not put it back." RabbitMQ immediately routes it to the DLX.</>,
     <><b style={{color:meta.color}}>Step 4 — Message arrives at orders.retry (delay queue)</b><br/><br/>The dead-lettered message lands in <b>orders.retry</b>.<br/><br/>It sits there for the retry TTL (<b>10 seconds</b>). When the TTL expires, RabbitMQ dead-letters it again — this time back to the default exchange with routing key <b>'orders'</b>.<br/><br/>The message re-enters the original <b>orders</b> queue for a second attempt. 🔁</>,
-    <><b style={{color:meta.color}}>Step 5 — Exponential backoff with retry counter</b><br/><br/><span style={{color:"#a3e635"}}>headers = props.headers or {"{}"}<br/>retry_count = headers.get('x-retry-count', 0)<br/>{"if retry_count >= 3:"}<br/>{"    "}# Too many retries → park in dead end queue<br/>{"    "}channel.basic_publish(exchange='dlx.orders',<br/>{"        "}routing_key='orders.dead', body=body)<br/>{"    "}ch.basic_ack(method.delivery_tag)<br/>else:<br/>{"    "}headers['x-retry-count'] = retry_count + 1<br/>{"    "}ch.basic_nack(method.delivery_tag, requeue=False)</span></>,
+    <><b style={{color:meta.color}}>Step 5 — Exponential backoff with retry counter</b><br/><br/><span style={{color:"#166534"}}>headers = props.headers or {"{}"}<br/>retry_count = headers.get('x-retry-count', 0)<br/>{"if retry_count >= 3:"}<br/>{"    "}# Too many retries → park in dead end queue<br/>{"    "}channel.basic_publish(exchange='dlx.orders',<br/>{"        "}routing_key='orders.dead', body=body)<br/>{"    "}ch.basic_ack(method.delivery_tag)<br/>else:<br/>{"    "}headers['x-retry-count'] = retry_count + 1<br/>{"    "}ch.basic_nack(method.delivery_tag, requeue=False)</span></>,
     <><b style={{color:meta.color}}>Step 6 — Poison message parked in orders.dead ✅</b><br/><br/>After 3 retries the message is considered a <b>poison message</b> and forwarded to <b>orders.dead</b> for manual inspection.<br/><br/>✅ Main queue is unblocked &nbsp;&nbsp; ✅ No messages lost<br/>✅ Retry history preserved in headers &nbsp;&nbsp; ✅ Alerting can monitor orders.dead depth<br/><br/>This pattern is called <b>Dead Letter + Retry with Backoff</b> — the backbone of resilient RabbitMQ systems.</>,
   ];
   const mainActive  = stage >= 2 && stage < 3;
@@ -1401,12 +1401,12 @@ function PublisherConfirmsLesson({ meta }) {
   const ackTag   = stage >= 4 ? 1 : null;
   const nackTag  = stage === 5 ? 2 : null;
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Enable Confirm mode on the channel</b><br/><br/><span style={{color:"#a3e635"}}>import pika<br/>conn = pika.BlockingConnection(pika.ConnectionParameters('localhost'))<br/>channel = conn.channel()<br/><br/># Enable publisher confirms<br/>channel.confirm_delivery()</span><br/><br/>Once confirm_delivery() is called, every subsequent basic_publish will be tracked by the broker and you'll receive an ack or nack for each one.</>,
-    <><b style={{color:meta.color}}>Step 2 — Publish message (delivery tag 1)</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(<br/>{"    "}exchange='orders',<br/>{"    "}routing_key='new-order',<br/>{"    "}body=json.dumps(order_payload),<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}delivery_mode=2,   # persistent to disk<br/>{"        "}content_type='application/json'<br/>{"    "})<br/>)  # delivery_tag = 1</span><br/><br/>The broker assigns <b>delivery tag 1</b> to this message and begins processing it.</>,
+    <><b style={{color:meta.color}}>Step 1 — Enable Confirm mode on the channel</b><br/><br/><span style={{color:"#166534"}}>import pika<br/>conn = pika.BlockingConnection(pika.ConnectionParameters('localhost'))<br/>channel = conn.channel()<br/><br/># Enable publisher confirms<br/>channel.confirm_delivery()</span><br/><br/>Once confirm_delivery() is called, every subsequent basic_publish will be tracked by the broker and you'll receive an ack or nack for each one.</>,
+    <><b style={{color:meta.color}}>Step 2 — Publish message (delivery tag 1)</b><br/><br/><span style={{color:"#166534"}}>channel.basic_publish(<br/>{"    "}exchange='orders',<br/>{"    "}routing_key='new-order',<br/>{"    "}body=json.dumps(order_payload),<br/>{"    "}properties=pika.BasicProperties(<br/>{"        "}delivery_mode=2,   # persistent to disk<br/>{"        "}content_type='application/json'<br/>{"    "})<br/>)  # delivery_tag = 1</span><br/><br/>The broker assigns <b>delivery tag 1</b> to this message and begins processing it.</>,
     <><b style={{color:meta.color}}>Step 3 — Broker writes message to disk</b><br/><br/>Because delivery_mode=<b>2</b> (persistent), the broker writes the message to its on-disk journal <b>before</b> sending the ack.<br/><br/>This guarantees that even if the broker restarts immediately after acking, the message is not lost.<br/><br/>For transient messages (delivery_mode=1), the broker acks after routing to a consumer — faster but loses message on broker crash.</>,
-    <><b style={{color:meta.color}}>Step 4 — Broker sends Basic.Ack (tag=1) ✅</b><br/><br/><span style={{color:"#a3e635"}}># With pika's BlockingChannel, confirm_delivery()<br/># raises an exception if a nack arrives<br/># Otherwise it returns True on success<br/><br/># In async mode (SelectConnection):<br/>def on_ack(frame):<br/>{"    "}delivery_tag = frame.method.delivery_tag<br/>{"    "}multiple     = frame.method.multiple<br/>{"    "}mark_confirmed(delivery_tag, multiple)</span><br/><br/>The ack means: "I have safely persisted message #1. You can consider it delivered."</>,
-    <><b style={{color:meta.color}}>Step 5 — Broker sends Basic.Nack (tag=2) ❌</b><br/><br/><span style={{color:"#a3e635"}}>def on_nack(frame):<br/>{"    "}delivery_tag = frame.method.delivery_tag<br/>{"    "}# Republish or alert<br/>{"    "}resend_message(delivery_tag)</span><br/><br/>A nack means the broker <b>could not</b> handle the message — typically a queue overflow or internal error. You must republish or alert.<br/><br/>💡 Nacks are rare in practice; they signal a broker-side problem, not a message problem.</>,
-    <><b style={{color:meta.color}}>Step 6 — Async batch confirms for throughput 🚀</b><br/><br/><span style={{color:"#a3e635"}}># Publish 1000 messages, collect acks asynchronously<br/>unconfirmed = {"{}"}<br/>for i, msg in enumerate(batch, start=1):<br/>{"    "}channel.basic_publish(..., body=msg)<br/>{"    "}unconfirmed[i] = msg<br/><br/>def on_ack(frame):<br/>{"    "}tag = frame.method.delivery_tag<br/>{"    "}if frame.method.multiple:<br/>{"        "}for k in list(unconfirmed):<br/>{"            if k <= tag: del unconfirmed[k]"}<br/>{"    "}else:<br/>{"        "}del unconfirmed[tag]</span><br/><br/>This <b>async batch confirm</b> pattern achieves ~30k msg/s with zero data loss — the recommended approach for high-throughput producers.</>,
+    <><b style={{color:meta.color}}>Step 4 — Broker sends Basic.Ack (tag=1) ✅</b><br/><br/><span style={{color:"#166534"}}># With pika's BlockingChannel, confirm_delivery()<br/># raises an exception if a nack arrives<br/># Otherwise it returns True on success<br/><br/># In async mode (SelectConnection):<br/>def on_ack(frame):<br/>{"    "}delivery_tag = frame.method.delivery_tag<br/>{"    "}multiple     = frame.method.multiple<br/>{"    "}mark_confirmed(delivery_tag, multiple)</span><br/><br/>The ack means: "I have safely persisted message #1. You can consider it delivered."</>,
+    <><b style={{color:meta.color}}>Step 5 — Broker sends Basic.Nack (tag=2) ❌</b><br/><br/><span style={{color:"#166534"}}>def on_nack(frame):<br/>{"    "}delivery_tag = frame.method.delivery_tag<br/>{"    "}# Republish or alert<br/>{"    "}resend_message(delivery_tag)</span><br/><br/>A nack means the broker <b>could not</b> handle the message — typically a queue overflow or internal error. You must republish or alert.<br/><br/>💡 Nacks are rare in practice; they signal a broker-side problem, not a message problem.</>,
+    <><b style={{color:meta.color}}>Step 6 — Async batch confirms for throughput 🚀</b><br/><br/><span style={{color:"#166534"}}># Publish 1000 messages, collect acks asynchronously<br/>unconfirmed = {"{}"}<br/>for i, msg in enumerate(batch, start=1):<br/>{"    "}channel.basic_publish(..., body=msg)<br/>{"    "}unconfirmed[i] = msg<br/><br/>def on_ack(frame):<br/>{"    "}tag = frame.method.delivery_tag<br/>{"    "}if frame.method.multiple:<br/>{"        "}for k in list(unconfirmed):<br/>{"            if k <= tag: del unconfirmed[k]"}<br/>{"    "}else:<br/>{"        "}del unconfirmed[tag]</span><br/><br/>This <b>async batch confirm</b> pattern achieves ~30k msg/s with zero data loss — the recommended approach for high-throughput producers.</>,
   ];
   const msgs = [
     { tag: 1, status: stage >= 4 ? "acked" : stage >= 2 ? "pending" : "unsent" },
@@ -1466,11 +1466,11 @@ function QuorumQueuesLesson({ meta }) {
   const leaderIdx = stage >= 2 ? 0 : stage === 1 ? null : null;
   const node3Down = stage >= 4;
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Declare a Quorum Queue</b><br/><br/><span style={{color:"#a3e635"}}>channel.queue_declare(<br/>{"    "}'critical-orders',<br/>{"    "}durable=True,<br/>{"    "}arguments={"{'x-queue-type': 'quorum'}"}<br/>)<br/><br/># 3-node cluster: quorum = ⌊3/2⌋+1 = 2 nodes</span><br/><br/>Unlike classic queues, quorum queues <b>cannot</b> be non-durable. They are always persistent and replicated. The queue exists on <b>every</b> node in the cluster.</>,
+    <><b style={{color:meta.color}}>Step 1 — Declare a Quorum Queue</b><br/><br/><span style={{color:"#166534"}}>channel.queue_declare(<br/>{"    "}'critical-orders',<br/>{"    "}durable=True,<br/>{"    "}arguments={"{'x-queue-type': 'quorum'}"}<br/>)<br/><br/># 3-node cluster: quorum = ⌊3/2⌋+1 = 2 nodes</span><br/><br/>Unlike classic queues, quorum queues <b>cannot</b> be non-durable. They are always persistent and replicated. The queue exists on <b>every</b> node in the cluster.</>,
     <><b style={{color:meta.color}}>Step 2 — Raft Leader Election</b><br/><br/>On creation (or after a leader failure), nodes run a <b>Raft election</b>:<br/><br/>1. A node becomes <b>candidate</b> and requests votes<br/>2. Nodes vote if they haven't voted this term<br/>3. First to get majority (≥2 of 3) becomes <b>leader</b><br/><br/>node-1 wins the election and becomes the <b>Raft leader</b> for this queue. All publishes and acks route through the leader.</>,
-    <><b style={{color:meta.color}}>Step 3 — Quorum Write: majority must acknowledge</b><br/><br/><span style={{color:"#a3e635"}}>channel.basic_publish(<br/>{"    "}exchange='',<br/>{"    "}routing_key='critical-orders',<br/>{"    "}body=payload,<br/>{"    "}properties=pika.BasicProperties(delivery_mode=2)<br/>)</span><br/><br/>The leader appends the message to its Raft log and replicates to followers.<br/><br/>✅ node-1 (leader) wrote &nbsp;&nbsp; ✅ node-2 (follower) wrote<br/>❌ node-3 — lagging<br/><br/>2 of 3 nodes confirmed → <b>quorum reached</b> → producer acked!</>,
+    <><b style={{color:meta.color}}>Step 3 — Quorum Write: majority must acknowledge</b><br/><br/><span style={{color:"#166534"}}>channel.basic_publish(<br/>{"    "}exchange='',<br/>{"    "}routing_key='critical-orders',<br/>{"    "}body=payload,<br/>{"    "}properties=pika.BasicProperties(delivery_mode=2)<br/>)</span><br/><br/>The leader appends the message to its Raft log and replicates to followers.<br/><br/>✅ node-1 (leader) wrote &nbsp;&nbsp; ✅ node-2 (follower) wrote<br/>❌ node-3 — lagging<br/><br/>2 of 3 nodes confirmed → <b>quorum reached</b> → producer acked!</>,
     <><b style={{color:meta.color}}>Step 4 — node-3 fails — queue keeps serving 💪</b><br/><br/>node-3 crashes. The cluster still has <b>2 nodes alive</b> (node-1, node-2) — that's still a majority for a 3-node quorum (⌊3/2⌋+1 = 2).<br/><br/>✅ Publishes continue &nbsp;&nbsp; ✅ Consumers continue<br/>✅ No messages lost — node-2 has a complete replica<br/><br/>If instead 2 nodes fail (leaving only 1), the quorum is lost and the queue pauses to protect consistency.</>,
-    <><b style={{color:meta.color}}>Step 5 — Delivery Limit: poison message protection ✅</b><br/><br/><span style={{color:"#a3e635"}}># Declare with delivery limit<br/>channel.queue_declare('critical-orders', arguments={"{"}<br/>{"    "}'x-queue-type': 'quorum',<br/>{"    "}'x-delivery-limit': 3  # auto-DLX after 3 nacks<br/>{"}"})</span><br/><br/>If a message is nack'd 3 times (e.g. a processing bug), RabbitMQ automatically dead-letters it instead of letting it loop forever.<br/><br/>💡 Combine with DLX (Lesson 09) for full poison-message handling.</>,
+    <><b style={{color:meta.color}}>Step 5 — Delivery Limit: poison message protection ✅</b><br/><br/><span style={{color:"#166534"}}># Declare with delivery limit<br/>channel.queue_declare('critical-orders', arguments={"{"}<br/>{"    "}'x-queue-type': 'quorum',<br/>{"    "}'x-delivery-limit': 3  # auto-DLX after 3 nacks<br/>{"}"})</span><br/><br/>If a message is nack'd 3 times (e.g. a processing bug), RabbitMQ automatically dead-letters it instead of letting it loop forever.<br/><br/>💡 Combine with DLX (Lesson 09) for full poison-message handling.</>,
   ];
   const nodes = [
     { id: "node-1", label: "node-1", role: leaderIdx===0?"LEADER":"follower", active: stage>=2&&leaderIdx===0 },
@@ -1528,9 +1528,9 @@ function FlowControlLesson({ meta }) {
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Normal operation: producers publish freely</b><br/><br/>RabbitMQ monitors broker memory and disk continuously.<br/><br/>Default memory high-watermark = <b>0.4</b> (40% of total RAM).<br/>Default disk free low-watermark = <b>50 MB</b>.<br/><br/>While both are healthy, producers publish at full speed and the broker routes messages to queues and consumers without delay.</>,
     <><b style={{color:meta.color}}>Step 2 — Memory climbs toward the watermark</b><br/><br/>Consumers are slow (downstream bottleneck). Messages accumulate in queues faster than they are consumed.<br/><br/>RabbitMQ's internal memory tracker observes memory usage rising above <b>40%</b> of available RAM.<br/><br/>The broker prepares to activate flow control — calculating which connections need to be throttled.</>,
-    <><b style={{color:meta.color}}>Step 3 — Memory alarm fires 🚨 — producers blocked</b><br/><br/><span style={{color:"#a3e635"}}># Client side — pika raises an exception<br/>pika.exceptions.ConnectionBlockedError<br/><br/># Or listen to Connection.Blocked notification:<br/>conn.add_on_connection_blocked_callback(on_blocked)<br/>conn.add_on_connection_unblocked_callback(on_unblocked)<br/><br/>def on_blocked(conn, reason):<br/>{"    "}logger.warning("Producer blocked: %s", reason)</span><br/><br/>All <b>publishing</b> connections receive a <b>Connection.Blocked</b> frame. Consuming connections continue unaffected — draining is still allowed.</>,
+    <><b style={{color:meta.color}}>Step 3 — Memory alarm fires 🚨 — producers blocked</b><br/><br/><span style={{color:"#166534"}}># Client side — pika raises an exception<br/>pika.exceptions.ConnectionBlockedError<br/><br/># Or listen to Connection.Blocked notification:<br/>conn.add_on_connection_blocked_callback(on_blocked)<br/>conn.add_on_connection_unblocked_callback(on_unblocked)<br/><br/>def on_blocked(conn, reason):<br/>{"    "}logger.warning("Producer blocked: %s", reason)</span><br/><br/>All <b>publishing</b> connections receive a <b>Connection.Blocked</b> frame. Consuming connections continue unaffected — draining is still allowed.</>,
     <><b style={{color:meta.color}}>Step 4 — Consumers drain the backlog</b><br/><br/>With producers paused, consumers work through the accumulated message backlog.<br/><br/>Memory usage falls as messages are consumed and removed from queues.<br/><br/>The broker continuously checks memory every few hundred milliseconds. When memory drops below the watermark, it will unblock connections.</>,
-    <><b style={{color:meta.color}}>Step 5 — Connection.Unblocked — producers resume ✅</b><br/><br/><span style={{color:"#a3e635"}}>def on_unblocked(conn):<br/>{"    "}logger.info("Producer unblocked — resuming")<br/>{"    "}resume_publishing()</span><br/><br/>Broker sends <b>Connection.Unblocked</b>. Producers resume publishing.<br/><br/>✅ Broker memory safe &nbsp;&nbsp; ✅ Zero message loss<br/><br/>💡 Best practices: size consumers for 2×producer throughput, set per-queue <b>x-max-length</b>, and monitor <code>rabbitmq_alarms_memory_used_watermark</code> in Prometheus.</>,
+    <><b style={{color:meta.color}}>Step 5 — Connection.Unblocked — producers resume ✅</b><br/><br/><span style={{color:"#166534"}}>def on_unblocked(conn):<br/>{"    "}logger.info("Producer unblocked — resuming")<br/>{"    "}resume_publishing()</span><br/><br/>Broker sends <b>Connection.Unblocked</b>. Producers resume publishing.<br/><br/>✅ Broker memory safe &nbsp;&nbsp; ✅ Zero message loss<br/><br/>💡 Best practices: size consumers for 2×producer throughput, set per-queue <b>x-max-length</b>, and monitor <code>rabbitmq_alarms_memory_used_watermark</code> in Prometheus.</>,
   ];
   const memColor = memPct < 35 ? "#22c55e" : memPct < 50 ? "#f59e0b" : "#ef4444";
   return (
@@ -1566,7 +1566,7 @@ function FlowControlLesson({ meta }) {
         {alarmOn&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",fontSize: 13,fontFamily:"monospace",color:"#f87171"}}>
           🚨 memory_alarm active · Connection.Blocked sent to all publishing connections
         </div>}
-        {draining&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(34,197,94,0.1)",border:"1px solid rgba(34,197,94,0.3)",fontSize: 13,fontFamily:"monospace",color:"#4ade80"}}>
+        {draining&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(34,197,94,0.1)",border:"1px solid rgba(34,197,94,0.3)",fontSize: 13,fontFamily:"monospace",color:"#15803d"}}>
           ✅ Connection.Unblocked sent · producers resumed · memory nominal
         </div>}
       </div>
@@ -1586,11 +1586,11 @@ function ClusteringLesson({ meta }) {
   const node3Joined = stage >= 3;
   const node2Down   = stage >= 4;
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Start node-1 and set Erlang cookie</b><br/><br/><span style={{color:"#a3e635"}}>sudo rabbitmq-server -detached<br/><br/># All nodes MUST share the same secret cookie<br/>cat /var/lib/rabbitmq/.erlang.cookie<br/># e.g. → ABCXYZERLANGCOOKIE<br/><br/># node-2 and node-3: copy this exact cookie<br/>scp node1:/var/lib/rabbitmq/.erlang.cookie \<br/>{"    "}/var/lib/rabbitmq/.erlang.cookie</span><br/><br/>The <b>Erlang cookie</b> is the cluster's shared secret. Nodes reject join attempts with a different cookie.</>,
-    <><b style={{color:meta.color}}>Step 2 — Join node-2 to the cluster</b><br/><br/><span style={{color:"#a3e635"}}># On node-2:<br/>rabbitmqctl stop_app<br/>rabbitmqctl reset<br/>rabbitmqctl join_cluster rabbit@node-1<br/>rabbitmqctl start_app<br/><br/># Verify from any node:<br/>rabbitmqctl cluster_status<br/># Nodes: [{"{"}disc, [rabbit@node-1, rabbit@node-2]{"}"}]</span><br/><br/>node-2 fetches schema and metadata from node-1. Exchanges, virtual hosts, and users are now shared across both nodes.</>,
-    <><b style={{color:meta.color}}>Step 3 — 3-node cluster operational</b><br/><br/>With 3 nodes, quorum queues tolerate <b>1 node failure</b> (⌊3/2⌋+1 = 2 needed).<br/><br/>Queue leaders are distributed across nodes for load balancing. Clients should connect to a <b>load balancer</b> (HAProxy / NLB) that sits in front of all 3 nodes — not directly to any single node.<br/><br/><span style={{color:"#a3e635"}}># HAProxy config (frontend + backend)<br/>frontend rmq<br/>{"    "}bind *:5672<br/>{"    "}default_backend rmq_nodes<br/>backend rmq_nodes<br/>{"    "}balance roundrobin<br/>{"    "}server node1 node-1:5672 check<br/>{"    "}server node2 node-2:5672 check<br/>{"    "}server node3 node-3:5672 check</span></>,
-    <><b style={{color:meta.color}}>Step 4 — node-2 goes down (network partition / crash)</b><br/><br/>node-2 becomes unreachable. The cluster detects this via heartbeat timeouts (default 60s, tune with <b>net_ticktime</b>).<br/><br/>With <b>pause_minority</b> partition handling (recommended):<br/>- node-2 is alone → it pauses itself to prevent split-brain<br/>- node-1 + node-3 form the majority → continue serving<br/><br/><span style={{color:"#a3e635"}}># In rabbitmq.conf:<br/>cluster_partition_handling = pause_minority</span></>,
-    <><b style={{color:meta.color}}>Step 5 — Rolling upgrade: zero-downtime deploy ✅</b><br/><br/><span style={{color:"#a3e635"}}># 1. Remove node-2 from load balancer<br/># 2. Stop node-2:<br/>rabbitmqctl stop_app<br/><br/># 3. Upgrade RabbitMQ on node-2<br/>apt-get install rabbitmq-server=3.13.x<br/><br/># 4. Restart and rejoin<br/>rabbitmqctl start_app<br/><br/># 5. Repeat for node-3, then node-1</span><br/><br/>Quorum queues maintain availability during rolling upgrades because the remaining nodes always form a quorum. Classic mirrored queues required full cluster downtime — another reason to migrate to quorum queues.</>,
+    <><b style={{color:meta.color}}>Step 1 — Start node-1 and set Erlang cookie</b><br/><br/><span style={{color:"#166534"}}>sudo rabbitmq-server -detached<br/><br/># All nodes MUST share the same secret cookie<br/>cat /var/lib/rabbitmq/.erlang.cookie<br/># e.g. → ABCXYZERLANGCOOKIE<br/><br/># node-2 and node-3: copy this exact cookie<br/>scp node1:/var/lib/rabbitmq/.erlang.cookie \<br/>{"    "}/var/lib/rabbitmq/.erlang.cookie</span><br/><br/>The <b>Erlang cookie</b> is the cluster's shared secret. Nodes reject join attempts with a different cookie.</>,
+    <><b style={{color:meta.color}}>Step 2 — Join node-2 to the cluster</b><br/><br/><span style={{color:"#166534"}}># On node-2:<br/>rabbitmqctl stop_app<br/>rabbitmqctl reset<br/>rabbitmqctl join_cluster rabbit@node-1<br/>rabbitmqctl start_app<br/><br/># Verify from any node:<br/>rabbitmqctl cluster_status<br/># Nodes: [{"{"}disc, [rabbit@node-1, rabbit@node-2]{"}"}]</span><br/><br/>node-2 fetches schema and metadata from node-1. Exchanges, virtual hosts, and users are now shared across both nodes.</>,
+    <><b style={{color:meta.color}}>Step 3 — 3-node cluster operational</b><br/><br/>With 3 nodes, quorum queues tolerate <b>1 node failure</b> (⌊3/2⌋+1 = 2 needed).<br/><br/>Queue leaders are distributed across nodes for load balancing. Clients should connect to a <b>load balancer</b> (HAProxy / NLB) that sits in front of all 3 nodes — not directly to any single node.<br/><br/><span style={{color:"#166534"}}># HAProxy config (frontend + backend)<br/>frontend rmq<br/>{"    "}bind *:5672<br/>{"    "}default_backend rmq_nodes<br/>backend rmq_nodes<br/>{"    "}balance roundrobin<br/>{"    "}server node1 node-1:5672 check<br/>{"    "}server node2 node-2:5672 check<br/>{"    "}server node3 node-3:5672 check</span></>,
+    <><b style={{color:meta.color}}>Step 4 — node-2 goes down (network partition / crash)</b><br/><br/>node-2 becomes unreachable. The cluster detects this via heartbeat timeouts (default 60s, tune with <b>net_ticktime</b>).<br/><br/>With <b>pause_minority</b> partition handling (recommended):<br/>- node-2 is alone → it pauses itself to prevent split-brain<br/>- node-1 + node-3 form the majority → continue serving<br/><br/><span style={{color:"#166534"}}># In rabbitmq.conf:<br/>cluster_partition_handling = pause_minority</span></>,
+    <><b style={{color:meta.color}}>Step 5 — Rolling upgrade: zero-downtime deploy ✅</b><br/><br/><span style={{color:"#166534"}}># 1. Remove node-2 from load balancer<br/># 2. Stop node-2:<br/>rabbitmqctl stop_app<br/><br/># 3. Upgrade RabbitMQ on node-2<br/>apt-get install rabbitmq-server=3.13.x<br/><br/># 4. Restart and rejoin<br/>rabbitmqctl start_app<br/><br/># 5. Repeat for node-3, then node-1</span><br/><br/>Quorum queues maintain availability during rolling upgrades because the remaining nodes always form a quorum. Classic mirrored queues required full cluster downtime — another reason to migrate to quorum queues.</>,
   ];
   const nodeStatus = [
     { label: "node-1", joined: true,         down: false,       leader: stage>=2 },
@@ -1606,7 +1606,7 @@ function ClusteringLesson({ meta }) {
           <FlowNode tok={T.producer} icon="🖥️" label="Client" sub="pika connect" active={stage>=3}/>
           <Arrow on={stage>=3} color={T.producer.border} label="AMQP :5672"/>
           <div style={{borderRadius:8,padding:"10px 14px",background:"rgba(14,165,233,0.08)",border:"1px solid rgba(14,165,233,0.3)",textAlign:"center",minWidth:90}}>
-            <div style={{fontSize: 13,fontWeight:600,color:"#38bdf8",fontFamily:"system-ui, -apple-system, sans-serif"}}>⚖️ HAProxy</div>
+            <div style={{fontSize: 13,fontWeight:600,color:"#0284c7",fontFamily:"system-ui, -apple-system, sans-serif"}}>⚖️ HAProxy</div>
             <div style={{fontSize: 11,fontFamily:"monospace",color:"#475569"}}>load balancer</div>
           </div>
           <Arrow on={stage>=3} color={meta.color} label="round-robin"/>
@@ -1650,14 +1650,14 @@ function KafkaHelloLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Start Kafka: broker running on :9092</b><br/><br/><span style={{color:"#a3e635"}}>kafka-server-start.sh config/server.properties</span><br/><br/>Kafka is a distributed message broker written in Scala/Java. One server (or cluster of servers) acts as the central hub for all producers and consumers.</>,
-    <><b style={{color:meta.color}}>Step 2 — Create a topic</b><br/><br/><span style={{color:"#a3e635"}}>kafka-topics.sh --create --topic=orders \
+    <><b style={{color:meta.color}}>Step 1 — Start Kafka: broker running on :9092</b><br/><br/><span style={{color:"#166534"}}>kafka-server-start.sh config/server.properties</span><br/><br/>Kafka is a distributed message broker written in Scala/Java. One server (or cluster of servers) acts as the central hub for all producers and consumers.</>,
+    <><b style={{color:meta.color}}>Step 2 — Create a topic</b><br/><br/><span style={{color:"#166534"}}>kafka-topics.sh --create --topic=orders \
 {"    "}--partitions=1 --replication-factor=1 \
 {"    "}--bootstrap-server=localhost:9092</span><br/><br/>A <b>topic</b> is a named stream. All messages for orders go into the 'orders' topic. Think of it as a channel or feed.</>,
-    <><b style={{color:meta.color}}>Step 3 — Producer sends a message</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka import Producer<br/>p = Producer({"{'bootstrap.servers':'localhost:9092'}"})  <br/>p.produce('orders', value='{"{'id':1,'user':'alice'}"}')<br/>p.flush()</span><br/><br/>The producer is a Python app that calls <b>produce()</b>. <b>flush()</b> ensures the broker receives it.</>,
+    <><b style={{color:meta.color}}>Step 3 — Producer sends a message</b><br/><br/><span style={{color:"#166534"}}>from confluent_kafka import Producer<br/>p = Producer({"{'bootstrap.servers':'localhost:9092'}"})  <br/>p.produce('orders', value='{"{'id':1,'user':'alice'}"}')<br/>p.flush()</span><br/><br/>The producer is a Python app that calls <b>produce()</b>. <b>flush()</b> ensures the broker receives it.</>,
     <><b style={{color:meta.color}}>Step 4 — Broker stores the message</b><br/><br/>The Kafka broker receives the message and appends it to the 'orders' topic partition.<br/><br/>The message is now persistent — even if the producer crashes, the message is safe on the broker's disk.</>,
-    <><b style={{color:meta.color}}>Step 5 — Consumer subscribes</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka import Consumer<br/>c = Consumer({`{'bootstrap.servers':'localhost:9092',\n'group.id':'payment-svc'}`})  <br/>c.subscribe(['orders'])</span><br/><br/>The consumer is another Python app. It subscribes to the 'orders' topic and joins group 'payment-svc'.</>,
-    <><b style={{color:meta.color}}>Step 6 — Consumer polls and processes</b><br/><br/><span style={{color:"#a3e635"}}>while True:<br/>{"    "}msg = c.poll(1.0)  # Wait 1 sec for a message<br/>{"    "}if msg:<br/>{"    "}{"    "}print(msg.value())<br/>{"    "}{"    "}c.commit()  # Bookmark: we processed this</span><br/><br/>✅ Done! The message flows: producer → broker → consumer. Decoupled architecture: producer and consumer never talk directly.</>,
+    <><b style={{color:meta.color}}>Step 5 — Consumer subscribes</b><br/><br/><span style={{color:"#166534"}}>from confluent_kafka import Consumer<br/>c = Consumer({`{'bootstrap.servers':'localhost:9092',\n'group.id':'payment-svc'}`})  <br/>c.subscribe(['orders'])</span><br/><br/>The consumer is another Python app. It subscribes to the 'orders' topic and joins group 'payment-svc'.</>,
+    <><b style={{color:meta.color}}>Step 6 — Consumer polls and processes</b><br/><br/><span style={{color:"#166534"}}>while True:<br/>{"    "}msg = c.poll(1.0)  # Wait 1 sec for a message<br/>{"    "}if msg:<br/>{"    "}{"    "}print(msg.value())<br/>{"    "}{"    "}c.commit()  # Bookmark: we processed this</span><br/><br/>✅ Done! The message flows: producer → broker → consumer. Decoupled architecture: producer and consumer never talk directly.</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -1692,11 +1692,11 @@ function KafkaProducerLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Messages accumulate in RecordAccumulator</b><br/><br/>Instead of sending each message immediately, the producer buffers messages in memory: RecordAccumulator. Batching = efficiency.</>,
-    <><b style={{color:meta.color}}>Step 2 — Timer: linger.ms</b><br/><br/><span style={{color:"#a3e635"}}>p = Producer({`{'bootstrap.servers':'localhost:9092','linger.ms':10,'batch.size':16384}`})</span><br/><br/>The producer waits up to <b>linger.ms=10</b> milliseconds for more messages to arrive. If messages fill the buffer (16KB) first, send immediately.</>,
-    <><b style={{color:meta.color}}>Step 3 — Compression: snappy or lz4</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'compression.type':'snappy'}"})  # or 'lz4', 'gzip'</span><br/><br/>Before sending the batch, compress it to save network bandwidth. Snappy is fast; gzip is smaller but slower.</>,
-    <><b style={{color:meta.color}}>Step 4 — Choose acks setting: fire-forget vs safety</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'acks':" + (acks === "0" ? "'0'" : acks === "1" ? "'1'" : "'all'") + "}"})</span><br/><br/>Select how many replicas must acknowledge before produce() returns:<br/>• <b>acks=0</b>: fire-and-forget (fast but risky)<br/>• <b>acks=1</b>: leader only (safer)<br/>• <b>acks=all</b>: all in-sync replicas (safest, slowest)</>,
-    <><b style={{color:meta.color}}>Step 5 — Idempotent producer for exactly-once</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'enable.idempotence':true,\n\'acks\':\'all\'"})  </span><br/><br/>Each message gets (ProducerID + sequence number). Broker deduplicates. Safe retries with no duplicates.</>,
-    <><b style={{color:meta.color}}>Step 6 — Send and flush</b><br/><br/><span style={{color:"#a3e635"}}>p.produce('orders', value='...', key='user-123')<br/>p.flush()  # Wait for all in-flight to complete</span><br/><br/>After flush(), all messages are acknowledged by the broker. Your data is safe.</>,
+    <><b style={{color:meta.color}}>Step 2 — Timer: linger.ms</b><br/><br/><span style={{color:"#166534"}}>p = Producer({`{'bootstrap.servers':'localhost:9092','linger.ms':10,'batch.size':16384}`})</span><br/><br/>The producer waits up to <b>linger.ms=10</b> milliseconds for more messages to arrive. If messages fill the buffer (16KB) first, send immediately.</>,
+    <><b style={{color:meta.color}}>Step 3 — Compression: snappy or lz4</b><br/><br/><span style={{color:"#166534"}}>Producer({"{'compression.type':'snappy'}"})  # or 'lz4', 'gzip'</span><br/><br/>Before sending the batch, compress it to save network bandwidth. Snappy is fast; gzip is smaller but slower.</>,
+    <><b style={{color:meta.color}}>Step 4 — Choose acks setting: fire-forget vs safety</b><br/><br/><span style={{color:"#166534"}}>Producer({"{'acks':" + (acks === "0" ? "'0'" : acks === "1" ? "'1'" : "'all'") + "}"})</span><br/><br/>Select how many replicas must acknowledge before produce() returns:<br/>• <b>acks=0</b>: fire-and-forget (fast but risky)<br/>• <b>acks=1</b>: leader only (safer)<br/>• <b>acks=all</b>: all in-sync replicas (safest, slowest)</>,
+    <><b style={{color:meta.color}}>Step 5 — Idempotent producer for exactly-once</b><br/><br/><span style={{color:"#166534"}}>Producer({"{'enable.idempotence':true,\n\'acks\':\'all\'"})  </span><br/><br/>Each message gets (ProducerID + sequence number). Broker deduplicates. Safe retries with no duplicates.</>,
+    <><b style={{color:meta.color}}>Step 6 — Send and flush</b><br/><br/><span style={{color:"#166534"}}>p.produce('orders', value='...', key='user-123')<br/>p.flush()  # Wait for all in-flight to complete</span><br/><br/>After flush(), all messages are acknowledged by the broker. Your data is safe.</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -1750,7 +1750,7 @@ function KafkaSchemaLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Problem: unvalidated schemas</b><br/><br/>Without Schema Registry, producers and consumers must agree on message format manually. A breaking change crashes consumers. No validation. No safety.</>,
-    <><b style={{color:meta.color}}>Step 2 — Define Avro schema and register</b><br/><br/><span style={{color:"#a3e635"}}>{`schema = {
+    <><b style={{color:meta.color}}>Step 2 — Define Avro schema and register</b><br/><br/><span style={{color:"#166534"}}>{`schema = {
   "type": "record",
   "name": "Order",
   "fields": [
@@ -1759,9 +1759,9 @@ function KafkaSchemaLesson({ meta }) {
     {"name": "amount", "type": "double"}
   ]
 }`}</span><br/><br/>POST /subjects/orders-value/versions to Schema Registry. Gets assigned schema_id=1.</>,
-    <><b style={{color:meta.color}}>Step 3 — Producer serializes with schema ID in header</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka.schema_registry.schema_registry_client import SchemaRegistryClient<br/>sr = SchemaRegistryClient({"{'url':'http://localhost:8081'"}})<br/>serializer = AvroSerializer(sr, schema_str)</span><br/><br/>Producer embeds [schemaId=1] + serialized bytes in the wire message. Tiny overhead, huge safety gain.</>,
-    <><b style={{color:meta.color}}>Step 4 — Consumer deserializes: lookup schema by ID</b><br/><br/><span style={{color:"#a3e635"}}>deserializer = AvroDeserializer(sr)<br/>msg = c.poll(1.0)<br/>data = deserializer(msg.value(), None)  # Automatically fetches schema_id=1 from Registry</span><br/><br/>Consumer reads schema_id from header, fetches schema definition, deserializes. Zero guessing.</>,
-    <><b style={{color:meta.color}}>Step 5 — Schema evolution: backward compatible</b><br/><br/><span style={{color:"#a3e635"}}>New schema adds optional field: "region": {'{"type": "string", "default": "US"}'}</span><br/><br/>✅ Old consumers can still read messages with new schema (default value fills in).<br/>✅ New consumers can read old messages (new field simply absent).<br/>This is BACKWARD compatibility — the foundation of safe schema evolution.</>,
+    <><b style={{color:meta.color}}>Step 3 — Producer serializes with schema ID in header</b><br/><br/><span style={{color:"#166534"}}>from confluent_kafka.schema_registry.schema_registry_client import SchemaRegistryClient<br/>sr = SchemaRegistryClient({"{'url':'http://localhost:8081'"}})<br/>serializer = AvroSerializer(sr, schema_str)</span><br/><br/>Producer embeds [schemaId=1] + serialized bytes in the wire message. Tiny overhead, huge safety gain.</>,
+    <><b style={{color:meta.color}}>Step 4 — Consumer deserializes: lookup schema by ID</b><br/><br/><span style={{color:"#166534"}}>deserializer = AvroDeserializer(sr)<br/>msg = c.poll(1.0)<br/>data = deserializer(msg.value(), None)  # Automatically fetches schema_id=1 from Registry</span><br/><br/>Consumer reads schema_id from header, fetches schema definition, deserializes. Zero guessing.</>,
+    <><b style={{color:meta.color}}>Step 5 — Schema evolution: backward compatible</b><br/><br/><span style={{color:"#166534"}}>New schema adds optional field: "region": {'{"type": "string", "default": "US"}'}</span><br/><br/>✅ Old consumers can still read messages with new schema (default value fills in).<br/>✅ New consumers can read old messages (new field simply absent).<br/>This is BACKWARD compatibility — the foundation of safe schema evolution.</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -1807,16 +1807,16 @@ function KafkaStreamsApiLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Define topology: source → operations → sink</b><br/><br/><span style={{color:"#a3e635"}}>from kafka import KafkaStreams, StreamsBuilder<br/>builder = StreamsBuilder()<br/>source = builder.stream('orders')</span><br/><br/>A topology is a DAG (directed acyclic graph) of processing steps. Start with a source topic.</>,
-    <><b style={{color:meta.color}}>Step 2 — Stateless operations: filter, map, branch</b><br/><br/><span style={{color:"#a3e635"}}>filtered = source.filter(lambda k, v: v['amount'] > 1000)<br/>mapped = filtered.map(lambda k, v: (k, {"{'amount': v['amount'] * 1.1}"}))</span><br/><br/>No state needed. One record in → one record out (or zero if filtered).</>,
-    <><b style={{color:meta.color}}>Step 3 — Key selection for aggregation</b><br/><br/><span style={{color:"#a3e635"}}>grouped = filtered.groupByKey()</span><br/><br/>Group records by the message key. All messages with the same key will be aggregated together.</>,
-    <><b style={{color:meta.color}}>Step 4 — Windowed aggregation: tumble, hop, session</b><br/><br/><span style={{color:"#a3e635"}}>aggregated = grouped \
+    <><b style={{color:meta.color}}>Step 1 — Define topology: source → operations → sink</b><br/><br/><span style={{color:"#166534"}}>from kafka import KafkaStreams, StreamsBuilder<br/>builder = StreamsBuilder()<br/>source = builder.stream('orders')</span><br/><br/>A topology is a DAG (directed acyclic graph) of processing steps. Start with a source topic.</>,
+    <><b style={{color:meta.color}}>Step 2 — Stateless operations: filter, map, branch</b><br/><br/><span style={{color:"#166534"}}>filtered = source.filter(lambda k, v: v['amount'] > 1000)<br/>mapped = filtered.map(lambda k, v: (k, {"{'amount': v['amount'] * 1.1}"}))</span><br/><br/>No state needed. One record in → one record out (or zero if filtered).</>,
+    <><b style={{color:meta.color}}>Step 3 — Key selection for aggregation</b><br/><br/><span style={{color:"#166534"}}>grouped = filtered.groupByKey()</span><br/><br/>Group records by the message key. All messages with the same key will be aggregated together.</>,
+    <><b style={{color:meta.color}}>Step 4 — Windowed aggregation: tumble, hop, session</b><br/><br/><span style={{color:"#166534"}}>aggregated = grouped \
     .windowedBy(TimeWindows.of(60000))  # 1 min tumbling window \
     .aggregate(lambda: 0, lambda k, v, total: total + v['amount'])</span><br/><br/>Compute sum(amount) per category every 1 minute. RocksDB state store holds running totals.</>,
-    <><b style={{color:meta.color}}>Step 5 — Emit results to sink topic</b><br/><br/><span style={{color:"#a3e635"}}>aggregated.toStream() \
+    <><b style={{color:meta.color}}>Step 5 — Emit results to sink topic</b><br/><br/><span style={{color:"#166534"}}>aggregated.toStream() \
     .map(lambda k, v: (str(k), json.dumps(v))) \
     .to('revenue-per-category')</span><br/><br/>Write windowed results to a sink topic. Other consumers can read the real-time aggregations.</>,
-    <><b style={{color:meta.color}}>Step 6 — Run the topology</b><br/><br/><span style={{color:"#a3e635"}}>streams = KafkaStreams(builder.build(), config)<br/>streams.start()</span><br/><br/>The topology runs continuously, processing every message from the source topic. Fault-tolerant: state is checkpointed and restored on restart.</>,
+    <><b style={{color:meta.color}}>Step 6 — Run the topology</b><br/><br/><span style={{color:"#166534"}}>streams = KafkaStreams(builder.build(), config)<br/>streams.start()</span><br/><br/>The topology runs continuously, processing every message from the source topic. Fault-tolerant: state is checkpointed and restored on restart.</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -1871,9 +1871,9 @@ function KafkaConnectLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Problem: integrating external systems</b><br/><br/>You need to pull data from a PostgreSQL database and send it to a data warehouse. Writing custom consumer code is tedious and error-prone.</>,
-    <><b style={{color:meta.color}}>Step 2 — Kafka Connect: worker + connectors</b><br/><br/><span style={{color:"#a3e635"}}>connect-distributed.sh config/connect-distributed.properties</span><br/><br/>A Kafka Connect worker is a JVM process that loads connector plugins and manages tasks. Run multiple for HA.</>,
-    <><b style={{color:meta.color}}>Step 3 — Define source connector: PostgreSQL → Kafka</b><br/><br/><span style={{color:"#a3e635"}}>POST /connectors {"{"}<br/>  "name": "postgres-source",<br/>  "config": {"{"}<br/>    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",<br/>    "connection.url": "jdbc:postgresql://localhost/orders",<br/>    "table.whitelist": "orders",<br/>    "topic.prefix": "db_"<br/>  {"}"}<br/>{"}"}</span><br/><br/>The connector polls the database, captures changes, and publishes to Kafka topics. No custom code!</>,
-    <><b style={{color:meta.color}}>Step 4 — Define sink connector: Kafka → Elasticsearch</b><br/><br/><span style={{color:"#a3e635"}}>POST /connectors {"{"}<br/>  "name": "es-sink",<br/>  "config": {"{"}<br/>    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",<br/>    "connection.url": "http://elasticsearch:9200",<br/>    "topics": "db_orders"<br/>  {"}"}<br/>{"}"}</span><br/><br/>This sink connector consumes from 'db_orders' topic and indexes documents in Elasticsearch for real-time dashboards.</>,
+    <><b style={{color:meta.color}}>Step 2 — Kafka Connect: worker + connectors</b><br/><br/><span style={{color:"#166534"}}>connect-distributed.sh config/connect-distributed.properties</span><br/><br/>A Kafka Connect worker is a JVM process that loads connector plugins and manages tasks. Run multiple for HA.</>,
+    <><b style={{color:meta.color}}>Step 3 — Define source connector: PostgreSQL → Kafka</b><br/><br/><span style={{color:"#166534"}}>POST /connectors {"{"}<br/>  "name": "postgres-source",<br/>  "config": {"{"}<br/>    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",<br/>    "connection.url": "jdbc:postgresql://localhost/orders",<br/>    "table.whitelist": "orders",<br/>    "topic.prefix": "db_"<br/>  {"}"}<br/>{"}"}</span><br/><br/>The connector polls the database, captures changes, and publishes to Kafka topics. No custom code!</>,
+    <><b style={{color:meta.color}}>Step 4 — Define sink connector: Kafka → Elasticsearch</b><br/><br/><span style={{color:"#166534"}}>POST /connectors {"{"}<br/>  "name": "es-sink",<br/>  "config": {"{"}<br/>    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",<br/>    "connection.url": "http://elasticsearch:9200",<br/>    "topics": "db_orders"<br/>  {"}"}<br/>{"}"}</span><br/><br/>This sink connector consumes from 'db_orders' topic and indexes documents in Elasticsearch for real-time dashboards.</>,
     <><b style={{color:meta.color}}>Step 5 — Distributed, fault-tolerant execution</b><br/><br/>Multiple workers share the tasks. If one worker crashes, another restarts the task. Offset tracking in Kafka ensures no data loss. Scale horizontally.</>,
   ];
   return (
@@ -1908,14 +1908,14 @@ function KafkaSecurityLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — TLS: Encrypt communication</b><br/><br/><span style={{color:"#a3e635"}}>security.protocol=SSL<br/>ssl.truststore.location=/path/to/truststore.jks<br/>ssl.truststore.password=***</span><br/><br/>All traffic between client and broker is encrypted. Requires server keystore + client truststore.</>,
-    <><b style={{color:meta.color}}>Step 2 — SASL: Authenticate the client</b><br/><br/><span style={{color:"#a3e635"}}>security.protocol=SASL_SSL<br/>sasl.mechanism=SCRAM-SHA-256<br/>sasl.username=alice<br/>sasl.password=secret</span><br/><br/>Client proves identity with username/password or other credentials. Broker verifies before accepting connection.</>,
-    <><b style={{color:meta.color}}>Step 3 — ACLs: Authorize operations</b><br/><br/><span style={{color:"#a3e635"}}>kafka-acls.sh --create \
+    <><b style={{color:meta.color}}>Step 1 — TLS: Encrypt communication</b><br/><br/><span style={{color:"#166534"}}>security.protocol=SSL<br/>ssl.truststore.location=/path/to/truststore.jks<br/>ssl.truststore.password=***</span><br/><br/>All traffic between client and broker is encrypted. Requires server keystore + client truststore.</>,
+    <><b style={{color:meta.color}}>Step 2 — SASL: Authenticate the client</b><br/><br/><span style={{color:"#166534"}}>security.protocol=SASL_SSL<br/>sasl.mechanism=SCRAM-SHA-256<br/>sasl.username=alice<br/>sasl.password=secret</span><br/><br/>Client proves identity with username/password or other credentials. Broker verifies before accepting connection.</>,
+    <><b style={{color:meta.color}}>Step 3 — ACLs: Authorize operations</b><br/><br/><span style={{color:"#166534"}}>kafka-acls.sh --create \
   --allow-principal User:alice \
   --operation Read,Write \
   --topic orders</span><br/><br/>Even authenticated clients must have permission. Alice can read and write to 'orders' topic. Bob cannot.</>,
     <><b style={{color:meta.color}}>Step 4 — Complete flow: auth + authz</b><br/><br/>Client connects → TLS handshake (encrypt) → SASL auth (prove identity) → ACL check (verify permission) → Broker accepts or rejects.</>,
-    <><b style={{color:meta.color}}>Step 5 — Quotas: protect the cluster</b><br/><br/><span style={{color:"#a3e635"}}>kafka-configs.sh --alter --add-config \
+    <><b style={{color:meta.color}}>Step 5 — Quotas: protect the cluster</b><br/><br/><span style={{color:"#166534"}}>kafka-configs.sh --alter --add-config \
   'producer_byte_rate=1000000' \
   --entity-type clients --entity-name alice</span><br/><br/>Limit clients to 1MB/sec. Prevents one rogue client from overwhelming the cluster.</>,
   ];
@@ -1934,11 +1934,11 @@ function KafkaSecurityLesson({ meta }) {
           <div style={{display:"flex",alignItems:"center",gap:8,flexDirection:"column"}}>
             <div style={{display:"flex",alignItems:"center",gap:6,width:"100%"}}>
               <div style={{borderRadius:6,padding:"6px 10px",background:"rgba(59, 130, 246, 0.2)",border:"1px solid #3b82f6",fontFamily:"monospace",fontSize: 12,color:"#1d4ed8"}}>Client</div>
-              <Arrow on={stage>=2} color={authType==="tls"||authType==="sasl"?meta.color:"#94a3b8"} label={stage>=2&&authType!=="acl"?"TLS":""}/>
+              <Arrow on={stage>=2} color={authType==="tls"||authType==="sasl"?meta.color:"#475569"} label={stage>=2&&authType!=="acl"?"TLS":""}/>
               <div style={{borderRadius:6,padding:"6px 10px",background:authType==="tls"||authType==="sasl"?meta.color+"20":"#f1f5f9",border:`1px solid ${authType==="tls"||authType==="sasl"?meta.color:"#cbd5e1"}`,fontFamily:"monospace",fontSize: 12,color:authType==="tls"||authType==="sasl"?meta.color:"#64748b"}}>
                 {stage>=2?(authType==="sasl"?"SASL":"TLS"):"Broker"}
               </div>
-              {stage>=3&&<Arrow on color={authType==="acl"?meta.color:"#94a3b8"} label={authType==="acl"?"ACL check":""}/>}
+              {stage>=3&&<Arrow on color={authType==="acl"?meta.color:"#475569"} label={authType==="acl"?"ACL check":""}/>}
               {stage>=3&&<div style={{borderRadius:6,padding:"6px 10px",background:authType==="acl"?meta.color+"20":"#f1f5f9",border:`1px solid ${authType==="acl"?meta.color:"#cbd5e1"}`,fontFamily:"monospace",fontSize: 12,color:authType==="acl"?meta.color:"#64748b"}}>Broker</div>}
             </div>
             {stage>=2&&authType==="tls"&&<div style={{fontSize: 11,fontFamily:"monospace",color:"#64748b",marginTop:4}}>🔒 SSL/TLS: all traffic encrypted</div>}
@@ -1961,15 +1961,15 @@ function KafkaProductionLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Architecture: 3 producers, 3 Kafka topics, Streams, Sinks, DLQs</b><br/><br/>Producers: orders-svc, clicks-svc, inventory-svc. Each publishes to its own topic with the same Avro schema. Real-time analytics compute revenue trends. Elasticsearch shows live dashboards. S3 stores raw data for reporting.</>,
-    <><b style={{color:meta.color}}>Step 2 — Producer 1: orders-producer with idempotence</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'bootstrap.servers':'kafka:9092',\n\'enable.idempotence\':\'true\',\n\'compression.type\':\'snappy\',\n\'acks\':\'all\'"})  <br/>produce('orders', key=user_id, value=order_json)</span><br/><br/>Each order message has a unique key (user_id) for ordering guarantee. Compression reduces bandwidth.</>,
+    <><b style={{color:meta.color}}>Step 2 — Producer 1: orders-producer with idempotence</b><br/><br/><span style={{color:"#166534"}}>Producer({"{'bootstrap.servers':'kafka:9092',\n\'enable.idempotence\':\'true\',\n\'compression.type\':\'snappy\',\n\'acks\':\'all\'"})  <br/>produce('orders', key=user_id, value=order_json)</span><br/><br/>Each order message has a unique key (user_id) for ordering guarantee. Compression reduces bandwidth.</>,
     <><b style={{color:meta.color}}>Step 3 — All messages validated with Avro schemas</b><br/><br/>OrderEvent, ClickEvent, InventoryEvent schemas registered in Schema Registry. Producers serialize; consumers deserialize automatically. Breaking changes are rejected.</>,
-    <><b style={{color:meta.color}}>Step 4 — Kafka Streams: compute revenue per category (1-min tumbling window)</b><br/><br/><span style={{color:"#a3e635"}}>source.groupByKey() \
+    <><b style={{color:meta.color}}>Step 4 — Kafka Streams: compute revenue per category (1-min tumbling window)</b><br/><br/><span style={{color:"#166534"}}>source.groupByKey() \
     .windowedBy(TimeWindows.of(60000)) \
     .aggregate(sum_amount) \
     .to('revenue-by-category')</span><br/><br/>Real-time aggregation. RocksDB state store backed by changelog topic. Fault-tolerant.</>,
     <><b style={{color:meta.color}}>Step 5 — Kafka Connect: Elasticsearch sink (dashboards)</b><br/><br/>revenue-by-category topic → Kafka Connect ES sink → Elasticsearch index. Dashboards query ES for live metrics. Also S3 sink for historical data lake.</>,
-    <><b style={{color:meta.color}}>Step 6 — Consumer group: fraud detection with velocity checks</b><br/><br/><span style={{color:"#a3e635"}}>Consumer({"{'group.id':'fraud-detection'}"})<br/>if user_orders_last_1min > 10:<br/>{"    "}alert('velocity spike')</span><br/><br/>A dedicated consumer monitors for suspicious patterns and triggers alerts.</>,
-    <><b style={{color:meta.color}}>Step 7 — Monitoring: consumer lag, broker metrics, throughput</b><br/><br/><span style={{color:"#a3e635"}}>kafka-consumer-groups.sh --describe --group fraud-detection</span><br/><br/>Track consumer lag with Prometheus + Grafana. Alert if lag exceeds threshold. Monitor under-replicated partitions and broker disk space. This is production Kafka!</>,
+    <><b style={{color:meta.color}}>Step 6 — Consumer group: fraud detection with velocity checks</b><br/><br/><span style={{color:"#166534"}}>Consumer({"{'group.id':'fraud-detection'}"})<br/>if user_orders_last_1min > 10:<br/>{"    "}alert('velocity spike')</span><br/><br/>A dedicated consumer monitors for suspicious patterns and triggers alerts.</>,
+    <><b style={{color:meta.color}}>Step 7 — Monitoring: consumer lag, broker metrics, throughput</b><br/><br/><span style={{color:"#166534"}}>kafka-consumer-groups.sh --describe --group fraud-detection</span><br/><br/>Track consumer lag with Prometheus + Grafana. Alert if lag exceeds threshold. Monitor under-replicated partitions and broker disk space. This is production Kafka!</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -2031,11 +2031,11 @@ function KafkaPartitionsLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const targetPart = hashPartition(msgKey);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Create topic with 3 partitions</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka.admin import AdminClient, NewTopic<br/><br/>admin = AdminClient({"{'bootstrap.servers':'localhost:9092'}"})  <br/>admin.create_topics([NewTopic('orders', num_partitions=3,<br/>{"    "}replication_factor=1)])</span><br/><br/>The topic 'orders' is split into 3 independent append-only logs called <b>partitions</b>.</>,
-    <><b style={{color:meta.color}}>Step 2 — Producer sends with message key</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka import Producer<br/><br/>p = Producer({"{'bootstrap.servers':'localhost:9092'}"})  <br/>p.produce('orders', key='{msgKey}', value='buy BTC')<br/>p.flush()</span><br/><br/>The message key '<b>{msgKey}</b>' determines which partition this message goes to.</>,
+    <><b style={{color:meta.color}}>Step 1 — Create topic with 3 partitions</b><br/><br/><span style={{color:"#166534"}}>from confluent_kafka.admin import AdminClient, NewTopic<br/><br/>admin = AdminClient({"{'bootstrap.servers':'localhost:9092'}"})  <br/>admin.create_topics([NewTopic('orders', num_partitions=3,<br/>{"    "}replication_factor=1)])</span><br/><br/>The topic 'orders' is split into 3 independent append-only logs called <b>partitions</b>.</>,
+    <><b style={{color:meta.color}}>Step 2 — Producer sends with message key</b><br/><br/><span style={{color:"#166534"}}>from confluent_kafka import Producer<br/><br/>p = Producer({"{'bootstrap.servers':'localhost:9092'}"})  <br/>p.produce('orders', key='{msgKey}', value='buy BTC')<br/>p.flush()</span><br/><br/>The message key '<b>{msgKey}</b>' determines which partition this message goes to.</>,
     <><b style={{color:meta.color}}>Step 3 — Kafka hashes the key → Partition {targetPart}</b><br/><br/>Kafka applies a hash function to '<b>{msgKey}</b>':<br/><br/>murmur2('<b>{msgKey}</b>') % 3 = <b style={{color:meta.color}}>Partition {targetPart}</b><br/><br/>✅ Same key <b>always</b> goes to the same partition. This guarantees <b>ordering per key</b>. All orders for user-123 arrive in sequence.</>,
     <><b style={{color:meta.color}}>Step 4 — Message appended to Partition {targetPart}</b><br/><br/>The message is appended to the end of Partition {targetPart}'s log.<br/><br/>Each partition has its own sequential <b>offsets</b>: 0, 1, 2, 3...<br/><br/>The offset within a partition is where a consumer tracks progress.</>,
-    <><b style={{color:meta.color}}>Step 5 — Consumer reads from Partition {targetPart}</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka import Consumer<br/><br/>c = Consumer({"{'bootstrap.servers':'localhost:9092',\n'group.id':'payment-svc'}"})  <br/>c.subscribe(['orders'])<br/>msg = c.poll(1.0)<br/>c.commit()</span><br/><br/>Kafka automatically assigns partitions to consumers. The consumer commits offset to track progress.</>,
+    <><b style={{color:meta.color}}>Step 5 — Consumer reads from Partition {targetPart}</b><br/><br/><span style={{color:"#166534"}}>from confluent_kafka import Consumer<br/><br/>c = Consumer({"{'bootstrap.servers':'localhost:9092',\n'group.id':'payment-svc'}"})  <br/>c.subscribe(['orders'])<br/>msg = c.poll(1.0)<br/>c.commit()</span><br/><br/>Kafka automatically assigns partitions to consumers. The consumer commits offset to track progress.</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -2085,10 +2085,10 @@ function KafkaGroupsLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Consumers in a group subscribe</b><br/><br/><span style={{color:"#a3e635"}}>c = Consumer({"{'bootstrap.servers':'localhost:9092',\n'group.id':'payment-svc'}"})  <br/>c.subscribe(['orders'])</span><br/><br/>All 3 consumers share the same <b>group.id='payment-svc'</b>. Kafka knows they are in the same group and will divide the work.</>,
+    <><b style={{color:meta.color}}>Step 1 — Consumers in a group subscribe</b><br/><br/><span style={{color:"#166534"}}>c = Consumer({"{'bootstrap.servers':'localhost:9092',\n'group.id':'payment-svc'}"})  <br/>c.subscribe(['orders'])</span><br/><br/>All 3 consumers share the same <b>group.id='payment-svc'</b>. Kafka knows they are in the same group and will divide the work.</>,
     <><b style={{color:meta.color}}>Step 2 — Kafka assigns one partition per consumer</b><br/><br/>With 3 partitions and 3 consumers in the group:<br/><br/>• Consumer 1 → Partition 0<br/>• Consumer 2 → Partition 1<br/>• Consumer 3 → Partition 2<br/><br/>Each partition goes to <b>exactly one</b> consumer in the group. This is the <b>partition assignment</b>.</>,
     <><b style={{color:meta.color}}>Step 3 — Message on P0 → only Consumer 1 receives it</b><br/><br/>A new order arrives on Partition 0. <b>Only Consumer 1</b> gets it — Consumer 2 and Consumer 3 are not affected.<br/><br/>This is parallel processing: all 3 partitions are consumed simultaneously by different workers.</>,
-    <><b style={{color:meta.color}}>Step 4 — A second consumer group reads ALL messages too</b><br/><br/><span style={{color:"#a3e635"}}>c2 = Consumer({"{'group.id':'analytics-svc'}"})  <br/>c2.subscribe(['orders'])</span><br/><br/>'analytics-svc' is a <b>completely separate group</b>. It gets its own copy of every message from every partition — completely independent of 'payment-svc'. This is how Kafka differs from RabbitMQ queues.</>,
+    <><b style={{color:meta.color}}>Step 4 — A second consumer group reads ALL messages too</b><br/><br/><span style={{color:"#166534"}}>c2 = Consumer({"{'group.id':'analytics-svc'}"})  <br/>c2.subscribe(['orders'])</span><br/><br/>'analytics-svc' is a <b>completely separate group</b>. It gets its own copy of every message from every partition — completely independent of 'payment-svc'. This is how Kafka differs from RabbitMQ queues.</>,
     <><b style={{color:meta.color}}>Step 5 — Consumer 1 crashes → Partition 0 rebalanced</b><br/><br/>Kafka detects Consumer 1 missed heartbeats. A <b>rebalance</b> is triggered:<br/><br/>• Consumer 2 now handles P0 + P1<br/>• Consumer 3 still handles P2<br/><br/>No messages are lost. Kafka picks up from the last committed offset automatically.</>,
   ];
   return (
@@ -2143,11 +2143,11 @@ function SQSHelloLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Create queue (fully managed — AWS handles everything)</b><br/><br/><span style={{color:"#a3e635"}}>import boto3<br/>sqs = boto3.client('sqs', region_name='us-east-1')<br/>response = sqs.create_queue(QueueName='orders-queue')<br/>queue_url = response['QueueUrl']</span><br/><br/>Unlike Kafka, there is NO broker to run. AWS manages the entire queue infrastructure behind the scenes.</>,
-    <><b style={{color:meta.color}}>Step 2 — Producer sends a message</b><br/><br/><span style={{color:"#a3e635"}}>sqs.send_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}MessageBody='Order #1234')</span><br/><br/>Message is stored in SQS. AWS keeps it safe and available for consumers.</>,
-    <><b style={{color:meta.color}}>Step 3 — Consumer receives (message becomes INVISIBLE)</b><br/><br/><span style={{color:"#a3e635"}}>response = sqs.receive_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}VisibilityTimeout=30)<br/>receipt = response['Messages'][0]['ReceiptHandle']</span><br/><br/>⚠️ Message is hidden from other consumers for 30 seconds. If consumer crashes, message reappears after timeout.</>,
+    <><b style={{color:meta.color}}>Step 1 — Create queue (fully managed — AWS handles everything)</b><br/><br/><span style={{color:"#166534"}}>import boto3<br/>sqs = boto3.client('sqs', region_name='us-east-1')<br/>response = sqs.create_queue(QueueName='orders-queue')<br/>queue_url = response['QueueUrl']</span><br/><br/>Unlike Kafka, there is NO broker to run. AWS manages the entire queue infrastructure behind the scenes.</>,
+    <><b style={{color:meta.color}}>Step 2 — Producer sends a message</b><br/><br/><span style={{color:"#166534"}}>sqs.send_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}MessageBody='Order #1234')</span><br/><br/>Message is stored in SQS. AWS keeps it safe and available for consumers.</>,
+    <><b style={{color:meta.color}}>Step 3 — Consumer receives (message becomes INVISIBLE)</b><br/><br/><span style={{color:"#166534"}}>response = sqs.receive_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}VisibilityTimeout=30)<br/>receipt = response['Messages'][0]['ReceiptHandle']</span><br/><br/>⚠️ Message is hidden from other consumers for 30 seconds. If consumer crashes, message reappears after timeout.</>,
     <><b style={{color:meta.color}}>Step 4 — Consumer processes (has 30 seconds)</b><br/><br/>The consumer has up to 30 seconds (VisibilityTimeout) to process the message. If processing takes longer, extend the timeout with ChangeMessageVisibility.</>,
-    <><b style={{color:meta.color}}>Step 5 — Delete the message (only way to remove it)</b><br/><br/><span style={{color:"#a3e635"}}>sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt)</span><br/><br/>✅ Message permanently removed. If NOT deleted within timeout, message reappears for another consumer — this is SQS's crash-safety mechanism!</>,
+    <><b style={{color:meta.color}}>Step 5 — Delete the message (only way to remove it)</b><br/><br/><span style={{color:"#166534"}}>sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt)</span><br/><br/>✅ Message permanently removed. If NOT deleted within timeout, message reappears for another consumer — this is SQS's crash-safety mechanism!</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -2181,9 +2181,9 @@ function SQSPollingLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Short polling: request returns immediately (expensive)</b><br/><br/><span style={{color:"#a3e635"}}>for i in range(60):  # Every second for 60 seconds<br/>{"    "}response = sqs.receive_message(QueueUrl=queue_url)<br/>{"    "}# Usually empty!</span><br/><br/>Makes 60 API calls/minute. Most return empty. AWS charges per API call. Very expensive!</>,
-    <><b style={{color:meta.color}}>Step 2 — Long polling: wait up to 20 seconds (efficient)</b><br/><br/><span style={{color:"#a3e635"}}>response = sqs.receive_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}WaitTimeSeconds=20)</span><br/><br/>Waits up to 20 seconds for a message to arrive. If one shows up after 3 seconds, returns immediately. Reduces API calls 10× — much cheaper!</>,
-    <><b style={{color:meta.color}}>Step 3 — Batch send: 10 messages in one API call</b><br/><br/><span style={{color:"#a3e635"}}>sqs.send_message_batch(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Entries=[<br/>{"    "}{"    "}{"{'Id': 'msg1', 'MessageBody': 'Order 1'}"},<br/>{"    "}{"    "}{"{'Id': 'msg2', 'MessageBody': 'Order 2'}"},<br/>{"    "}{"    "}# ... up to 10 messages<br/>{"    "}])</span><br/><br/>Send/receive up to 10 messages per API call. Drastically reduces cost.</>,
+    <><b style={{color:meta.color}}>Step 1 — Short polling: request returns immediately (expensive)</b><br/><br/><span style={{color:"#166534"}}>for i in range(60):  # Every second for 60 seconds<br/>{"    "}response = sqs.receive_message(QueueUrl=queue_url)<br/>{"    "}# Usually empty!</span><br/><br/>Makes 60 API calls/minute. Most return empty. AWS charges per API call. Very expensive!</>,
+    <><b style={{color:meta.color}}>Step 2 — Long polling: wait up to 20 seconds (efficient)</b><br/><br/><span style={{color:"#166534"}}>response = sqs.receive_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}WaitTimeSeconds=20)</span><br/><br/>Waits up to 20 seconds for a message to arrive. If one shows up after 3 seconds, returns immediately. Reduces API calls 10× — much cheaper!</>,
+    <><b style={{color:meta.color}}>Step 3 — Batch send: 10 messages in one API call</b><br/><br/><span style={{color:"#166534"}}>sqs.send_message_batch(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Entries=[<br/>{"    "}{"    "}{"{'Id': 'msg1', 'MessageBody': 'Order 1'}"},<br/>{"    "}{"    "}{"{'Id': 'msg2', 'MessageBody': 'Order 2'}"},<br/>{"    "}{"    "}# ... up to 10 messages<br/>{"    "}])</span><br/><br/>Send/receive up to 10 messages per API call. Drastically reduces cost.</>,
     <><b style={{color:meta.color}}>Step 4 — Compare: short vs long polling with batching</b><br/><br/>Short polling: 1000 receive_message calls/min, 99% empty. $3.50/mo<br/>Long polling + batch: 100 receive_message_batch calls/min, efficient. $0.35/mo — 10× cheaper!</>,
     <><b style={{color:meta.color}}>Step 5 — Production recommendation</b><br/><br/>Always use WaitTimeSeconds=20 and batch operations. Single receive_message calls are rare and expensive. Best practice: few large batches rather than many small calls.</>,
   ];
@@ -2230,10 +2230,10 @@ function SQSDLQLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Problem: poison pills (messages that always fail)</b><br/><br/>A malformed message keeps failing on every retry. It blocks the consumer and wastes time. Need a way to isolate it.</>,
-    <><b style={{color:meta.color}}>Step 2 — Create a Dead Letter Queue (DLQ)</b><br/><br/><span style={{color:"#a3e635"}}>sqs.create_queue(QueueName='orders-dlq')</span><br/><br/>A separate SQS queue where problematic messages go. Think of it as a quarantine zone.</>,
-    <><b style={{color:meta.color}}>Step 3 — Configure main queue with RedrivePolicy</b><br/><br/><span style={{color:"#a3e635"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'RedrivePolicy': json.dumps({"{"}<br/>{"    "}{"    "}{"    "}'deadLetterTargetArn': 'arn:aws:sqs:...dlq',<br/>{"    "}{"    "}{"    "}'maxReceiveCount': 3<br/>{"    "}{"    "}{"}"}))<br/>{"    "}{"}"}})</span><br/><br/>After 3 failed receive attempts, SQS automatically moves the message to the DLQ.</>,
+    <><b style={{color:meta.color}}>Step 2 — Create a Dead Letter Queue (DLQ)</b><br/><br/><span style={{color:"#166534"}}>sqs.create_queue(QueueName='orders-dlq')</span><br/><br/>A separate SQS queue where problematic messages go. Think of it as a quarantine zone.</>,
+    <><b style={{color:meta.color}}>Step 3 — Configure main queue with RedrivePolicy</b><br/><br/><span style={{color:"#166534"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'RedrivePolicy': json.dumps({"{"}<br/>{"    "}{"    "}{"    "}'deadLetterTargetArn': 'arn:aws:sqs:...dlq',<br/>{"    "}{"    "}{"    "}'maxReceiveCount': 3<br/>{"    "}{"    "}{"}"}))<br/>{"    "}{"}"}})</span><br/><br/>After 3 failed receive attempts, SQS automatically moves the message to the DLQ.</>,
     <><b style={{color:meta.color}}>Step 4 — Message flows: receive → process → delete or fail→retry→DLQ</b><br/><br/>Success path: receive → process → delete (done).<br/>Failure path: receive #1 fails → retry → receive #2 fails → retry → receive #3 fails → DLQ (quarantine).</>,
-    <><b style={{color:meta.color}}>Step 5 — Monitor DLQ with CloudWatch alarms</b><br/><br/><span style={{color:"#a3e635"}}>alarm = cloudwatch.put_metric_alarm(<br/>{"    "}AlarmName='orders-dlq-has-messages',<br/>{"    "}MetricName='ApproximateNumberOfMessagesVisible',<br/>{"    "}Dimensions=[{"{'Name': 'QueueName', 'Value': 'orders-dlq'}"}],<br/>{"    "}Threshold=1, ComparisonOperator='GreaterThanOrEqualToThreshold')</span><br/><br/>Alert your ops team immediately when messages appear in DLQ.</>,
+    <><b style={{color:meta.color}}>Step 5 — Monitor DLQ with CloudWatch alarms</b><br/><br/><span style={{color:"#166534"}}>alarm = cloudwatch.put_metric_alarm(<br/>{"    "}AlarmName='orders-dlq-has-messages',<br/>{"    "}MetricName='ApproximateNumberOfMessagesVisible',<br/>{"    "}Dimensions=[{"{'Name': 'QueueName', 'Value': 'orders-dlq'}"}],<br/>{"    "}Threshold=1, ComparisonOperator='GreaterThanOrEqualToThreshold')</span><br/><br/>Alert your ops team immediately when messages appear in DLQ.</>,
     <><b style={{color:meta.color}}>Step 6 — Manual investigation and redrive</b><br/><br/>Inspect the failed message in DLQ. Fix the bug. Re-send the message to the main queue (redrive). This is your fallback mechanism for unhandled errors.</>,
   ];
   return (
@@ -2268,12 +2268,12 @@ function SQSLambdaLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Create event source mapping: SQS → Lambda</b><br/><br/><span style={{color:"#a3e635"}}>lambda_client.create_event_source_mapping(<br/>{"    "}EventSourceArn='arn:aws:sqs:...:orders-queue',<br/>{"    "}FunctionName='process-order',<br/>{"    "}BatchSize=10,<br/>{"    "}BatchWindow=5)</span><br/><br/>AWS automatically polls the SQS queue and invokes your Lambda function whenever messages arrive.</>,
-    <><b style={{color:meta.color}}>Step 2 — Lambda is triggered with batch of messages</b><br/><br/><span style={{color:"#a3e635"}}>def process_order(event, context):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}body = json.loads(record['body'])<br/>{"    "}{"    "}print(f"Processing order {body['id']}")</span><br/><br/>event['Records'] contains up to 10 messages (BatchSize). Process them all in one Lambda invocation.</>,
-    <><b style={{color:meta.color}}>Step 3 — Successful processing: Lambda returns empty list</b><br/><br/><span style={{color:"#a3e635"}}>return {"{'batchItemFailures': []}"} {" "} # All succeeded</span><br/><br/>SQS automatically deletes all 10 messages from the queue. Done!</>,
-    <><b style={{color:meta.color}}>Step 4 — Partial batch failure: return failed message IDs</b><br/><br/><span style={{color:"#a3e635"}}>failed = []<br/>for record in event['Records']:<br/>{"    "}try:<br/>{"    "}{"    "}process(record)<br/>{"    "}except:<br/>{"    "}{"    "}failed.append({"{'itemId': record['messageId']}"})<br/>return {"{'batchItemFailures': failed}"}</span><br/><br/>Only failed messages are returned to queue. Successful ones are deleted. No all-or-nothing blocking.</>,
+    <><b style={{color:meta.color}}>Step 1 — Create event source mapping: SQS → Lambda</b><br/><br/><span style={{color:"#166534"}}>lambda_client.create_event_source_mapping(<br/>{"    "}EventSourceArn='arn:aws:sqs:...:orders-queue',<br/>{"    "}FunctionName='process-order',<br/>{"    "}BatchSize=10,<br/>{"    "}BatchWindow=5)</span><br/><br/>AWS automatically polls the SQS queue and invokes your Lambda function whenever messages arrive.</>,
+    <><b style={{color:meta.color}}>Step 2 — Lambda is triggered with batch of messages</b><br/><br/><span style={{color:"#166534"}}>def process_order(event, context):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}body = json.loads(record['body'])<br/>{"    "}{"    "}print(f"Processing order {body['id']}")</span><br/><br/>event['Records'] contains up to 10 messages (BatchSize). Process them all in one Lambda invocation.</>,
+    <><b style={{color:meta.color}}>Step 3 — Successful processing: Lambda returns empty list</b><br/><br/><span style={{color:"#166534"}}>return {"{'batchItemFailures': []}"} {" "} # All succeeded</span><br/><br/>SQS automatically deletes all 10 messages from the queue. Done!</>,
+    <><b style={{color:meta.color}}>Step 4 — Partial batch failure: return failed message IDs</b><br/><br/><span style={{color:"#166534"}}>failed = []<br/>for record in event['Records']:<br/>{"    "}try:<br/>{"    "}{"    "}process(record)<br/>{"    "}except:<br/>{"    "}{"    "}failed.append({"{'itemId': record['messageId']}"})<br/>return {"{'batchItemFailures': failed}"}</span><br/><br/>Only failed messages are returned to queue. Successful ones are deleted. No all-or-nothing blocking.</>,
     <><b style={{color:meta.color}}>Step 5 — Concurrency and scalability</b><br/><br/>Multiple Lambda instances run in parallel. Each processes a batch. As queue depth grows, AWS auto-scales Lambda concurrency. One Lambda instance = one batch = max 10 messages at a time.</>,
-    <><b style={{color:meta.color}}>Step 6 — Error handling: DLQ for Lambda failures</b><br/><br/><span style={{color:"#a3e635"}}>Lambda function crashes → SQS re-delivers → maxReceiveCount hits → DLQ</span><br/><br/>If your Lambda keeps crashing, after maxReceiveCount retries, the message goes to the DLQ. Chain SQS→Lambda→DLQ for complete safety.</>,
+    <><b style={{color:meta.color}}>Step 6 — Error handling: DLQ for Lambda failures</b><br/><br/><span style={{color:"#166534"}}>Lambda function crashes → SQS re-delivers → maxReceiveCount hits → DLQ</span><br/><br/>If your Lambda keeps crashing, after maxReceiveCount retries, the message goes to the DLQ. Chain SQS→Lambda→DLQ for complete safety.</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -2301,8 +2301,8 @@ function SQSFanoutLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Problem: one message, many independent consumers</b><br/><br/>When an order is placed, you need to: send email receipt, record analytics, update inventory. Three completely independent services. How to decouple?</>,
-    <><b style={{color:meta.color}}>Step 2 — SNS Topic: fan-out hub</b><br/><br/><span style={{color:"#a3e635"}}>sns = boto3.client('sns')<br/>sns.create_topic(Name='order-events')<br/>sns.publish(<br/>{"    "}TopicArn='arn:aws:sns:...:order-events',<br/>{"    "}Message=json.dumps({"{'order_id': 123}"}))</span><br/><br/>Publish ONE message to SNS. SNS automatically fans it out to all subscribed SQS queues.</>,
-    <><b style={{color:meta.color}}>Step 3 — Subscribe SQS queues to SNS topic</b><br/><br/><span style={{color:"#a3e635"}}># Create 3 queues<br/>email_queue = sqs.create_queue(QueueName='email-queue')<br/>analytics_queue = sqs.create_queue(QueueName='analytics-queue')<br/>inventory_queue = sqs.create_queue(QueueName='inventory-queue')<br/><br/># Subscribe each to SNS topic<br/>sns.subscribe(TopicArn=topic_arn, Protocol='sqs', Endpoint=email_queue_arn)</span><br/><br/>Each SQS queue receives a COPY of every message. Independent processing!</>,
+    <><b style={{color:meta.color}}>Step 2 — SNS Topic: fan-out hub</b><br/><br/><span style={{color:"#166534"}}>sns = boto3.client('sns')<br/>sns.create_topic(Name='order-events')<br/>sns.publish(<br/>{"    "}TopicArn='arn:aws:sns:...:order-events',<br/>{"    "}Message=json.dumps({"{'order_id': 123}"}))</span><br/><br/>Publish ONE message to SNS. SNS automatically fans it out to all subscribed SQS queues.</>,
+    <><b style={{color:meta.color}}>Step 3 — Subscribe SQS queues to SNS topic</b><br/><br/><span style={{color:"#166534"}}># Create 3 queues<br/>email_queue = sqs.create_queue(QueueName='email-queue')<br/>analytics_queue = sqs.create_queue(QueueName='analytics-queue')<br/>inventory_queue = sqs.create_queue(QueueName='inventory-queue')<br/><br/># Subscribe each to SNS topic<br/>sns.subscribe(TopicArn=topic_arn, Protocol='sqs', Endpoint=email_queue_arn)</span><br/><br/>Each SQS queue receives a COPY of every message. Independent processing!</>,
     <><b style={{color:meta.color}}>Step 4 — Consumers process independently</b><br/><br/>Email service polls email-queue. Analytics service polls analytics-queue. Inventory service polls inventory-queue. None interfere. One slow service doesn't block others. Perfect decoupling!</>,
     <><b style={{color:meta.color}}>Step 5 — Add new consumer without changing publisher</b><br/><br/>New requirement: send SMS notifications. Create sms-queue, subscribe to SNS topic. Done! No change to producer code. This is the power of pub/sub with SQS.</>,
   ];
@@ -2353,10 +2353,10 @@ function SQSFilteringLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Attach metadata to messages: MessageAttributes</b><br/><br/><span style={{color:"#a3e635"}}>sns.publish(<br/>{"    "}TopicArn=topic_arn,<br/>{"    "}Message=message,<br/>{"    "}MessageAttributes={"{"}<br/>{"    "}{"    "}'event_type': {"{'DataType': 'String', 'StringValue': 'order'}"},<br/>{"    "}{"    "}'priority': {"{'DataType': 'String', 'StringValue': 'high'}"},<br/>{"    "}{"    "}'region': {"{'DataType': 'String', 'StringValue': 'us-west-2'}"}<br/>{"    "}{"}"})</span><br/><br/>Each message carries structured metadata beyond the message body.</>,
-    <><b style={{color:meta.color}}>Step 2 — Define filter policy: only matching attributes are delivered</b><br/><br/><span style={{color:"#a3e635"}}>filter_policy = {"{"}<br/>{"    "}'event_type': ['order', 'payment'],<br/>{"    "}'priority': ['high'],<br/>{"    "}'region': ['us-west-2', 'us-east-1']<br/>{"}"}<br/>sns.set_subscription_attributes(..., AttributeName='FilterPolicy', AttributeValue=json.dumps(filter_policy))</span><br/><br/>SNS only delivers to this queue if: (event_type=order OR payment) AND priority=high AND (region=us-west OR us-east).</>,
+    <><b style={{color:meta.color}}>Step 1 — Attach metadata to messages: MessageAttributes</b><br/><br/><span style={{color:"#166534"}}>sns.publish(<br/>{"    "}TopicArn=topic_arn,<br/>{"    "}Message=message,<br/>{"    "}MessageAttributes={"{"}<br/>{"    "}{"    "}'event_type': {"{'DataType': 'String', 'StringValue': 'order'}"},<br/>{"    "}{"    "}'priority': {"{'DataType': 'String', 'StringValue': 'high'}"},<br/>{"    "}{"    "}'region': {"{'DataType': 'String', 'StringValue': 'us-west-2'}"}<br/>{"    "}{"}"})</span><br/><br/>Each message carries structured metadata beyond the message body.</>,
+    <><b style={{color:meta.color}}>Step 2 — Define filter policy: only matching attributes are delivered</b><br/><br/><span style={{color:"#166534"}}>filter_policy = {"{"}<br/>{"    "}'event_type': ['order', 'payment'],<br/>{"    "}'priority': ['high'],<br/>{"    "}'region': ['us-west-2', 'us-east-1']<br/>{"}"}<br/>sns.set_subscription_attributes(..., AttributeName='FilterPolicy', AttributeValue=json.dumps(filter_policy))</span><br/><br/>SNS only delivers to this queue if: (event_type=order OR payment) AND priority=high AND (region=us-west OR us-east).</>,
     <><b style={{color:meta.color}}>Step 3 — String matching: exact values</b><br/><br/>Filter: {"{'event_type': ['order']}"} → only messages with event_type=order pass. Messages with event_type=payment are dropped (saved to DLQ or lost, depending on SNS config).</>,
-    <><b style={{color:meta.color}}>Step 4 — Numeric and exists conditions</b><br/><br/><span style={{color:"#a3e635"}}>filter_policy = {"{"}<br/>{"    "}'amount': [{"{'numeric': ['>', 100]}"}],  # amount > 100<br/>{"    "}'optional_field': [{"{'exists': True}"}]  # field must be present<br/>{"}"}</span><br/><br/>Powerful matching: numeric comparisons, field existence, array contains. All without writing code.</>,
+    <><b style={{color:meta.color}}>Step 4 — Numeric and exists conditions</b><br/><br/><span style={{color:"#166534"}}>filter_policy = {"{"}<br/>{"    "}'amount': [{"{'numeric': ['>', 100]}"}],  # amount > 100<br/>{"    "}'optional_field': [{"{'exists': True}"}]  # field must be present<br/>{"}"}</span><br/><br/>Powerful matching: numeric comparisons, field existence, array contains. All without writing code.</>,
     <><b style={{color:meta.color}}>Step 5 — Cost savings: unmatched messages never reach queue</b><br/><br/>SNS filter is applied server-side. Messages that don't match the filter policy are not fanned to the queue. No API charges, no storage cost for irrelevant messages. Filter early, filter often!</>,
   ];
   return (
@@ -2409,10 +2409,10 @@ function SQSSecurityLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — IAM: control WHO can access the queue</b><br/><br/><span style={{color:"#a3e635"}}>{"{"}<br/>{"  "}"Effect": "Allow",<br/>{"  "}"Principal": {"{"} "AWS": "arn:aws:iam::123456:user/alice" {"}"},<br/>{"  "}"Action": ["sqs:SendMessage", "sqs:ReceiveMessage"],<br/>{"  "}"Resource": "arn:aws:sqs:us-east-1:123456:orders-queue"<br/>{"}"}</span><br/><br/>Only Alice can send and receive. Bob cannot. Fine-grained permission control.</>,
-    <><b style={{color:meta.color}}>Step 2 — Queue Policy: cross-account or service access</b><br/><br/><span style={{color:"#a3e635"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'Policy': json.dumps({"{"} "Effect": "Allow", "Principal": "arn:aws:iam::OTHER_ACCOUNT:role/service" {"}"})<br/>{"    "}{"}"})</span><br/><br/>Resource-based policy. Allows another AWS account's service to access this queue.</>,
-    <><b style={{color:meta.color}}>Step 3 — KMS: encrypt messages at rest</b><br/><br/><span style={{color:"#a3e635"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'KmsMasterKeyId': 'arn:aws:kms:...:key/...'<br/>{"    "}{"}"})</span><br/><br/>Each message is encrypted with the KMS key before storage. Decrypted on receive. Data safe at rest.</>,
-    <><b style={{color:meta.color}}>Step 4 — VPC Endpoint: private network (no internet)</b><br/><br/><span style={{color:"#a3e635"}}>ec2 = boto3.client('ec2')<br/>ec2.create_vpc_endpoint(<br/>{"    "}VpcEndpointType='Interface',<br/>{"    "}ServiceName='com.amazonaws.us-east-1.sqs')</span><br/><br/>EC2 instances in the VPC communicate with SQS via private endpoint. No internet gateway needed. Data never leaves AWS network.</>,
+    <><b style={{color:meta.color}}>Step 1 — IAM: control WHO can access the queue</b><br/><br/><span style={{color:"#166534"}}>{"{"}<br/>{"  "}"Effect": "Allow",<br/>{"  "}"Principal": {"{"} "AWS": "arn:aws:iam::123456:user/alice" {"}"},<br/>{"  "}"Action": ["sqs:SendMessage", "sqs:ReceiveMessage"],<br/>{"  "}"Resource": "arn:aws:sqs:us-east-1:123456:orders-queue"<br/>{"}"}</span><br/><br/>Only Alice can send and receive. Bob cannot. Fine-grained permission control.</>,
+    <><b style={{color:meta.color}}>Step 2 — Queue Policy: cross-account or service access</b><br/><br/><span style={{color:"#166534"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'Policy': json.dumps({"{"} "Effect": "Allow", "Principal": "arn:aws:iam::OTHER_ACCOUNT:role/service" {"}"})<br/>{"    "}{"}"})</span><br/><br/>Resource-based policy. Allows another AWS account's service to access this queue.</>,
+    <><b style={{color:meta.color}}>Step 3 — KMS: encrypt messages at rest</b><br/><br/><span style={{color:"#166534"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'KmsMasterKeyId': 'arn:aws:kms:...:key/...'<br/>{"    "}{"}"})</span><br/><br/>Each message is encrypted with the KMS key before storage. Decrypted on receive. Data safe at rest.</>,
+    <><b style={{color:meta.color}}>Step 4 — VPC Endpoint: private network (no internet)</b><br/><br/><span style={{color:"#166534"}}>ec2 = boto3.client('ec2')<br/>ec2.create_vpc_endpoint(<br/>{"    "}VpcEndpointType='Interface',<br/>{"    "}ServiceName='com.amazonaws.us-east-1.sqs')</span><br/><br/>EC2 instances in the VPC communicate with SQS via private endpoint. No internet gateway needed. Data never leaves AWS network.</>,
     <><b style={{color:meta.color}}>Step 5 — Layered security: IAM + Queue Policy + KMS + VPC</b><br/><br/>All four together: who accesses (IAM), from where (VPC endpoint), how encrypted (KMS), what permissions (queue policy). Defense in depth!</>,
   ];
   return (
@@ -2424,27 +2424,27 @@ function SQSSecurityLesson({ meta }) {
             <div style={{display:"flex",gap:4,alignItems:"center"}}>
               <div style={{width:16,height:16,borderRadius:4,background:"#ef4444"}}/>
               <span style={{color:"#64748b",fontWeight:600}}>IAM</span>
-              <span style={{color:"#94a3b8",fontSize: 11}}>Who</span>
+              <span style={{color:"#475569",fontSize: 11}}>Who</span>
             </div>
             {stage>=2&&(
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <div style={{width:16,height:16,borderRadius:4,background:"#f97316"}}/>
                 <span style={{color:"#64748b",fontWeight:600}}>Queue Policy</span>
-                <span style={{color:"#94a3b8",fontSize: 11}}>Cross-Account</span>
+                <span style={{color:"#475569",fontSize: 11}}>Cross-Account</span>
               </div>
             )}
             {stage>=3&&(
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <div style={{width:16,height:16,borderRadius:4,background:"#eab308"}}/>
                 <span style={{color:"#64748b",fontWeight:600}}>KMS Encryption</span>
-                <span style={{color:"#94a3b8",fontSize: 11}}>At Rest</span>
+                <span style={{color:"#475569",fontSize: 11}}>At Rest</span>
               </div>
             )}
             {stage>=4&&(
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <div style={{width:16,height:16,borderRadius:4,background:"#06b6d4"}}/>
                 <span style={{color:"#64748b",fontWeight:600}}>VPC Endpoint</span>
-                <span style={{color:"#94a3b8",fontSize: 11}}>Private</span>
+                <span style={{color:"#475569",fontSize: 11}}>Private</span>
               </div>
             )}
           </div>
@@ -2464,11 +2464,11 @@ function SQSProductionLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Architecture: Order API → order-queue.fifo → validators → payment-queue → SNS fan-out → downstream queues + DLQs</b><br/><br/>Strict ordering, exactly-once delivery, multiple stages, independent consumers, comprehensive DLQ monitoring.</>,
-    <><b style={{color:meta.color}}>Step 2 — FIFO queue: strict ordering per customer</b><br/><br/><span style={{color:"#a3e635"}}>sqs.send_message(<br/>{"    "}QueueUrl='order-queue.fifo',<br/>{"    "}MessageGroupId=customer_id,  # Orders for Alice in sequence<br/>{"    "}MessageDeduplicationId=order_id,  # Idempotent<br/>{"    "}MessageBody=json.dumps(order))</span><br/><br/>Orders for customer "alice" always processed in sequence. Dedup ID prevents accidental replays within 5 min.</>,
-    <><b style={{color:meta.color}}>Step 3 — Lambda validator: check order, inventory, update DB</b><br/><br/><span style={{color:"#a3e635"}}>def validate_order(event):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}order = json.loads(record['body'])<br/>{"    "}{"    "}if check_inventory(order):<br/>{"    "}{"    "}{"    "}sqs.send_message(QueueUrl=payment_queue, MessageBody=order)<br/>{"    "}{"    "}else:<br/>{"    "}{"    "}{"    "}sqs.send_message(QueueUrl=dlq, MessageBody=order)</span><br/><br/>Success → payment queue. Failure → DLQ. Clean separation.</>,
-    <><b style={{color:meta.color}}>Step 4 — Payment processing: charge card, emit success</b><br/><br/><span style={{color:"#a3e635"}}>def process_payment(event):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}order = json.loads(record['body'])<br/>{"    "}{"    "}charge_result = stripe.charge(...)<br/>{"    "}{"    "}sns.publish(TopicArn=payment_success_topic, Message=order)</span><br/><br/>Successfully charged orders published to SNS payment_success topic.</>,
+    <><b style={{color:meta.color}}>Step 2 — FIFO queue: strict ordering per customer</b><br/><br/><span style={{color:"#166534"}}>sqs.send_message(<br/>{"    "}QueueUrl='order-queue.fifo',<br/>{"    "}MessageGroupId=customer_id,  # Orders for Alice in sequence<br/>{"    "}MessageDeduplicationId=order_id,  # Idempotent<br/>{"    "}MessageBody=json.dumps(order))</span><br/><br/>Orders for customer "alice" always processed in sequence. Dedup ID prevents accidental replays within 5 min.</>,
+    <><b style={{color:meta.color}}>Step 3 — Lambda validator: check order, inventory, update DB</b><br/><br/><span style={{color:"#166534"}}>def validate_order(event):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}order = json.loads(record['body'])<br/>{"    "}{"    "}if check_inventory(order):<br/>{"    "}{"    "}{"    "}sqs.send_message(QueueUrl=payment_queue, MessageBody=order)<br/>{"    "}{"    "}else:<br/>{"    "}{"    "}{"    "}sqs.send_message(QueueUrl=dlq, MessageBody=order)</span><br/><br/>Success → payment queue. Failure → DLQ. Clean separation.</>,
+    <><b style={{color:meta.color}}>Step 4 — Payment processing: charge card, emit success</b><br/><br/><span style={{color:"#166534"}}>def process_payment(event):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}order = json.loads(record['body'])<br/>{"    "}{"    "}charge_result = stripe.charge(...)<br/>{"    "}{"    "}sns.publish(TopicArn=payment_success_topic, Message=order)</span><br/><br/>Successfully charged orders published to SNS payment_success topic.</>,
     <><b style={{color:meta.color}}>Step 5 — SNS fan-out: email, analytics, inventory (independent)</b><br/><br/>payment_success topic → 3 queues:<br/>• email-queue (send receipt)<br/>• analytics-queue (track metrics)<br/>• inventory-queue (decrement stock)<br/><br/>All work in parallel. One slow consumer doesn't block others.</>,
-    <><b style={{color:meta.color}}>Step 6 — DLQ monitoring: alerts and manual redrive</b><br/><br/><span style={{color:"#a3e635"}}>cloudwatch.put_metric_alarm(<br/>{"    "}AlarmName='dlq-has-messages',<br/>{"    "}MetricName='ApproximateNumberOfMessagesVisible',<br/>{"    "}Threshold=1,<br/>{"    "}AlarmActions=['arn:aws:sns:...pagerduty'])</span><br/><br/>DLQ messages trigger PagerDuty. Ops investigates, fixes, redrives.</>,
+    <><b style={{color:meta.color}}>Step 6 — DLQ monitoring: alerts and manual redrive</b><br/><br/><span style={{color:"#166534"}}>cloudwatch.put_metric_alarm(<br/>{"    "}AlarmName='dlq-has-messages',<br/>{"    "}MetricName='ApproximateNumberOfMessagesVisible',<br/>{"    "}Threshold=1,<br/>{"    "}AlarmActions=['arn:aws:sns:...pagerduty'])</span><br/><br/>DLQ messages trigger PagerDuty. Ops investigates, fixes, redrives.</>,
     <><b style={{color:meta.color}}>Step 7 — Cost optimization: batching, long polling, SQS Extended Client</b><br/><br/>• Long polling (WaitTimeSeconds=20) reduces API calls<br/>• Batch operations (10 per call) saves cost<br/>• SQS Extended Client for large payloads (>256KB): store in S3, reference in SQS<br/>• This production system is resilient, scalable, and cost-effective!</>,
   ];
   return (
@@ -2533,11 +2533,11 @@ function SQSStandardLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const RECEIPT = "AQEBwJnKyrHigUMZj6reyNurGb6...";
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Create the queue (fully managed — no server!)</b><br/><br/><span style={{color:"#a3e635"}}>import boto3<br/>sqs = boto3.client('sqs', region_name='us-east-1')<br/><br/>response = sqs.create_queue(QueueName='order-queue')<br/>queue_url = response['QueueUrl']</span><br/><br/>Unlike RabbitMQ/Kafka, <b>there is no broker to run</b>. AWS manages everything. You just call the API.</>,
-    <><b style={{color:meta.color}}>Step 2 — Send a message</b><br/><br/><span style={{color:"#a3e635"}}>sqs.send_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}MessageBody='Process order #1234',<br/>{"    "}MessageAttributes={"{'OrderId': {'StringValue':'1234','DataType':'String'}}"}</span><br/><br/>Message is stored in SQS and available for consumers to receive.</>,
-    <><b style={{color:meta.color}}>Step 3 — Consumer RECEIVES (message becomes invisible)</b><br/><br/><span style={{color:"#a3e635"}}>response = sqs.receive_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}WaitTimeSeconds=20,<br/>{"    "}VisibilityTimeout=30)<br/><br/>receipt = response['Messages'][0]['ReceiptHandle']</span><br/><br/>⚠️ Message is now <b>invisible to all other consumers</b> for 30 seconds. It's NOT deleted yet!</>,
+    <><b style={{color:meta.color}}>Step 1 — Create the queue (fully managed — no server!)</b><br/><br/><span style={{color:"#166534"}}>import boto3<br/>sqs = boto3.client('sqs', region_name='us-east-1')<br/><br/>response = sqs.create_queue(QueueName='order-queue')<br/>queue_url = response['QueueUrl']</span><br/><br/>Unlike RabbitMQ/Kafka, <b>there is no broker to run</b>. AWS manages everything. You just call the API.</>,
+    <><b style={{color:meta.color}}>Step 2 — Send a message</b><br/><br/><span style={{color:"#166534"}}>sqs.send_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}MessageBody='Process order #1234',<br/>{"    "}MessageAttributes={"{'OrderId': {'StringValue':'1234','DataType':'String'}}"}</span><br/><br/>Message is stored in SQS and available for consumers to receive.</>,
+    <><b style={{color:meta.color}}>Step 3 — Consumer RECEIVES (message becomes invisible)</b><br/><br/><span style={{color:"#166534"}}>response = sqs.receive_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}WaitTimeSeconds=20,<br/>{"    "}VisibilityTimeout=30)<br/><br/>receipt = response['Messages'][0]['ReceiptHandle']</span><br/><br/>⚠️ Message is now <b>invisible to all other consumers</b> for 30 seconds. It's NOT deleted yet!</>,
     <><b style={{color:meta.color}}>Step 4 — Consumer processes the order</b><br/><br/>The consumer has up to 30 seconds (VisibilityTimeout) to process.<br/><br/>The ReceiptHandle: <b>'{RECEIPT.slice(0,30)}…'</b><br/><br/>This token proves you received the message and is required for deletion. Save it!</>,
-    <><b style={{color:meta.color}}>Step 5 — Consumer DELETES the message</b><br/><br/><span style={{color:"#a3e635"}}>sqs.delete_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}ReceiptHandle=receipt)</span><br/><br/>✅ Message permanently removed.<br/><br/>💡 If NOT deleted within 30s, the message <b>reappears</b> in the queue and another consumer can pick it up. This is SQS's crash-safety mechanism!</>,
+    <><b style={{color:meta.color}}>Step 5 — Consumer DELETES the message</b><br/><br/><span style={{color:"#166534"}}>sqs.delete_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}ReceiptHandle=receipt)</span><br/><br/>✅ Message permanently removed.<br/><br/>💡 If NOT deleted within 30s, the message <b>reappears</b> in the queue and another consumer can pick it up. This is SQS's crash-safety mechanism!</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -2577,11 +2577,11 @@ function SQSFIFOLesson({ meta }) {
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const MSGS = ["Order #1 (group: user-A)","Order #2 (group: user-A)","Order #3 (group: user-B)"];
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Create a FIFO queue</b><br/><br/><span style={{color:"#a3e635"}}>sqs.create_queue(<br/>{"    "}QueueName='orders.fifo',<br/>{"    "}Attributes={"{'FifoQueue':'true',\n'ContentBasedDeduplication':'true'}"})</span><br/><br/>Queue name <b>must end in .fifo</b>. FIFO queues guarantee strict ordering and exactly-once processing.</>,
-    <><b style={{color:meta.color}}>Step 2 — Send with MessageGroupId and DeduplicationId</b><br/><br/><span style={{color:"#a3e635"}}>sqs.send_message(<br/>{"    "}QueueUrl=fifo_url,<br/>{"    "}MessageBody='Order #1',<br/>{"    "}MessageGroupId='user-A',<br/>{"    "}MessageDeduplicationId='order-1-uuid')</span><br/><br/>MessageGroupId: messages in the same group are delivered in strict FIFO order.<br/>MessageDeduplicationId: duplicate sends within 5 minutes are silently dropped.</>,
+    <><b style={{color:meta.color}}>Step 1 — Create a FIFO queue</b><br/><br/><span style={{color:"#166534"}}>sqs.create_queue(<br/>{"    "}QueueName='orders.fifo',<br/>{"    "}Attributes={"{'FifoQueue':'true',\n'ContentBasedDeduplication':'true'}"})</span><br/><br/>Queue name <b>must end in .fifo</b>. FIFO queues guarantee strict ordering and exactly-once processing.</>,
+    <><b style={{color:meta.color}}>Step 2 — Send with MessageGroupId and DeduplicationId</b><br/><br/><span style={{color:"#166534"}}>sqs.send_message(<br/>{"    "}QueueUrl=fifo_url,<br/>{"    "}MessageBody='Order #1',<br/>{"    "}MessageGroupId='user-A',<br/>{"    "}MessageDeduplicationId='order-1-uuid')</span><br/><br/>MessageGroupId: messages in the same group are delivered in strict FIFO order.<br/>MessageDeduplicationId: duplicate sends within 5 minutes are silently dropped.</>,
     <><b style={{color:meta.color}}>Step 3 — Messages delivered in strict order within each group</b><br/><br/>Within group 'user-A': Order #1 is delivered before Order #2. Always.<br/>Group 'user-B' is processed in parallel independently.<br/><br/>✅ Order #1 → ✅ Order #2 → ✅ Order #3<br/><br/>No message can skip ahead within its group.</>,
     <><b style={{color:meta.color}}>Step 4 — Message fails 3 times (maxReceiveCount)</b><br/><br/>A message that can't be processed is received, visibility timeout expires, and reappears — repeatedly.<br/><br/>After <b>maxReceiveCount=3</b> failures, SQS automatically moves it to the <b>Dead Letter Queue (DLQ)</b> for investigation.<br/><br/>The main queue stays clean and unblocked.</>,
-    <><b style={{color:meta.color}}>Step 5 — DLQ holds failed messages for debugging</b><br/><br/><span style={{color:"#a3e635"}}>dlq_url = sqs.create_queue(<br/>{"    "}QueueName='orders-dlq.fifo',<br/>{"    "}Attributes={"{'FifoQueue':'true'}"})['QueueUrl']<br/><br/># Set redrive policy on main queue:<br/>sqs.set_queue_attributes(Attributes={"{'RedrivePolicy':json.dumps({'maxReceiveCount':3,'deadLetterTargetArn':dlq_arn})}"})</span><br/><br/>✅ Alert on DLQ depth → investigate why messages are failing.</>,
+    <><b style={{color:meta.color}}>Step 5 — DLQ holds failed messages for debugging</b><br/><br/><span style={{color:"#166534"}}>dlq_url = sqs.create_queue(<br/>{"    "}QueueName='orders-dlq.fifo',<br/>{"    "}Attributes={"{'FifoQueue':'true'}"})['QueueUrl']<br/><br/># Set redrive policy on main queue:<br/>sqs.set_queue_attributes(Attributes={"{'RedrivePolicy':json.dumps({'maxReceiveCount':3,'deadLetterTargetArn':dlq_arn})}"})</span><br/><br/>✅ Alert on DLQ depth → investigate why messages are failing.</>,
   ];
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -2636,10 +2636,10 @@ function KafkaOffsetsLesson({ meta }) {
   const consumerAt  = stage >= 2 ? Math.min(stage + 1, MSGS) : stage >= 1 ? 1 : 0;
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Partition 0 has 8 messages (offsets 0–7)</b><br/><br/>Each message in a partition has a unique, ever-increasing <b>offset</b>. Offset 0 is the first, offset 7 the latest. The consumer hasn't started yet — no progress is recorded.</>,
-    <><b style={{color:meta.color}}>Step 2 — Consumer reads offset 0</b><br/><br/><span style={{color:"#a3e635"}}>msg = consumer.poll(timeout=1.0)<br/># msg.offset() == 0</span><br/><br/>The consumer fetches offset 0. It has NOT committed yet — if it crashes now, it will re-read from offset 0.</>,
-    <><b style={{color:meta.color}}>Step 3 — Manual commit after processing</b><br/><br/><span style={{color:"#a3e635"}}># Process the message…<br/>consumer.commit(asynchronous=False)<br/># Committed offset = 1 (next to read)</span><br/><br/>✅ Committed offset advances to <b>1</b>. On restart, Kafka delivers from offset 1 — no re-processing.</>,
+    <><b style={{color:meta.color}}>Step 2 — Consumer reads offset 0</b><br/><br/><span style={{color:"#166534"}}>msg = consumer.poll(timeout=1.0)<br/># msg.offset() == 0</span><br/><br/>The consumer fetches offset 0. It has NOT committed yet — if it crashes now, it will re-read from offset 0.</>,
+    <><b style={{color:meta.color}}>Step 3 — Manual commit after processing</b><br/><br/><span style={{color:"#166534"}}># Process the message…<br/>consumer.commit(asynchronous=False)<br/># Committed offset = 1 (next to read)</span><br/><br/>✅ Committed offset advances to <b>1</b>. On restart, Kafka delivers from offset 1 — no re-processing.</>,
     <><b style={{color:meta.color}}>Step 4 — Consumer crashes at offset 4</b><br/><br/>Consumer read offsets 1–4 but crashed before committing offset 4.<br/><br/>On restart, Kafka delivers from offset <b>3</b> (last committed = 3). Offset 3 and 4 are re-processed. This is <b>at-least-once</b> delivery.</>,
-    <><b style={{color:meta.color}}>Step 5 — Seek to beginning (replay)</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka import TopicPartition<br/>consumer.seek(TopicPartition('orders', 0, 0))<br/># Consumer jumps back to offset 0!</span><br/><br/>🔁 Useful after a bug fix to re-process all historical messages. Works on any offset, not just 0.</>,
+    <><b style={{color:meta.color}}>Step 5 — Seek to beginning (replay)</b><br/><br/><span style={{color:"#166534"}}>from confluent_kafka import TopicPartition<br/>consumer.seek(TopicPartition('orders', 0, 0))<br/># Consumer jumps back to offset 0!</span><br/><br/>🔁 Useful after a bug fix to re-process all historical messages. Works on any offset, not just 0.</>,
   ];
 
   const PART_C = meta.color;
@@ -2657,7 +2657,7 @@ function KafkaOffsetsLesson({ meta }) {
             return (
               <div key={i} style={{
                 flex:1,minWidth:28,borderRadius:6,padding:"6px 2px",textAlign:"center",transition:"all 0.3s",
-                background: isReplay ? PART_C+"30" : isCommitted ? PART_C+"20" : isConsumed ? "rgba(148,163,184,0.60)" : "#0f172a",
+                background: isReplay ? PART_C+"30" : isCommitted ? PART_C+"20" : isConsumed ? "rgba(148,163,184,0.60)" : "#f1f5f9",
                 border:`1px solid ${isReplay ? PART_C : isCommitted ? PART_C+"80" : isConsumed ? "#64748b" : "rgba(148,163,184,0.60)"}`,
               }}>
                 <div style={{fontSize: 11,fontFamily:"monospace",color:isCommitted||isReplay?PART_C:"#475569"}}>off</div>
@@ -2699,10 +2699,10 @@ function KafkaReplicationLesson({ meta }) {
   ];
   const broker0Failed = stage >= 5;
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Topic created with replication_factor=3</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka.admin import NewTopic<br/>NewTopic('orders', num_partitions=3,<br/>{"         "}replication_factor=3)</span><br/><br/>Kafka assigns Partition 0 to Broker 0 (leader) and replicates it to Brokers 1 and 2 (followers). All writes go to the leader only.</>,
+    <><b style={{color:meta.color}}>Step 1 — Topic created with replication_factor=3</b><br/><br/><span style={{color:"#166534"}}>from confluent_kafka.admin import NewTopic<br/>NewTopic('orders', num_partitions=3,<br/>{"         "}replication_factor=3)</span><br/><br/>Kafka assigns Partition 0 to Broker 0 (leader) and replicates it to Brokers 1 and 2 (followers). All writes go to the leader only.</>,
     <><b style={{color:meta.color}}>Step 2 — Followers sync from the leader</b><br/><br/>After each write to the leader, followers pull new messages and catch up. A follower that is caught up is called <b>In-Sync</b> (part of the ISR).<br/><br/>ISR (In-Sync Replicas) = the set of replicas that are eligible to become the new leader.</>,
-    <><b style={{color:meta.color}}>Step 3 — Producer sends with acks=1 (leader-only)</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'acks': '1'}"})</span><br/><br/>Leader acknowledges the write immediately. Followers may not have the message yet.<br/><br/>⚠️ If Broker 0 crashes RIGHT NOW, the message is lost — followers haven't synced it yet.</>,
-    <><b style={{color:meta.color}}>Step 4 — Producer sends with acks=all (safest)</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'acks': 'all', 'min.insync.replicas': '2'}"})</span><br/><br/>Leader waits until ALL ISR replicas confirm they have the message.<br/><br/>✅ Even if Broker 0 dies now, Brokers 1 or 2 have the message. Zero data loss.</>,
+    <><b style={{color:meta.color}}>Step 3 — Producer sends with acks=1 (leader-only)</b><br/><br/><span style={{color:"#166534"}}>Producer({"{'acks': '1'}"})</span><br/><br/>Leader acknowledges the write immediately. Followers may not have the message yet.<br/><br/>⚠️ If Broker 0 crashes RIGHT NOW, the message is lost — followers haven't synced it yet.</>,
+    <><b style={{color:meta.color}}>Step 4 — Producer sends with acks=all (safest)</b><br/><br/><span style={{color:"#166534"}}>Producer({"{'acks': 'all', 'min.insync.replicas': '2'}"})</span><br/><br/>Leader waits until ALL ISR replicas confirm they have the message.<br/><br/>✅ Even if Broker 0 dies now, Brokers 1 or 2 have the message. Zero data loss.</>,
     <><b style={{color:meta.color}}>Step 5 — Broker 0 (leader) crashes → automatic failover</b><br/><br/>Kafka's controller detects Broker 0 is gone. Within seconds, it elects a new leader from the ISR (Broker 1 or 2).<br/><br/>✅ With acks=all, NO messages were lost. Producers automatically reconnect to the new leader. <b>Clients see no data loss.</b></>,
   ];
 
@@ -2766,10 +2766,10 @@ function KafkaTransactionsLesson({ meta }) {
   const aborted = false; // committed path demo
   const NARR = [null,
     <><b style={{color:meta.color}}>Step 1 — Default: at-least-once (duplicates possible)</b><br/><br/>Network glitch → producer retries → broker gets the message twice.<br/><br/>With no idempotence, BOTH copies are stored. Downstream systems may charge a customer twice, or ship twice.</>,
-    <><b style={{color:meta.color}}>Step 2 — Idempotent producer deduplicates retries</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'enable.idempotence': True}"})</span><br/><br/>Each message carries <b>PID</b> (producer ID) + monotonic <b>sequence number</b>. The broker sees a duplicate PID+seq and silently drops it.<br/><br/>✅ Exactly-once delivery to a SINGLE partition.</>,
-    <><b style={{color:meta.color}}>Step 3 — Transactional producer: begin_transaction()</b><br/><br/><span style={{color:"#a3e635"}}>p = Producer({"{'transactional.id': 'order-producer-1'}"})<br/>p.init_transactions()<br/>p.begin_transaction()</span><br/><br/>The producer tells the broker: "Everything I send next is part of one atomic unit." Messages are written but marked as <b>PENDING</b>.</>,
-    <><b style={{color:meta.color}}>Step 4 — Write to two topics atomically</b><br/><br/><span style={{color:"#a3e635"}}>p.produce('orders', ...)<br/>p.produce('audit_log', ...)<br/># Both PENDING — consumers can't see them yet</span><br/><br/>A <code>read_committed</code> consumer sees neither message until the transaction is committed.</>,
-    <><b style={{color:meta.color}}>Step 5 — commit_transaction() → both visible atomically</b><br/><br/><span style={{color:"#a3e635"}}>p.commit_transaction()<br/># OR: p.abort_transaction() to roll back</span><br/><br/>✅ Both messages appear SIMULTANEOUSLY to read_committed consumers. Either both are visible, or neither — never a partial view. This is <b>exactly-once across multiple topics</b>.</>,
+    <><b style={{color:meta.color}}>Step 2 — Idempotent producer deduplicates retries</b><br/><br/><span style={{color:"#166534"}}>Producer({"{'enable.idempotence': True}"})</span><br/><br/>Each message carries <b>PID</b> (producer ID) + monotonic <b>sequence number</b>. The broker sees a duplicate PID+seq and silently drops it.<br/><br/>✅ Exactly-once delivery to a SINGLE partition.</>,
+    <><b style={{color:meta.color}}>Step 3 — Transactional producer: begin_transaction()</b><br/><br/><span style={{color:"#166534"}}>p = Producer({"{'transactional.id': 'order-producer-1'}"})<br/>p.init_transactions()<br/>p.begin_transaction()</span><br/><br/>The producer tells the broker: "Everything I send next is part of one atomic unit." Messages are written but marked as <b>PENDING</b>.</>,
+    <><b style={{color:meta.color}}>Step 4 — Write to two topics atomically</b><br/><br/><span style={{color:"#166534"}}>p.produce('orders', ...)<br/>p.produce('audit_log', ...)<br/># Both PENDING — consumers can't see them yet</span><br/><br/>A <code>read_committed</code> consumer sees neither message until the transaction is committed.</>,
+    <><b style={{color:meta.color}}>Step 5 — commit_transaction() → both visible atomically</b><br/><br/><span style={{color:"#166534"}}>p.commit_transaction()<br/># OR: p.abort_transaction() to roll back</span><br/><br/>✅ Both messages appear SIMULTANEOUSLY to read_committed consumers. Either both are visible, or neither — never a partial view. This is <b>exactly-once across multiple topics</b>.</>,
   ];
 
   const txColors = { pending:"#f59e0b", committed:"#22c55e", idle:"rgba(148,163,184,0.60)" };
@@ -2783,7 +2783,7 @@ function KafkaTransactionsLesson({ meta }) {
         {stage>=2&&(
           <div style={{marginBottom:12,padding:"10px 14px",borderRadius:8,background:"rgba(34, 197, 94, 0.1)",border:"1px solid rgba(34, 197, 94, 0.3)",display:"flex",gap:8,alignItems:"center"}}>
             <span style={{fontSize: 18}}>🔑</span>
-            <span style={{fontSize: 14,fontFamily:"system-ui, -apple-system, sans-serif",color:"#4ade80",fontWeight:500}}>Idempotent Producer — PID: 42 | Seq: {stage >= 3 ? "2,3" : "1"} | duplicates auto-dropped</span>
+            <span style={{fontSize: 14,fontFamily:"system-ui, -apple-system, sans-serif",color:"#15803d",fontWeight:500}}>Idempotent Producer — PID: 42 | Seq: {stage >= 3 ? "2,3" : "1"} | duplicates auto-dropped</span>
           </div>
         )}
         {/* Transaction state */}
@@ -2828,10 +2828,10 @@ function KafkaCompactionLesson({ meta }) {
   const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
   const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
   const NARR = [null,
-    <><b style={{color:meta.color}}>Step 1 — Create a compacted topic</b><br/><br/><span style={{color:"#a3e635"}}>NewTopic('user_profiles',<br/>{"  "}config={"{'cleanup.policy': 'compact'}"})</span><br/><br/>Unlike normal topics (delete policy), compacted topics keep the <b>latest value per key forever</b>. Old superseded values are cleaned up in the background.</>,
-    <><b style={{color:meta.color}}>Step 2 — Producer writes initial values</b><br/><br/><span style={{color:"#a3e635"}}>producer.produce('user_profiles', key='user-1', value='Alice v1')<br/>producer.produce('user_profiles', key='user-2', value='Bob')</span><br/><br/>At this point: user-1 → Alice v1, user-2 → Bob. Both are in the log with different keys.</>,
-    <><b style={{color:meta.color}}>Step 3 — Update user-1 (same key, new value)</b><br/><br/><span style={{color:"#a3e635"}}>producer.produce('user_profiles', key='user-1', value='Alice v3')</span><br/><br/>The log now has TWO messages for 'user-1'. Before compaction: both old and new exist. After compaction: only 'Alice v3' remains.</>,
-    <><b style={{color:meta.color}}>Step 4 — Tombstone: delete user-3</b><br/><br/><span style={{color:"#a3e635"}}>producer.produce('user_profiles', key='user-3', value=None)</span><br/><br/>Producing <code>value=None</code> is a <b>tombstone</b>. It tells Kafka: "delete this key during compaction." After compaction runs, user-3 disappears completely.</>,
+    <><b style={{color:meta.color}}>Step 1 — Create a compacted topic</b><br/><br/><span style={{color:"#166534"}}>NewTopic('user_profiles',<br/>{"  "}config={"{'cleanup.policy': 'compact'}"})</span><br/><br/>Unlike normal topics (delete policy), compacted topics keep the <b>latest value per key forever</b>. Old superseded values are cleaned up in the background.</>,
+    <><b style={{color:meta.color}}>Step 2 — Producer writes initial values</b><br/><br/><span style={{color:"#166534"}}>producer.produce('user_profiles', key='user-1', value='Alice v1')<br/>producer.produce('user_profiles', key='user-2', value='Bob')</span><br/><br/>At this point: user-1 → Alice v1, user-2 → Bob. Both are in the log with different keys.</>,
+    <><b style={{color:meta.color}}>Step 3 — Update user-1 (same key, new value)</b><br/><br/><span style={{color:"#166534"}}>producer.produce('user_profiles', key='user-1', value='Alice v3')</span><br/><br/>The log now has TWO messages for 'user-1'. Before compaction: both old and new exist. After compaction: only 'Alice v3' remains.</>,
+    <><b style={{color:meta.color}}>Step 4 — Tombstone: delete user-3</b><br/><br/><span style={{color:"#166534"}}>producer.produce('user_profiles', key='user-3', value=None)</span><br/><br/>Producing <code>value=None</code> is a <b>tombstone</b>. It tells Kafka: "delete this key during compaction." After compaction runs, user-3 disappears completely.</>,
     <><b style={{color:meta.color}}>Step 5 — Compaction runs → only latest values remain</b><br/><br/>Kafka's log cleaner background thread scans and removes older messages for the same key.<br/><br/>Compacted log result:<br/>• user-1 → <b>Alice v3</b> (v1 deleted)<br/>• user-2 → <b>Bob</b> (unchanged)<br/>• user-3 → <b>deleted</b> (tombstone removed)<br/><br/>✅ Reads from offset 0 now give the <b>current state</b> — like a KV store.</>,
   ];
 
@@ -2904,7 +2904,7 @@ function IstioArchLesson({ meta }) {
     "Full mesh: Envoy enforces policies, collects metrics, and generates traces — all without a single line of application code change.",
   ];
   const box = (label, sub, color, active) => (
-    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? color : color + "40"}`, background: active ? color + "20" : "#0f172a", transition: "all 0.35s", minWidth: 90, textAlign: "center" }}>
+    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? color : color + "40"}`, background: active ? color + "20" : "#f1f5f9", transition: "all 0.35s", minWidth: 90, textAlign: "center" }}>
       <div style={{ fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: active ? color : color + "80" }}>{label}</div>
       {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>{sub}</div>}
     </div>
@@ -2914,7 +2914,7 @@ function IstioArchLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {/* Istiod control plane */}
       <div style={{ textAlign: "center", padding: "8px 0" }}>
-        <div style={{ display: "inline-block", borderRadius: 10, padding: "6px 20px", border: `2px solid ${istiodActive ? "#0ea5e9" : "rgba(148,163,184,0.60)"}`, background: istiodActive ? "#0ea5e920" : "#0f172a", transition: "all 0.4s" }}>
+        <div style={{ display: "inline-block", borderRadius: 10, padding: "6px 20px", border: `2px solid ${istiodActive ? "#0ea5e9" : "rgba(148,163,184,0.60)"}`, background: istiodActive ? "#0ea5e920" : "#f1f5f9", transition: "all 0.4s" }}>
           <div style={{ fontSize: 14, fontWeight: "bold", fontFamily: "monospace", color: istiodActive ? "#0ea5e9" : "#64748b" }}>🧠 Istiod (Control Plane)</div>
           <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>Pilot · Citadel · Galley</div>
         </div>
@@ -2988,7 +2988,7 @@ function IstioRoutingLesson({ meta }) {
             <div style={{ fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: "#8b5cf6", marginBottom: 6 }}>🎯 DestinationRule: myapp</div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               {["v1", "v2"].map(v => (
-                <div key={v} style={{ borderRadius: 8, padding: "5px 16px", border: `1px solid ${activeSubset === v ? "#22c55e" : "#64748b"}`, background: activeSubset === v ? "#22c55e20" : "#0f172a", transition: "all 0.35s", textAlign: "center" }}>
+                <div key={v} style={{ borderRadius: 8, padding: "5px 16px", border: `1px solid ${activeSubset === v ? "#22c55e" : "#64748b"}`, background: activeSubset === v ? "#22c55e20" : "#f1f5f9", transition: "all 0.35s", textAlign: "center" }}>
                   <div style={{ fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: activeSubset === v ? "#22c55e" : "#64748b" }}>subset: {v}</div>
                   <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b" }}>version={v}</div>
                 </div>
@@ -3084,7 +3084,7 @@ function IstioFaultLesson({ meta }) {
         </div>
         {faultType !== "abort" && <div style={{ fontSize: 18, color: "#64748b" }}>→</div>}
         {faultType !== "abort" && (
-          <div style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #22c55e55", background: "#f0fdf4", fontSize: 13, fontFamily: "monospace", color: "#86efac", textAlign: "center" }}>
+          <div style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #22c55e55", background: "#f0fdf4", fontSize: 13, fontFamily: "monospace", color: "#15803d", textAlign: "center" }}>
             📦 Service
           </div>
         )}
@@ -3179,7 +3179,7 @@ function IstioGatewayLesson({ meta }) {
   ];
   const step = (label, sub, active, icon) => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 90 }}>
-      <div style={{ padding: "7px 12px", borderRadius: 8, border: `2px solid ${active ? "#8b5cf6" : "rgba(148,163,184,0.60)"}`, background: active ? "#8b5cf620" : "#0f172a", textAlign: "center", transition: "all 0.4s", width: "100%" }}>
+      <div style={{ padding: "7px 12px", borderRadius: 8, border: `2px solid ${active ? "#8b5cf6" : "rgba(148,163,184,0.60)"}`, background: active ? "#8b5cf620" : "#f1f5f9", textAlign: "center", transition: "all 0.4s", width: "100%" }}>
         <div style={{ fontSize: 18 }}>{icon}</div>
         <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: active ? "#8b5cf6" : "#64748b", marginTop: 2 }}>{label}</div>
         {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", marginTop: 1 }}>{sub}</div>}
@@ -3339,7 +3339,7 @@ function IstioObserveLesson({ meta }) {
     "Step 5 — Alerting: Prometheus alert rules fire on high error rate (>5%) or p99 latency (>1s). PagerDuty/Slack notifications via Alertmanager. Zero app code changes.",
   ];
   const tool = (icon, label, sub, active, color) => (
-    <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${active ? color : "rgba(148,163,184,0.60)"}`, background: active ? color + "15" : "#0f172a", textAlign: "center", minWidth: 90, transition: "all 0.4s" }}>
+    <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${active ? color : "rgba(148,163,184,0.60)"}`, background: active ? color + "15" : "#f1f5f9", textAlign: "center", minWidth: 90, transition: "all 0.4s" }}>
       <div style={{ fontSize: 20 }}>{icon}</div>
       <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: active ? color : "#64748b" }}>{label}</div>
       {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", marginTop: 1 }}>{sub}</div>}
@@ -3415,7 +3415,7 @@ function IstioInstallLesson({ meta }) {
               const active = activeProfile === p.name;
               const highlight = stage >= 2;
               return (
-                <tr key={p.name} style={{ borderBottom: "1px solid #0f172a", background: active ? meta.color + "15" : "transparent", transition: "all 0.3s" }}>
+                <tr key={p.name} style={{ borderBottom: "1px solid #e2e8f0", background: active ? meta.color + "15" : "transparent", transition: "all 0.3s" }}>
                   <td style={{ padding: "7px 8px", fontWeight: "bold", color: active ? meta.color : "#64748b" }}>{p.name}</td>
                   <td style={{ padding: "7px 8px", color: p.cp ? "#22c55e" : "#94a3b8" }}>{p.cp ? "✅" : "—"}</td>
                   <td style={{ padding: "7px 8px", color: p.ig ? "#22c55e" : "#94a3b8" }}>{p.ig ? "✅" : "—"}</td>
@@ -3429,7 +3429,7 @@ function IstioInstallLesson({ meta }) {
         </table>
       </div>
       {stage >= 4 && (
-        <div style={{ borderRadius: 8, padding: "8px 12px", border: "1px solid #38bdf840", background: "#38bdf810", fontSize: 12, fontFamily: "monospace", color: "#38bdf8" }}>
+        <div style={{ borderRadius: 8, padding: "8px 12px", border: "1px solid #38bdf840", background: "#38bdf810", fontSize: 12, fontFamily: "monospace", color: "#0284c7" }}>
           IstioOperator: set components.pilot.k8s.resources.requests.memory=256Mi · replicaCount=2 · meshConfig.accessLogFile=/dev/stdout
         </div>
       )}
@@ -3457,10 +3457,10 @@ function IstioServiceEntryLesson({ meta }) {
     "Step 5 — TLS origination: DestinationRule mode=SIMPLE on api.payment.com. App calls plain HTTP :80; Envoy upgrades to HTTPS :443 automatically. The app never needs TLS code.",
   ];
   const extService = (label, registered, blocked) => (
-    <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${registered ? "#34d399" : blocked ? "#ef4444" : "#94a3b8"}`, background: registered ? "#34d39915" : blocked ? "#ef444415" : "#0f172a", transition: "all 0.35s", textAlign: "center", minWidth: 140 }}>
+    <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${registered ? "#34d399" : blocked ? "#ef4444" : "#94a3b8"}`, background: registered ? "#34d39915" : blocked ? "#ef444415" : "#f1f5f9", transition: "all 0.35s", textAlign: "center", minWidth: 140 }}>
       <div style={{ fontSize: 14 }}>{registered ? "🌐" : blocked ? "🚫" : "🌐"}</div>
       <div style={{ fontSize: 12, fontFamily: "monospace", color: registered ? "#34d399" : blocked ? "#ef4444" : "#64748b", fontWeight: "bold" }}>{label}</div>
-      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginTop: 2 }}>{registered ? "✅ ServiceEntry" : blocked ? "BLOCKED" : "external"}</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#475569", marginTop: 2 }}>{registered ? "✅ ServiceEntry" : blocked ? "BLOCKED" : "external"}</div>
       {tlsOrig && registered && <div style={{ fontSize: 11, color: "#06b6d4", marginTop: 2 }}>🔐 TLS origination</div>}
     </div>
   );
@@ -3475,7 +3475,7 @@ function IstioServiceEntryLesson({ meta }) {
         <div style={{ fontSize: 16, color: "#64748b" }}>→</div>
         <div style={{ borderRadius: 8, padding: "6px 10px", border: "1px solid #0ea5e940", background: "#f0faff", textAlign: "center" }}>
           <div style={{ fontSize: 12, fontFamily: "monospace", color: "#0ea5e9" }}>🔷 Envoy</div>
-          <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8" }}>{stage >= 2 ? "REGISTRY_ONLY" : "ALLOW_ANY"}</div>
+          <div style={{ fontSize: 11, fontFamily: "monospace", color: "#475569" }}>{stage >= 2 ? "REGISTRY_ONLY" : "ALLOW_ANY"}</div>
         </div>
         <div style={{ fontSize: 16, color: "#64748b" }}>→</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -3507,10 +3507,10 @@ function IstioEgressLesson({ meta }) {
     "Step 5 — TLS origination at the gateway: DestinationRule on the egress gateway handles HTTPS toward the external service. Internal traffic to the gateway uses mTLS (ISTIO_MUTUAL).",
   ];
   const node = (icon, label, sub, active) => (
-    <div style={{ borderRadius: 10, padding: "8px 12px", border: `2px solid ${active ? "#fb7185" : "#94a3b8"}`, background: active ? "#fb718515" : "#0f172a", textAlign: "center", minWidth: 80, transition: "all 0.35s" }}>
+    <div style={{ borderRadius: 10, padding: "8px 12px", border: `2px solid ${active ? "#fb7185" : "#94a3b8"}`, background: active ? "#fb718515" : "#f1f5f9", textAlign: "center", minWidth: 80, transition: "all 0.35s" }}>
       <div style={{ fontSize: 18 }}>{icon}</div>
       <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: active ? "#fb7185" : "#64748b" }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginTop: 2 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#475569", marginTop: 2 }}>{sub}</div>}
     </div>
   );
   return (
@@ -3522,7 +3522,7 @@ function IstioEgressLesson({ meta }) {
         {gwActive
           ? node("🚪", "Egress GW", tlsOrig ? "TLS orig" : "istio-system", true)
           : <div style={{ borderRadius: 10, padding: "8px 12px", border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center", minWidth: 80 }}>
-              <div style={{ fontSize: 12, fontFamily: "monospace", color: "#94a3b8" }}>no gateway</div>
+              <div style={{ fontSize: 12, fontFamily: "monospace", color: "#475569" }}>no gateway</div>
             </div>
         }
         <div style={{ fontSize: 13, color: "#64748b" }}>→</div>
@@ -3644,7 +3644,7 @@ backend.istio-demo.svc.cluster.local:9090  OK        mTLS          mTLS
           <div style={{ padding: "7px 12px", background: active.color + "18", borderBottom: `1px solid ${active.color}30`, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, fontFamily: "monospace", fontWeight: "bold", color: active.color }}>{active.title}</span>
           </div>
-          <div style={{ padding: "8px 12px", fontFamily: "monospace", fontSize: 12, color: "#4ade80", background: "#f8fafc" }}>
+          <div style={{ padding: "8px 12px", fontFamily: "monospace", fontSize: 12, color: "#15803d", background: "#f8fafc" }}>
             <div style={{ color: "#64748b", marginBottom: 4 }}>$ {active.cmd}</div>
             <pre style={{ margin: 0, whiteSpace: "pre-wrap", color: "#64748b", lineHeight: 1.6 }}>{active.output}</pre>
           </div>
@@ -3739,7 +3739,7 @@ function IstioSidecarResourceLesson({ meta }) {
           })}
         </div>
         {scoped && (
-          <div style={{ marginTop: 8, fontSize: 12, fontFamily: "monospace", color: "#4ade80", textAlign: "center" }}>
+          <div style={{ marginTop: 8, fontSize: 12, fontFamily: "monospace", color: "#15803d", textAlign: "center" }}>
             8 services dropped · memory: ~200 MB → ~50 MB
           </div>
         )}
@@ -3779,7 +3779,7 @@ function IstioLbLesson({ meta }) {
         {ALGOS.map((algo, i) => {
           const isActive = i === (stage === 0 ? 0 : stage - 1);
           return (
-            <div key={algo.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderRadius: 8, border: `1px solid ${isActive ? algo.color : "#94a3b8"}`, background: isActive ? algo.color + "15" : "#0f172a", transition: "all 0.35s" }}>
+            <div key={algo.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderRadius: 8, border: `1px solid ${isActive ? algo.color : "#94a3b8"}`, background: isActive ? algo.color + "15" : "#f1f5f9", transition: "all 0.35s" }}>
               <span style={{ fontSize: 12, fontFamily: "monospace", fontWeight: "bold", color: isActive ? algo.color : "#94a3b8", minWidth: 130 }}>{algo.name}</span>
               <span style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", flex: 1 }}>{algo.desc}</span>
               <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 4, background: isActive ? algo.color + "25" : "#94a3b8", color: isActive ? algo.color : "#94a3b8", fontFamily: "monospace" }}>{algo.tag}</span>
@@ -3816,7 +3816,7 @@ function IstioAmbientLesson({ meta }) {
     "Step 5 — Migration: sidecar and ambient namespaces coexist. Migrate namespace by namespace — add the ambient label, remove the injection label. Rollback by reversing labels.",
   ];
   const podStyle = (label, hasEnvoy, active) => (
-    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? "#818cf8" : "#94a3b8"}`, background: active ? "#818cf815" : "#0f172a", textAlign: "center", minWidth: 70, transition: "all 0.4s" }}>
+    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? "#818cf8" : "#94a3b8"}`, background: active ? "#818cf815" : "#f1f5f9", textAlign: "center", minWidth: 70, transition: "all 0.4s" }}>
       <div style={{ fontSize: 14 }}>📦</div>
       <div style={{ fontSize: 11, fontFamily: "monospace", color: active ? "#818cf8" : "#94a3b8" }}>{label}</div>
       {hasEnvoy && <div style={{ fontSize: 10, color: "#f59e0b", marginTop: 1 }}>+Envoy 🔷</div>}
@@ -3888,7 +3888,7 @@ function IstioWasmLesson({ meta }) {
         <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
           {PHASES.map(ph => (
-            <div key={ph.name} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${ph.active ? ph.color : "#94a3b8"}`, background: ph.active ? ph.color + "15" : "#0f172a", fontSize: 11, fontFamily: "monospace", color: ph.active ? ph.color : "#94a3b8", transition: "all 0.35s", display: "flex", gap: 8 }}>
+            <div key={ph.name} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${ph.active ? ph.color : "#94a3b8"}`, background: ph.active ? ph.color + "15" : "#f1f5f9", fontSize: 11, fontFamily: "monospace", color: ph.active ? ph.color : "#94a3b8", transition: "all 0.35s", display: "flex", gap: 8 }}>
               <span style={{ fontWeight: "bold", minWidth: 40 }}>{ph.name}</span>
               <span style={{ color: ph.active ? ph.color + "cc" : "#94a3b8" }}>{ph.desc}</span>
             </div>
@@ -3965,12 +3965,12 @@ function HopLane({ hops, arrows }) {
             <div style={{
               padding: "6px 10px", borderRadius: 8, textAlign: "center",
               background: hop.dim ? "#050a14" : (hop.warn ? "#3f0505" : hop.color + "18"),
-              border: `1.5px solid ${hop.dim ? "#ffffff" : (hop.warn ? "#ef444460" : hop.active ? hop.color : hop.color + "35")}`,
+              border: `1.5px solid ${hop.dim ? "#e2e8f0" : (hop.warn ? "#ef444460" : hop.active ? hop.color : hop.color + "35")}`,
               boxShadow: hop.active && !hop.dim ? `0 0 10px ${hop.color}30` : "none",
               opacity: hop.dim ? 0.22 : 1, transition: "all 0.35s",
             }}>
-              <div style={{ fontSize: 12, fontWeight: "bold", color: hop.dim ? "#e2e8f0" : (hop.warn ? "#fca5a5" : hop.color), fontFamily: "monospace" }}>{hop.name}</div>
-              {hop.sub && <div style={{ fontSize: 10, color: hop.dim ? "#ffffff" : "#64748b", marginTop: 1, fontFamily: "monospace" }}>{hop.sub}</div>}
+              <div style={{ fontSize: 12, fontWeight: "bold", color: hop.dim ? "#94a3b8" : (hop.warn ? "#fca5a5" : hop.color), fontFamily: "monospace" }}>{hop.name}</div>
+              {hop.sub && <div style={{ fontSize: 10, color: hop.dim ? "#94a3b8" : "#64748b", marginTop: 1, fontFamily: "monospace" }}>{hop.sub}</div>}
             </div>
             {hop.sidecarAction && (
               <div style={{
@@ -3998,12 +3998,12 @@ function HopLane({ hops, arrows }) {
                     <div style={{ flex: 1, height: 1.5, background: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8" }} />
                     <span style={{ fontSize: 11, color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8" }}>{arrows[i].blocked ? "✗" : "▶"}</span>
                   </div>
-                  {arrows[i].proto && <span style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8" }}>{arrows[i].proto}</span>}
+                  {arrows[i].proto && <span style={{ fontSize: 9, fontFamily: "monospace", color: "#475569" }}>{arrows[i].proto}</span>}
                 </>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", width: "100%", marginTop: 9 }}>
                   <div style={{ flex: 1, height: 1, background: "#94a3b8" }} />
-                  <span style={{ fontSize: 11, color: "#94a3b8" }}>▶</span>
+                  <span style={{ fontSize: 11, color: "#475569" }}>▶</span>
                 </div>
               )}
             </div>
@@ -4017,7 +4017,7 @@ function HopLane({ hops, arrows }) {
 function FilterChainBox({ filters, active, color }) {
   return (
     <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", minWidth: 210 }}>
-      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginBottom: 7, letterSpacing: "0.04em" }}>⚙ ENVOY FILTER CHAIN</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#475569", marginBottom: 7, letterSpacing: "0.04em" }}>⚙ ENVOY FILTER CHAIN</div>
       {filters.map((f, i) => (
         <div key={i} style={{
           display: "flex", alignItems: "flex-start", gap: 7, padding: "4px 7px", borderRadius: 6, marginBottom: 3,
@@ -4038,7 +4038,7 @@ function FilterChainBox({ filters, active, color }) {
 function RequestStateBox({ headers, status, color }) {
   return (
     <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 200 }}>
-      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginBottom: 7, letterSpacing: "0.04em" }}>📋 REQUEST STATE</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#475569", marginBottom: 7, letterSpacing: "0.04em" }}>📋 REQUEST STATE</div>
       {status && (
         <div style={{
           fontSize: 11, fontFamily: "monospace", marginBottom: 7,
@@ -4071,7 +4071,7 @@ function RequestStateBox({ headers, status, color }) {
 function YamlBox({ code, color }) {
   return (
     <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 210 }}>
-      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginBottom: 6, letterSpacing: "0.04em" }}>📄 ACTIVE ISTIO CONFIG</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#475569", marginBottom: 6, letterSpacing: "0.04em" }}>📄 ACTIVE ISTIO CONFIG</div>
       <pre style={{ margin: 0, fontSize: 10, fontFamily: "monospace", color: "#4ade8090", whiteSpace: "pre-wrap", lineHeight: 1.6, maxHeight: 152, overflowY: "auto" }}>{code}</pre>
     </div>
   );
@@ -4119,7 +4119,7 @@ function ScenarioShell({ icon, name, subtitle, steps, color }) {
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <button onClick={reset} style={{ padding: "6px 14px", borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 13, fontFamily: "monospace", cursor: "pointer" }}>↺ Reset</button>
-        <button onClick={advance} disabled={step === steps.length - 1} style={{ padding: "6px 18px", borderRadius: 8, background: step === steps.length - 1 ? "#f1f5f9" : color + "1a", border: `1px solid ${step === steps.length - 1 ? "#e2e8f0" : color}`, color: step === steps.length - 1 ? "#e2e8f0" : color, fontSize: 13, fontFamily: "monospace", cursor: step === steps.length - 1 ? "not-allowed" : "pointer", fontWeight: "bold" }}>Next step →</button>
+        <button onClick={advance} disabled={step === steps.length - 1} style={{ padding: "6px 18px", borderRadius: 8, background: step === steps.length - 1 ? "#f1f5f9" : color + "1a", border: `1px solid ${step === steps.length - 1 ? "#e2e8f0" : color}`, color: step === steps.length - 1 ? "#94a3b8" : color, fontSize: 13, fontFamily: "monospace", cursor: step === steps.length - 1 ? "not-allowed" : "pointer", fontWeight: "bold" }}>Next step →</button>
         <span style={{ marginLeft: "auto", fontSize: 12, fontFamily: "monospace", color: "#283141" }}>Step {step + 1} / {steps.length}</span>
       </div>
     </div>
@@ -4179,7 +4179,7 @@ function RmqMsgBox({ props }) {
   const colors = { routing_key: "#f97316", delivery_mode: "#22c55e", content_type: "#3b82f6", correlation_id: "#a855f7", reply_to: "#06b6d4", expiration: "#ef4444", headers: "#eab308" };
   return (
     <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", overflow: "hidden" }}>
-      <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontSize: 15 }}>📨</span>
         <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", letterSpacing: 0.8, textTransform: "uppercase" }}>Message Properties</span>
       </div>
@@ -4187,7 +4187,7 @@ function RmqMsgBox({ props }) {
         {props.map(([k, v, badge]) => (
           <div key={k} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontFamily: "monospace", fontSize: 13 }}>
             <span style={{ color: "#64748b", minWidth: 100, flexShrink: 0 }}>{k}:</span>
-            <span style={{ color: "#94a3b8", wordBreak: "break-all" }}>{v}</span>
+            <span style={{ color: "#475569", wordBreak: "break-all" }}>{v}</span>
             {badge && <span style={{ fontSize: 11, padding: "1px 6px", borderRadius: 4, fontWeight: 700, background: (colors[badge] || "#334155") + "22", color: colors[badge] || "#94a3b8", flexShrink: 0 }}>{badge.toUpperCase()}</span>}
           </div>
         ))}
@@ -4199,7 +4199,7 @@ function RmqMsgBox({ props }) {
 function RmqCodeBox({ title, code }) {
   return (
     <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", overflow: "hidden" }}>
-      <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontSize: 15 }}>🐍</span>
         <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", letterSpacing: 0.8, textTransform: "uppercase" }}>{title || "Python / pika"}</span>
       </div>
@@ -4226,19 +4226,19 @@ function RmqScenarioShell({ title, steps }) {
   return (
     <div style={{ borderRadius: 16, border: "1px solid #e8edf4", background: "#f8fafc", overflow: "hidden" }}>
       {/* Header */}
-      <div style={{ padding: "16px 20px 14px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+      <div style={{ padding: "16px 20px 14px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
         <div>
           <div style={{ fontSize: 13, color: "#f97316", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Production Scenario</div>
           <div style={{ fontSize: 19, fontWeight: 800, color: "#0f172a" }}>{title}</div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button onClick={() => setStep(i => Math.max(0, i - 1))} disabled={step === 0}
-            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === 0 ? "#e2e8f0" : "#64748b", cursor: step === 0 ? "not-allowed" : "pointer" }}>← Prev</button>
+            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === 0 ? "#94a3b8" : "#64748b", cursor: step === 0 ? "not-allowed" : "pointer" }}>← Prev</button>
           <button onClick={() => setPlaying(p => !p)}
             style={{ padding: "6px 16px", borderRadius: 8, fontSize: 14, fontWeight: 700, background: playing ? "#ef444420" : "#f9731620", border: `1px solid ${playing ? "#ef4444" : "#f97316"}`, color: playing ? "#f87171" : "#fb923c", cursor: "pointer" }}>
             {playing ? "⏸ Pause" : "▶ Play"}</button>
           <button onClick={() => setStep(i => Math.min(steps.length - 1, i + 1))} disabled={step === steps.length - 1}
-            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === steps.length - 1 ? "#e2e8f0" : "#64748b", cursor: step === steps.length - 1 ? "not-allowed" : "pointer" }}>Next →</button>
+            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === steps.length - 1 ? "#94a3b8" : "#64748b", cursor: step === steps.length - 1 ? "not-allowed" : "pointer" }}>Next →</button>
         </div>
       </div>
 
@@ -4271,7 +4271,7 @@ function RmqScenarioShell({ title, steps }) {
 
         {/* Message flow */}
         <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", padding: "16px 12px", overflowX: "auto" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Message Flow</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#475569", letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Message Flow</div>
           <div style={{ display: "flex", alignItems: "center", gap: 0, minWidth: "max-content" }}>
             {s.flow.map((item, i) => (
               <Fragment key={i}>
@@ -5107,7 +5107,7 @@ function ProdEcommerce() {
   {
       title: "iptables REDIRECT — how every sidecar captures traffic transparently",
       hops: [
-        { name: "App :8080", sub: "frontend", color: "#38bdf8", active: true },
+        { name: "App :8080", sub: "frontend", color: "#0284c7", active: true },
         { name: "iptables", sub: "OUTPUT chain", color: "#f59e0b", active: true, sidecarAction: "REDIRECT :15001", sidecarNote: "all TCP except uid 1337" },
         { name: "Envoy :15001", sub: "virt outbound", color: C, active: true, sidecarAction: "xDS route lookup", sidecarNote: "original dst preserved" },
         { name: "Cart Envoy", sub: "inbound :15006", color: "#22c55e", active: true, sidecarAction: "PREROUTING", sidecarNote: "verify SPIFFE cert" },
@@ -5878,7 +5878,7 @@ spec:
         { name: "API-A Pod", sub: "before scoping", color: "#ef4444", active: true, sidecarAction: "200 clusters", sidecarNote: "~180MB Envoy RAM" },
         { name: "Sidecar CRD", sub: "applied", color: C, active: true, sidecarAction: "scope: ./*, platform/*", sidecarNote: "allowlist only" },
         { name: "API-A Pod", sub: "after scoping", color: C, active: true, sidecarAction: "12 clusters", sidecarNote: "~45MB Envoy RAM" },
-        { name: "Other tenants", sub: "invisible", color: "#94a3b8", active: false, dim: true },
+        { name: "Other tenants", sub: "invisible", color: "#475569", active: false, dim: true },
       ],
       arrows: [
         { label: "xDS push: 200 clusters", active: true, color: "#ef4444" },
@@ -6024,7 +6024,7 @@ function IstioProductionLab() {
   return (
     <div style={{ maxWidth: 1120, margin: "32px auto 0", padding: "0 0 40px" }}>
       {/* Section header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #0f172a" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #e2e8f0" }}>
         <div style={{ width: 3, height: 32, background: "linear-gradient(180deg,#0ea5e9,#34d399)", borderRadius: 2 }} />
         <div>
           <div style={{ fontSize: 16, fontWeight: "bold", color: "#0f172a", fontFamily: "monospace" }}>🏭 Production Scenarios</div>
@@ -6250,7 +6250,7 @@ function PlatformNav({ onHome, courseColor, courseName }) {
         }}>⚡</div>
         <div>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", letterSpacing: -0.4, lineHeight: 1 }}>DevMesh</div>
-          <div style={{ fontSize: 11, color: "#94a3b8", letterSpacing: 1, textTransform: "uppercase", lineHeight: 1, marginTop: 2 }}>Learn</div>
+          <div style={{ fontSize: 11, color: "#475569", letterSpacing: 1, textTransform: "uppercase", lineHeight: 1, marginTop: 2 }}>Learn</div>
         </div>
       </div>
 
@@ -6265,7 +6265,7 @@ function PlatformNav({ onHome, courseColor, courseName }) {
               onMouseEnter={e => e.currentTarget.style.color = "#94a3b8"}
               onMouseLeave={e => e.currentTarget.style.color = "#475569"}
             >Courses</span>
-            <span style={{ color: "#94a3b8", fontSize: 18, lineHeight: 1 }}>›</span>
+            <span style={{ color: "#475569", fontSize: 18, lineHeight: 1 }}>›</span>
             <span style={{ color: courseColor, fontWeight: 700, whiteSpace: "nowrap" }}>{courseName}</span>
           </div>
         </>
@@ -6306,7 +6306,7 @@ function PlatformNav({ onHome, courseColor, courseName }) {
 // ─── Home Page ────────────────────────────────────────────────────────────────
 function HomePage({ onNavigate }) {
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", color: "#94a3b8" }}>
+    <div style={{ minHeight: "100vh", background: "#f8fafc", color: "#475569" }}>
       <style>{ANIM_CSS}</style>
       <PlatformNav onHome={() => {}} />
 
@@ -6406,7 +6406,7 @@ function HomePage({ onNavigate }) {
       {/* Courses section */}
       <div id="courses-section" style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 24px 80px" }}>
         <div style={{ marginBottom: 40 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>What you'll learn</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>What you'll learn</div>
           <h2 style={{ fontSize: 30, fontWeight: 800, color: "#0f172a", margin: "0 0 10px", letterSpacing: -0.5 }}>Browse Courses</h2>
           <p style={{ fontSize: 16, color: "#64748b", margin: 0, maxWidth: 480 }}>Pick a technology and start learning through interactive step-by-step visualizations</p>
         </div>
@@ -6429,7 +6429,7 @@ function HomePage({ onNavigate }) {
             <div key={f.title} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
               <div style={{ fontSize: 26, flexShrink: 0, marginTop: 2 }}>{f.icon}</div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: "#94a3b8", marginBottom: 4 }}>{f.title}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#475569", marginBottom: 4 }}>{f.title}</div>
                 <div style={{ fontSize: 14.5, color: "#64748b", lineHeight: 1.6 }}>{f.desc}</div>
               </div>
             </div>
@@ -6439,7 +6439,7 @@ function HomePage({ onNavigate }) {
 
       {/* Footer */}
       <div style={{ padding: "28px 24px", textAlign: "center" }}>
-        <div style={{ fontSize: 14, color: "#94a3b8" }}>
+        <div style={{ fontSize: 14, color: "#475569" }}>
           RabbitMQ pika 1.3 · Kafka confluent-kafka · AWS SQS boto3 · Istio 1.20+
         </div>
       </div>
@@ -6553,12 +6553,12 @@ function TechCard({ card, onNavigate, index = 0 }) {
               <span key={s} style={{ fontSize: 13, color: s <= Math.floor(rating.stars) ? "#fbbf24" : "#94a3b8" }}>★</span>
             ))}
           </div>
-          <span style={{ fontSize: 13, color: "#94a3b8" }}>({rating.count} ratings)</span>
+          <span style={{ fontSize: 13, color: "#475569" }}>({rating.count} ratings)</span>
         </div>
 
         {/* Footer */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: `1px solid #e8edf4` }}>
-          <span style={{ fontSize: 13, color: "#94a3b8" }}>⏱ {durations[card.key]}</span>
+          <span style={{ fontSize: 13, color: "#475569" }}>⏱ {durations[card.key]}</span>
           <div style={{
             padding: "6px 16px", borderRadius: 8, fontSize: 14, fontWeight: 700,
             background: hovered ? card.color : card.color + "18",
@@ -6588,7 +6588,7 @@ function TechPage({ group, onHome }) {
   const progress = Math.round(((safeIdx + 1) / groupLessons.length) * 100);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", color: "#94a3b8", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "#f8fafc", color: "#475569", display: "flex", flexDirection: "column" }}>
       <style>{ANIM_CSS}</style>
       <PlatformNav onHome={onHome} courseColor={color} courseName={card?.name} />
 
@@ -6632,7 +6632,7 @@ function TechPage({ group, onHome }) {
                     );
                   })()}
                   <div>
-                    <div style={{ fontSize: 13, color: "#94a3b8", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Course {card?.num}</div>
+                    <div style={{ fontSize: 13, color: "#475569", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Course {card?.num}</div>
                     <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>{card?.name}</div>
                     <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>{card?.subtitle}</div>
                   </div>
@@ -6652,14 +6652,14 @@ function TechPage({ group, onHome }) {
                     transition: "width 0.4s ease", borderRadius: 99,
                   }} />
                 </div>
-                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 6 }}>{progress}% complete</div>
+                <div style={{ fontSize: 12, color: "#475569", marginTop: 6 }}>{progress}% complete</div>
               </div>
 
               {/* Lesson list */}
               <div style={{ padding: "10px 0 20px" }}>
                 <div style={{
                   padding: "8px 20px 6px", fontSize: 12, fontWeight: 700,
-                  color: "#94a3b8", letterSpacing: 1.2, textTransform: "uppercase",
+                  color: "#475569", letterSpacing: 1.2, textTransform: "uppercase",
                 }}>Course Content</div>
 
                 {groupLessons.map((l, i) => (
@@ -6692,11 +6692,11 @@ function TechPage({ group, onHome }) {
                       <div style={{
                         fontSize: 14.5, fontWeight: i === safeIdx ? 700 : 400,
                         lineHeight: 1.4,
-                        color: i === safeIdx ? "#f1f5f9" : i < safeIdx ? "#475569" : "#64748b",
+                        color: i === safeIdx ? "#1e293b" : i < safeIdx ? "#475569" : "#64748b",
                       }}>
                         {l.title.split("–")[1]?.trim() || l.title}
                       </div>
-                      <div style={{ fontSize: 12.5, color: "#94a3b8", marginTop: 2, lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 12.5, color: "#475569", marginTop: 2, lineHeight: 1.4 }}>
                         {(l.subtitle || "").slice(0, 48)}{(l.subtitle || "").length > 48 ? "…" : ""}
                       </div>
                     </div>
@@ -6717,7 +6717,7 @@ function TechPage({ group, onHome }) {
             borderLeft: "none", borderRadius: "0 8px 8px 0",
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", flexShrink: 0, zIndex: 10,
-            color: "#94a3b8", fontSize: 12, transition: "all 0.15s",
+            color: "#475569", fontSize: 12, transition: "all 0.15s",
           }}
           onMouseEnter={e => { e.currentTarget.style.background = "#e8edf4"; e.currentTarget.style.color = color; }}
           onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.color = "#334155"; }}
@@ -6741,8 +6741,8 @@ function TechPage({ group, onHome }) {
                     background: color + "18", color, fontSize: 13, fontWeight: 700,
                     border: `1px solid ${color}28`, letterSpacing: 0.3,
                   }}>Lesson {lesson.num}</span>
-                  <span style={{ fontSize: 13, color: "#94a3b8" }}>·</span>
-                  <span style={{ fontSize: 13, color: "#94a3b8" }}>{card?.name}</span>
+                  <span style={{ fontSize: 13, color: "#475569" }}>·</span>
+                  <span style={{ fontSize: 13, color: "#475569" }}>{card?.name}</span>
                 </div>
                 <h1 style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", letterSpacing: -0.4, lineHeight: 1.25 }}>
                   {lesson.title}
@@ -6759,11 +6759,11 @@ function TechPage({ group, onHome }) {
                     padding: "8px 16px", borderRadius: 9, fontSize: 15, fontWeight: 600,
                     background: "#e8edf4",
                     border: `1px solid ${safeIdx === 0 ? "#ffffff" : "#d1d9e6"}`,
-                    color: safeIdx === 0 ? "#e2e8f0" : "#64748b",
+                    color: safeIdx === 0 ? "#94a3b8" : "#64748b",
                     cursor: safeIdx === 0 ? "not-allowed" : "pointer", transition: "all 0.15s",
                   }}
                   onMouseEnter={e => { if (safeIdx > 0) { e.currentTarget.style.color = "#0f172a"; e.currentTarget.style.borderColor = "#94a3b8"; } }}
-                  onMouseLeave={e => { e.currentTarget.style.color = safeIdx === 0 ? "#e2e8f0" : "#64748b"; e.currentTarget.style.borderColor = safeIdx === 0 ? "#ffffff" : "#d1d9e6"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = safeIdx === 0 ? "#94a3b8" : "#64748b"; e.currentTarget.style.borderColor = safeIdx === 0 ? "#ffffff" : "#d1d9e6"; }}
                 >← Prev</button>
 
                 <button
