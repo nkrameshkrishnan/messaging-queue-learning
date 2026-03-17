@@ -431,7 +431,19 @@ const LESSONS_META = [
   },
   // ── KAFKA ──────────────────────────────────────────────────────────────────
   {
-    id: "kafka-partitions", num: "01", title: "Kafka – Topics & Partitions",
+  id: "kafka-hello", num: "01", title: "Kafka – Hello Kafka — First Message",
+    subtitle: "Send your first message: producer, broker, consumer. The essential Kafka workflow.",
+    color: "#6366f1", group: "kafka",
+    analogy: { icon: "📰", scenario: "Newspaper Route", text: "A newspaper publisher (producer) writes an article and sends it to the printing plant (broker). Carriers (consumers) pick up printed papers and deliver them. The plant is always open and holds papers safely — readers get them when ready." },
+    terms: [
+      { icon: "💻", term: "Producer", def: "A client app that sends messages to Kafka topics using produce()." },
+      { icon: "🗄️", term: "Broker", def: "A Kafka server that stores topic data and serves producers/consumers. Run with kafka-server-start.sh." },
+      { icon: "📋", term: "Topic", def: "A named stream of messages. Producers send to topics; consumers read from topics." },
+      { icon: "🖥️", term: "Consumer", def: "A client that subscribes to a topic with subscribe() and reads messages with poll()." },
+    ],
+  },
+  {
+  id: "kafka-partitions", num: "01", title: "Kafka – Topics & Partitions",
     subtitle: "Kafka splits a topic into ordered partitions. Message keys control which partition a message lands in.",
     color: "#6366f1", group: "kafka",
     analogy: { icon: "📚", scenario: "Library with Numbered Shelves", text: "A library (Kafka broker) has a section called 'orders' (the topic). The section is split into 3 numbered shelves (partitions). Books (messages) with the same author (key) always go on the same shelf — so you can find all of one author's books in one place." },
@@ -443,7 +455,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-groups", num: "02", title: "Kafka – Consumer Groups",
+  id: "kafka-groups", num: "02", title: "Kafka – Consumer Groups",
     subtitle: "A consumer group shares partitions among members — each partition goes to exactly one consumer in the group.",
     color: "#ec4899", group: "kafka",
     analogy: { icon: "👥", scenario: "Team Project Division", text: "A team of 3 people (consumer group) splits 3 chapters (partitions) of a report between them — each person reads their own chapter in parallel. A second independent team can read the full report too, completely unaffected by the first team." },
@@ -455,7 +467,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-offsets", num: "03", title: "Kafka – Offsets & Commits",
+  id: "kafka-offsets", num: "03", title: "Kafka – Offsets & Commits",
     subtitle: "Offsets are Kafka's bookmark system. Manual commits give you control; auto-commit trades safety for simplicity.",
     color: "#06b6d4", group: "kafka",
     analogy: { icon: "🔖", scenario: "Reading a Long Book", text: "You read pages 1–50 and place a bookmark at page 50. If you fall asleep before moving the bookmark, tomorrow you re-read some pages (at-least-once). Manual commit = you only move the bookmark after understanding each page. Auto-commit = bookmark moves every 5 minutes whether you finished reading or not." },
@@ -467,7 +479,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-replication", num: "04", title: "Kafka – Replication",
+  id: "kafka-replication", num: "04", title: "Kafka – Replication",
     subtitle: "Each partition is copied to N brokers. When a leader fails, a follower takes over with no data loss.",
     color: "#f97316", group: "kafka",
     analogy: { icon: "📋", scenario: "Document with Backup Copies", text: "Your lawyer holds the original contract (leader broker). Two colleagues hold certified copies (replicas). If the lawyer disappears, a colleague's copy instantly becomes the official version. The more copies, the safer the data." },
@@ -476,6 +488,54 @@ const LESSONS_META = [
       { icon: "📎", term: "Follower / Replica", def: "A copy of the partition on another broker. Silently syncs from the leader and becomes leader if needed." },
       { icon: "✅", term: "ISR (In-Sync Replicas)", def: "Replicas fully caught up with the leader. Only ISR members can become the new leader on failover." },
       { icon: "📡", term: "acks Setting", def: "acks=0 no wait · acks=1 leader only · acks=all wait for all ISR. Use acks=all + min.insync.replicas=2 in prod." },
+    ],
+  },
+  {
+  id: "kafka-producer", num: "06", title: "Kafka – Producer Internals & Config",
+    subtitle: "Master producer settings: batching, compression, acknowledgments, and idempotence.",
+    color: "#f97316", group: "kafka",
+    analogy: { icon: "📬", scenario: "Bulk Mail Sorting", text: "Instead of mailing letters one-by-one (slow), you batch 100 letters together and mail them as one shipment (fast). You can also compress them (zip) to save space. acks=all means waiting for all post offices to confirm receipt." },
+    terms: [
+      { icon: "📦", term: "Batching (batch.size)", def: "Accumulate up to N bytes before sending. Default 16KB. Larger batches = better throughput, higher latency." },
+      { icon: "⏱️", term: "linger.ms", def: "Wait up to N ms for more messages to arrive before sending a batch. Trades latency for throughput." },
+      { icon: "✅", term: "acks Setting", def: "acks=0 (fire-forget), acks=1 (leader only), acks=all (all replicas). Use acks=all + compression in production." },
+      { icon: "🔁", term: "Idempotent Producer", def: "enable.idempotence=true deduplicates automatic retries. Each message gets a PID + sequence number." },
+    ],
+  },
+  {
+  id: "kafka-schema", num: "07", title: "Kafka – Schema Registry & Avro",
+    subtitle: "Use Apache Avro schemas to validate, serialize, and evolve message formats safely.",
+    color: "#ec4899", group: "kafka",
+    analogy: { icon: "📋", scenario: "Standardized Forms", text: "Instead of writing orders in free text (risky, inconsistent), you fill out a standardized form (schema). Different people fill it differently, but the form structure is always the same. The form can evolve over time while remaining backward compatible." },
+    terms: [
+      { icon: "📐", term: "Avro Schema", def: "A JSON schema defining message structure: fields, types, defaults. E.g. {\"name\":\"Order\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"}]}" },
+      { icon: "🏷️", term: "Schema ID", def: "A unique integer assigned by Schema Registry. Serialized in message header to enable fast deserialization." },
+      { icon: "🔄", term: "Compatibility", def: "BACKWARD: new schema reads old data. FORWARD: old schema reads new data. FULL: both. Default is BACKWARD." },
+      { icon: "🧬", term: "Schema Evolution", def: "Safely add optional fields with defaults. Consumers with old code still work; new code gets new fields." },
+    ],
+  },
+  {
+  id: "kafka-streams-api", num: "08", title: "Kafka – Kafka Streams API",
+    subtitle: "Build real-time stream processing topologies: stateless ops, stateful aggregations, windowing.",
+    color: "#06b6d4", group: "kafka",
+    analogy: { icon: "🏭", scenario: "Assembly Line with Memory", text: "A conveyor belt moves items (stream). Stations can filter (drop defects), transform (paint), or aggregate (collect 10 items for bulk shipment). Some stations remember state (inventory tally); others are stateless (just counting)." },
+    terms: [
+      { icon: "📊", term: "KStream", def: "An infinite stream of individual records. Stateless operations: filter(), map(), branch()." },
+      { icon: "📈", term: "KTable", def: "A changelog-backed table. Latest value per key. Stateful: aggregate(), reduce(). Good for joins." },
+      { icon: "🪟", term: "Windowed Aggregation", def: "GroupByKey + TimeWindowedAggregation. E.g. revenue per category every 1 minute (tumbling window)." },
+      { icon: "💾", term: "State Store", def: "RocksDB backing KTable or aggregate() state. Persisted locally; restored on restart via changelog topic." },
+    ],
+  },
+  {
+  id: "kafka-connect", num: "09", title: "Kafka – Kafka Connect",
+    subtitle: "Integrate external systems: pull data from databases, push to data warehouses — no custom code.",
+    color: "#a855f7", group: "kafka",
+    analogy: { icon: "🔌", scenario: "USB Hub for Data", text: "A USB hub plugs into your computer (Kafka) and connects many devices (databases, warehouses, APIs). Each device has its own driver (connector). Plug and play — no rewiring the computer." },
+    terms: [
+      { icon: "👷", term: "Worker", def: "A JVM process running Kafka Connect. Executes connectors. Run multiple for fault tolerance." },
+      { icon: "🔗", term: "Connector", def: "A plugin (SourceConnector or SinkConnector) that connects Kafka to an external system. E.g. JdbcSourceConnector reads from PostgreSQL." },
+      { icon: "⚙️", term: "Task", def: "A unit of work within a connector. A connector spawns 1 or more tasks. Distributed across workers." },
+      { icon: "📍", term: "Offset Storage", def: "Kafka Connect tracks read positions (for source) or write positions (for sink) in an internal topic. Survives restarts." },
     ],
   },
   {
@@ -491,7 +551,7 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "kafka-compaction", num: "06", title: "Kafka – Log Compaction",
+    id: "kafka-compaction", num: "11", title: "Kafka – Log Compaction",
     subtitle: "A compacted topic keeps only the latest value per key — it acts like a distributed key-value store.",
     color: "#22c55e", group: "kafka",
     analogy: { icon: "📇", scenario: "Address Book Updates", text: "Your address book has Alice's old address. She moves — you update her entry, not add a new row. The old address is gone, the new one kept. Log compaction does the same: a new value for key 'user-1' eventually removes the old message. The log always shows current state, not full history." },
@@ -502,9 +562,45 @@ const LESSONS_META = [
       { icon: "📊", term: "KTable (Kafka Streams)", def: "Kafka Streams uses compacted topics as state stores. A KTable is a changelog-backed key-value view of a topic." },
     ],
   },
+  {
+    id: "kafka-security", num: "12", title: "Kafka – Security: TLS, SASL & ACLs",
+    subtitle: "Encrypt communications, authenticate clients, and authorize access with granular ACLs.",
+    color: "#ef4444", group: "kafka",
+    analogy: { icon: "🔐", scenario: "Hotel Security", text: "TLS is the front desk checking your ID and encrypting your room key. SASL is the security guard verifying who you are. ACLs are the list of which guests can access which rooms. All three together = secure entry, verified identity, and restricted access." },
+    terms: [
+      { icon: "🔒", term: "TLS/SSL", def: "Encrypts broker-client and broker-broker communication. Requires keystore (server key+cert) and truststore (CA cert)." },
+      { icon: "🆔", term: "SASL Authentication", def: "SASL/PLAIN (username/password), SASL/SCRAM-SHA-256 (hashed), SASL/OAUTHBEARER (token). Verifies client identity." },
+      { icon: "🛡️", term: "ACL (Access Control List)", def: "Grants or denies operations (Read, Write, Create, Delete, Alter, Describe, etc) to principals on resources (Topic, Group, Cluster)." },
+      { icon: "📊", term: "Quotas", def: "Limits client throughput (bytes/sec) and request rate. Prevents one client from overwhelming the cluster." },
+    ],
+  },
+  {
+    id: "kafka-production", num: "13", title: "Kafka – Production Project: Real-time Analytics",
+    subtitle: "Build an end-to-end e-commerce analytics pipeline: multiple producers, Schema Registry, Streams, and sinks.",
+    color: "#22c55e", group: "kafka",
+    analogy: { icon: "🛒", scenario: "E-commerce Data Pipeline", text: "Orders, clicks, and inventory changes stream in. Real-time analytics compute revenue trends. Elasticsearch shows dashboards. S3 archives everything. One coordinated system with no bottlenecks." },
+    terms: [
+      { icon: "📤", term: "Producers", def: "3 services: orders-producer, clicks-producer, inventory-producer. Each sends to its own topic with idempotent + acks=all." },
+      { icon: "📋", term: "Avro Schemas", def: "OrderEvent, ClickEvent, InventoryEvent. Registered in Schema Registry. All producers/consumers use same schemas." },
+      { icon: "🏭", term: "Kafka Streams", def: "Topology: orders → aggregate by category with 1-min tumbling window → real-time revenue dashboard." },
+      { icon: "📊", term: "Sinks", def: "Elasticsearch for dashboards (via Kafka Connect sink), S3 for data lake (via Kafka Connect S3 sink)." },
+    ],
+  },
   // ── SQS ────────────────────────────────────────────────────────────────────
   {
-    id: "sqs-standard", num: "01", title: "AWS SQS – Standard Queue",
+    id: "sqs-hello", num: "01", title: "AWS SQS – Hello SQS — First Queue",
+    subtitle: "Send and receive your first message: fully managed, no server to run.",
+    color: "#f59e0b", group: "sqs",
+    analogy: { icon: "📮", scenario: "Public Mailbox", text: "Drop a postcard in a public mailbox (SQS). Someone picks it up later, reads it, and throws it away. If nobody picks it up, it stays there indefinitely (until max retention). AWS handles the mailbox — you just use the API." },
+    terms: [
+      { icon: "🎯", term: "Queue", def: "A named SQS queue. Create with CreateQueue API. Messages wait here until consumed." },
+      { icon: "💬", term: "Message", def: "A piece of data: JSON, XML, or plain text. Max 256 KB. Sent with SendMessage." },
+      { icon: "👻", term: "ReceiptHandle", def: "A unique token returned when you receive a message. Required to delete it." },
+      { icon: "⏱️", term: "VisibilityTimeout", def: "After receive, message is hidden from other consumers for N seconds. Default 30s." },
+    ],
+  },
+  {
+    id: "sqs-standard", num: "02", title: "AWS SQS – Standard Queue",
     subtitle: "Fully managed queue as a service. No broker to run — AWS handles everything. Receive, process, then delete.",
     color: "#f59e0b", group: "sqs",
     analogy: { icon: "🎫", scenario: "Restaurant Order Tickets", text: "A kitchen printer (SQS) prints order tickets. A cook grabs a ticket (receive), the ticket flips over so no other cook grabs it (visibility timeout). After cooking, the cook throws the ticket away (delete). If the cook forgets, the ticket flips back and another cook can grab it." },
@@ -516,7 +612,19 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "sqs-fifo", num: "02", title: "AWS SQS – FIFO & DLQ",
+    id: "sqs-polling", num: "03", title: "AWS SQS – Long Polling & Batch Ops",
+    subtitle: "Reduce API calls and costs with long polling and batch send/receive.",
+    color: "#06b6d4", group: "sqs",
+    analogy: { icon: "⏳", scenario: "Waiting in Line", text: "Short poll: check mailbox every second. Usually empty (wasted trips). Long poll: wait outside the mailbox for up to 20 seconds. Someone eventually deposits mail (one efficient trip). Batch: send 10 letters in one trip instead of mailing them individually." },
+    terms: [
+      { icon: "⏱️", term: "Long Polling", def: "WaitTimeSeconds=20 waits up to 20s for a message. If nothing, returns empty. Cheap: fewer API calls." },
+      { icon: "🚀", term: "Short Polling", def: "Default: returns immediately even if empty. Results in wasted API calls and higher costs." },
+      { icon: "📦", term: "SendMessageBatch", def: "Send up to 10 messages in one API call. Each has MessageBody and optional MessageAttributes." },
+      { icon: "🎁", term: "ReceiveMessageBatch", def: "Receive up to 10 messages in one call. Cheaper than individual ReceiveMessage calls." },
+    ],
+  },
+  {
+    id: "sqs-fifo", num: "04", title: "AWS SQS – FIFO & DLQ",
     subtitle: "FIFO queues guarantee strict ordering and exactly-once processing. DLQ catches messages that keep failing.",
     color: "#ef4444", group: "sqs",
     analogy: { icon: "🏪", scenario: "Deli Number Tickets", text: "A deli gives numbered tickets: 1, 2, 3... served in strict order (FIFO). If you show the same ticket twice within 5 minutes, the cashier ignores the duplicate (deduplication). If a customer can't be served 3 times, they're sent to a manager's desk (DLQ) for special handling." },
@@ -525,6 +633,78 @@ const LESSONS_META = [
       { icon: "🆔", term: "MessageDeduplicationId", def: "A unique ID per message. Duplicate sends within 5 minutes are silently discarded — exactly-once delivery." },
       { icon: "🗂️", term: "MessageGroupId", def: "Messages in the same group are ordered strictly. Different groups can be processed in parallel." },
       { icon: "☠️", term: "Dead Letter Queue (DLQ)", def: "A separate queue that receives messages which have failed maxReceiveCount times. Used for debugging and alerting." },
+    ],
+  },
+  {
+    id: "sqs-dlq", num: "05", title: "AWS SQS – Dead Letter Queues & Redrive",
+    subtitle: "Catch poison pills: messages that fail repeatedly go to DLQ for analysis and recovery.",
+    color: "#ef4444", group: "sqs",
+    analogy: { icon: "⚠️", scenario: "Undeliverable Mail", text: "If a package is undeliverable 3 times, the post office sends it to a special 'Return to Sender' department (DLQ) instead of discarding it. You can manually review and try again." },
+    terms: [
+      { icon: "☠️", term: "Dead Letter Queue (DLQ)", def: "A separate queue where messages fail after maxReceiveCount retries. Set with RedrivePolicy on main queue." },
+      { icon: "🔂", term: "maxReceiveCount", def: "Number of times a message can be received before going to DLQ. Default 1 receive attempt; can be set higher." },
+      { icon: "🆔", term: "ReceiveCount Attribute", def: "Increments each time a consumer receives a message. Visible to the consumer." },
+      { icon: "🔙", term: "Redrive Policy", def: "JSON specifying the DLQ ARN and maxReceiveCount. E.g. {\"deadLetterTargetArn\":\"arn:aws:sqs:...:dlq\",\"maxReceiveCount\":\"3\"}" },
+    ],
+  },
+  {
+    id: "sqs-lambda", num: "06", title: "AWS SQS + Lambda Event Processing",
+    subtitle: "Trigger Lambda functions automatically from SQS messages with built-in batch handling.",
+    color: "#a855f7", group: "sqs",
+    analogy: { icon: "⚡", scenario: "Delivery Robot", text: "When mail arrives in the mailbox, a robot is automatically triggered. It picks up bundles of mail (batch) and processes them. If some packages are damaged, it reports them and retries, without halting the whole delivery." },
+    terms: [
+      { icon: "🔗", term: "Event Source Mapping", def: "Link between SQS queue and Lambda. AWS polls the queue automatically and invokes Lambda on new messages." },
+      { icon: "📦", term: "Batch Size", def: "How many messages Lambda processes in one invocation. Max 10. Larger batches = fewer invocations, higher latency." },
+      { icon: "❌", term: "Partial Batch Failure", def: "Lambda returns batchItemFailures with failed message IDs. SQS retries only those, not the whole batch." },
+      { icon: "🔄", term: "Concurrency", def: "Number of concurrent Lambda invocations. Controlled by reserved/provisioned concurrency." },
+    ],
+  },
+  {
+    id: "sqs-fanout", num: "07", title: "AWS SQS – SNS + SQS Fan-out",
+    subtitle: "Publish once to SNS topic, fan out to multiple SQS queues for independent processing.",
+    color: "#f97316", group: "sqs",
+    analogy: { icon: "📢", scenario: "News Broadcast", text: "A radio station (SNS topic) broadcasts one announcement. Different receivers (SQS queues) pick it up: email service processes it for email, SMS service for texts, analytics service for tracking. All independent, decoupled." },
+    terms: [
+      { icon: "📡", term: "SNS Topic", def: "Pub/sub service. Publishers send one message; SNS fans it out to all subscribed SQS queues." },
+      { icon: "🔗", term: "Subscription", def: "Connects SNS topic to SQS queue. SNS sends each published message to all subscriber queues." },
+      { icon: "🔍", term: "Filter Policy", def: "JSON rules on SNS subscription. Only messages matching the filter policy are delivered to the SQS queue." },
+      { icon: "♻️", term: "Decoupling", def: "Each SQS consumer (email, SMS, analytics) works independently. Adding a new consumer doesn't affect existing ones." },
+    ],
+  },
+  {
+    id: "sqs-filtering", num: "08", title: "AWS SQS – Message Attributes & Filtering",
+    subtitle: "Add structured metadata to messages and filter at the SNS subscription level.",
+    color: "#3b82f6", group: "sqs",
+    analogy: { icon: "🏷️", scenario: "Envelope Labels", text: "Each envelope has labels: color (priority), region (zone), type (invoice/receipt). Postal worker reads the label and routes to the right bin. SNS filter policies work the same: match on MessageAttributes and only deliver if criteria match." },
+    terms: [
+      { icon: "📝", term: "MessageAttributes", def: "Key-value pairs attached to SQS/SNS messages. E.g. {\"event_type\":{\"StringValue\":\"order\"},\"priority\":{\"StringValue\":\"high\"}}" },
+      { icon: "🔍", term: "Filter Policy", def: "JSON rules on SNS subscription. Match string (exact), string array (any match), numeric (>, <, =), or exists conditions." },
+      { icon: "💰", term: "Cost Savings", def: "Filter at subscription level saves money: SNS doesn't fan out to queues that won't receive due to filter mismatch." },
+      { icon: "🎯", term: "Attribute Matching", def: "E.g. {\"event_type\":[\"order\",\"payment\"]} matches messages with event_type=order OR event_type=payment." },
+    ],
+  },
+  {
+    id: "sqs-security", num: "09", title: "AWS SQS – Security: IAM, KMS & VPC",
+    subtitle: "Encrypt messages, control access with IAM, and keep queues private in VPC.",
+    color: "#10b981", group: "sqs",
+    analogy: { icon: "🔐", scenario: "Secure Postal Service", text: "IAM is the bouncer checking credentials at the door. KMS is locking each envelope before shipping. VPC endpoint is a private tunnel — no internet. All three together = authenticated, encrypted, private." },
+    terms: [
+      { icon: "🆔", term: "IAM Policy", def: "Grant/deny SQS actions (SendMessage, ReceiveMessage, DeleteMessage) to principals. Attach to users, roles, or resources." },
+      { icon: "🔒", term: "SQS Queue Policy", def: "Resource-based policy on the queue itself. Allows cross-account access or specific AWS services." },
+      { icon: "🔑", term: "KMS CMK", def: "Customer-Managed Key for envelope encryption. Each message encrypted with KMS before storage, decrypted on receive." },
+      { icon: "🌐", term: "VPC Endpoint", def: "Private connection to SQS without internet. Uses Gateway or Interface endpoint. Prevents data exfiltration." },
+    ],
+  },
+  {
+    id: "sqs-production", num: "10", title: "AWS SQS – Production Project: Order Processing",
+    subtitle: "Build a resilient order pipeline: FIFO queues, DLQs, Lambda, SNS fan-out, and monitoring.",
+    color: "#6366f1", group: "sqs",
+    analogy: { icon: "🏭", scenario: "Robust Order Fulfillment", text: "Orders arrive in sequence (FIFO). Validation Lambda checks them. Valid orders go to payment queue. Payment Lambda charges card. Success triggers fan-out: email queue (receipt), analytics queue (metrics), inventory queue (stock update). Failures go to DLQ for manual handling. Monitoring tracks lag and errors." },
+    terms: [
+      { icon: "📋", term: "FIFO Queue", def: "order-queue.fifo. Strict ordering per MessageGroupId (customer ID). Deduplication prevents duplicate processing." },
+      { icon: "⚡", term: "Lambda Validators", def: "Triggered by order-queue. Validates orders, checks inventory. Success → payment-queue. Failure → dlq-orders." },
+      { icon: "📢", term: "SNS Fan-out", def: "payment-confirmed topic → email-queue, analytics-queue, inventory-queue. Each consumer independent." },
+      { icon: "🆘", term: "DLQ Monitoring", def: "CloudWatch alarms on ApproximateNumberOfMessagesVisible in DLQs. PagerDuty alert on failures." },
     ],
   },
   // ── Istio ──────────────────────────────────────────────────────────────────
@@ -1462,6 +1642,383 @@ function ClusteringLesson({ meta }) {
   );
 }
 
+// ─── LESSON 8 (Kafka): Kafka – Hello Kafka ──────────────────────────────────
+function KafkaHelloLesson({ meta }) {
+  const STEPS = 6;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Start Kafka: broker running on :9092</b><br/><br/><span style={{color:"#a3e635"}}>kafka-server-start.sh config/server.properties</span><br/><br/>Kafka is a distributed message broker written in Scala/Java. One server (or cluster of servers) acts as the central hub for all producers and consumers.</>,
+    <><b style={{color:meta.color}}>Step 2 — Create a topic</b><br/><br/><span style={{color:"#a3e635"}}>kafka-topics.sh --create --topic=orders \
+{"    "}--partitions=1 --replication-factor=1 \
+{"    "}--bootstrap-server=localhost:9092</span><br/><br/>A <b>topic</b> is a named stream. All messages for orders go into the 'orders' topic. Think of it as a channel or feed.</>,
+    <><b style={{color:meta.color}}>Step 3 — Producer sends a message</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka import Producer<br/>p = Producer({"{'bootstrap.servers':'localhost:9092'}"})  <br/>p.produce('orders', value='{"{'id':1,'user':'alice'}"}')<br/>p.flush()</span><br/><br/>The producer is a Python app that calls <b>produce()</b>. <b>flush()</b> ensures the broker receives it.</>,
+    <><b style={{color:meta.color}}>Step 4 — Broker stores the message</b><br/><br/>The Kafka broker receives the message and appends it to the 'orders' topic partition.<br/><br/>The message is now persistent — even if the producer crashes, the message is safe on the broker's disk.</>,
+    <><b style={{color:meta.color}}>Step 5 — Consumer subscribes</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka import Consumer<br/>c = Consumer({`{'bootstrap.servers':'localhost:9092',\n'group.id':'payment-svc'}`})  <br/>c.subscribe(['orders'])</span><br/><br/>The consumer is another Python app. It subscribes to the 'orders' topic and joins group 'payment-svc'.</>,
+    <><b style={{color:meta.color}}>Step 6 — Consumer polls and processes</b><br/><br/><span style={{color:"#a3e635"}}>while True:<br/>{"    "}msg = c.poll(1.0)  # Wait 1 sec for a message<br/>{"    "}if msg:<br/>{"    "}{"    "}print(msg.value())<br/>{"    "}{"    "}c.commit()  # Bookmark: we processed this</span><br/><br/>✅ Done! The message flows: producer → broker → consumer. Decoupled architecture: producer and consumer never talk directly.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"18px 16px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+          <FlowNode tok={T.producer} icon="💻" label="Producer" active={stage>=3&&stage<=3}/>
+          <Arrow on={stage>=3} color={T.producer.border} label={stage>=3?"produce()":""}/>
+          <FlowNode tok={T.kafka} icon="🗄️" label="Kafka Broker" sub=":9092" active={stage>=4}/>
+          <Arrow on={stage>=5} color={T.kafka.border} label={stage>=5?"poll()":""}/>
+          <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={stage>=5?"payment-svc":""} active={stage>=5}/>
+        </div>
+        {stage>=4&&(
+          <div style={{marginTop:12,padding:"10px 12px",borderRadius:8,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:11,fontFamily:"monospace",color:meta.color}}>
+            💾 Message persisted on broker disk — survives restarts
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 14 (Kafka): Producer Internals & Config ──────────────────────
+function KafkaProducerLesson({ meta }) {
+  const STEPS = 6;
+  const [stage, setStage] = useState(0);
+  const [acks, setAcks] = useState("1");
+  const locked = stage > 0 && stage < STEPS;
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Messages accumulate in RecordAccumulator</b><br/><br/>Instead of sending each message immediately, the producer buffers messages in memory: RecordAccumulator. Batching = efficiency.</>,
+    <><b style={{color:meta.color}}>Step 2 — Timer: linger.ms</b><br/><br/><span style={{color:"#a3e635"}}>p = Producer({`{'bootstrap.servers':'localhost:9092','linger.ms':10,'batch.size':16384}`})</span><br/><br/>The producer waits up to <b>linger.ms=10</b> milliseconds for more messages to arrive. If messages fill the buffer (16KB) first, send immediately.</>,
+    <><b style={{color:meta.color}}>Step 3 — Compression: snappy or lz4</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'compression.type':'snappy'}"})  # or 'lz4', 'gzip'</span><br/><br/>Before sending the batch, compress it to save network bandwidth. Snappy is fast; gzip is smaller but slower.</>,
+    <><b style={{color:meta.color}}>Step 4 — Choose acks setting: fire-forget vs safety</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'acks':" + (acks === "0" ? "'0'" : acks === "1" ? "'1'" : "'all'") + "}"})</span><br/><br/>Select how many replicas must acknowledge before produce() returns:<br/>• <b>acks=0</b>: fire-and-forget (fast but risky)<br/>• <b>acks=1</b>: leader only (safer)<br/>• <b>acks=all</b>: all in-sync replicas (safest, slowest)</>,
+    <><b style={{color:meta.color}}>Step 5 — Idempotent producer for exactly-once</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'enable.idempotence':true,\n\'acks\':\'all\'"})  </span><br/><br/>Each message gets (ProducerID + sequence number). Broker deduplicates. Safe retries with no duplicates.</>,
+    <><b style={{color:meta.color}}>Step 6 — Send and flush</b><br/><br/><span style={{color:"#a3e635"}}>p.produce('orders', value='...', key='user-123')<br/>p.flush()  # Wait for all in-flight to complete</span><br/><br/>After flush(), all messages are acknowledged by the broker. Your data is safe.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+        {["0","1","all"].map(a=>(
+          <button key={a} disabled={locked} onClick={()=>setAcks(a)} style={{padding:"6px 14px",borderRadius:8,fontSize:11,fontFamily:"monospace",fontWeight:600,background:acks===a?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${acks===a?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:acks===a?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>
+            {"acks="} {a}
+          </button>
+        ))}
+        {locked&&<span style={{fontSize:10,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
+      </div>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <div style={{fontSize:11,fontFamily:"monospace",color:"#475569"}}>📦 RecordAccumulator buffer:</div>
+          <div style={{display:"flex",alignItems:"center",gap:4}}>
+            {[0,1,2,3].map((i,idx)=>(
+              <div key={idx} style={{
+                flex:1,height:32,borderRadius:6,background:stage>=2?meta.color+"30":"#e2e8f0",
+                border:`1px solid ${stage>=2?meta.color+"60":"#cbd5e1"}`,
+                display:"flex",alignItems:"center",justifyContent:"center",
+                fontSize:10,fontFamily:"monospace",color:stage>=2?meta.color:"#64748b",transition:"all 0.3s"
+              }}>
+                msg{i+1}
+              </div>
+            ))}
+          </div>
+          {stage>=3&&(
+            <div style={{marginTop:6,fontSize:10,fontFamily:"monospace",color:meta.color,padding:"8px 10px",borderRadius:6,background:meta.color+"15"}}>
+              💨 Compressing with snappy...
+            </div>
+          )}
+        </div>
+        {stage>=4&&(
+          <div style={{marginTop:10,fontSize:10,fontFamily:"monospace",color:"#475569",padding:"8px 10px",borderRadius:6,background:"rgba(100,200,255,0.1)"}}>
+            {acks==="0"?"🚀 Fire-forget: no wait":acks==="1"?"⏱️ Leader ACK: medium safety":"🛡️ All ISR ACK: maximum safety"}
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 15 (Kafka): Schema Registry & Avro ────────────────────────────
+function KafkaSchemaLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Problem: unvalidated schemas</b><br/><br/>Without Schema Registry, producers and consumers must agree on message format manually. A breaking change crashes consumers. No validation. No safety.</>,
+    <><b style={{color:meta.color}}>Step 2 — Define Avro schema and register</b><br/><br/><span style={{color:"#a3e635"}}>{`schema = {
+  "type": "record",
+  "name": "Order",
+  "fields": [
+    {"name": "id", "type": "string"},
+    {"name": "user_id", "type": "string"},
+    {"name": "amount", "type": "double"}
+  ]
+}`}</span><br/><br/>POST /subjects/orders-value/versions to Schema Registry. Gets assigned schema_id=1.</>,
+    <><b style={{color:meta.color}}>Step 3 — Producer serializes with schema ID in header</b><br/><br/><span style={{color:"#a3e635"}}>from confluent_kafka.schema_registry.schema_registry_client import SchemaRegistryClient<br/>sr = SchemaRegistryClient({"{'url':'http://localhost:8081'"}})<br/>serializer = AvroSerializer(sr, schema_str)</span><br/><br/>Producer embeds [schemaId=1] + serialized bytes in the wire message. Tiny overhead, huge safety gain.</>,
+    <><b style={{color:meta.color}}>Step 4 — Consumer deserializes: lookup schema by ID</b><br/><br/><span style={{color:"#a3e635"}}>deserializer = AvroDeserializer(sr)<br/>msg = c.poll(1.0)<br/>data = deserializer(msg.value(), None)  # Automatically fetches schema_id=1 from Registry</span><br/><br/>Consumer reads schema_id from header, fetches schema definition, deserializes. Zero guessing.</>,
+    <><b style={{color:meta.color}}>Step 5 — Schema evolution: backward compatible</b><br/><br/><span style={{color:"#a3e635"}}>New schema adds optional field: "region": {'{"type": "string", "default": "US"}'}</span><br/><br/>✅ Old consumers can still read messages with new schema (default value fills in).<br/>✅ New consumers can read old messages (new field simply absent).<br/>This is BACKWARD compatibility — the foundation of safe schema evolution.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        {stage<2&&(
+          <div style={{fontSize:11,color:"#6b7280",fontFamily:"system-ui",lineHeight:1.6}}>
+            ⚠️ Without schemas: producers send JSON with different formats. Consumers crash on unexpected fields.
+          </div>
+        )}
+        {stage>=2&&stage<4&&(
+          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <FlowNode tok={{bg:meta.color+"15",border:meta.color,text:meta.color,glow:meta.color+"30"}} icon="💻" label="Producer" active={stage>=3}/>
+            <Arrow on={stage>=3} color={meta.color} label={stage>=3?"serialize + ID":""}/>
+            <div style={{borderRadius:8,padding:"8px 12px",background:"rgba(30,41,59,0.05)",border:`1px solid ${meta.color}40`,fontSize:10,fontFamily:"monospace",color:"#475569"}}>
+              {stage>=3?"[schemaId=1]...bytes":"Schema Reg."}
+            </div>
+            <Arrow on={stage>=4} color={meta.color} label={stage>=4?"deserialize":""}/>
+            <FlowNode tok={{bg:meta.color+"15",border:meta.color,text:meta.color,glow:meta.color+"30"}} icon="🖥️" label="Consumer" active={stage===4}/>
+          </div>
+        )}
+        {stage>=4&&(
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <div style={{fontSize:10,fontFamily:"monospace",color:"#475569",padding:"8px 10px",borderRadius:6,background:"#f1f5f9"}}>
+              ✅ Schema evolution: new field with default value
+            </div>
+            <div style={{fontSize:10,color:meta.color,fontFamily:"monospace",padding:"8px 10px",borderRadius:6,background:meta.color+"15"}}>
+              Old consumers + new message = works (default fills new field)<br/>New consumers + old message = works (new field absent)
+            </div>
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 16 (Kafka): Kafka Streams API ──────────────────────────────────
+function KafkaStreamsApiLesson({ meta }) {
+  const STEPS = 6;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Define topology: source → operations → sink</b><br/><br/><span style={{color:"#a3e635"}}>from kafka import KafkaStreams, StreamsBuilder<br/>builder = StreamsBuilder()<br/>source = builder.stream('orders')</span><br/><br/>A topology is a DAG (directed acyclic graph) of processing steps. Start with a source topic.</>,
+    <><b style={{color:meta.color}}>Step 2 — Stateless operations: filter, map, branch</b><br/><br/><span style={{color:"#a3e635"}}>filtered = source.filter(lambda k, v: v['amount'] > 1000)<br/>mapped = filtered.map(lambda k, v: (k, {"{'amount': v['amount'] * 1.1}"}))</span><br/><br/>No state needed. One record in → one record out (or zero if filtered).</>,
+    <><b style={{color:meta.color}}>Step 3 — Key selection for aggregation</b><br/><br/><span style={{color:"#a3e635"}}>grouped = filtered.groupByKey()</span><br/><br/>Group records by the message key. All messages with the same key will be aggregated together.</>,
+    <><b style={{color:meta.color}}>Step 4 — Windowed aggregation: tumble, hop, session</b><br/><br/><span style={{color:"#a3e635"}}>aggregated = grouped \
+    .windowedBy(TimeWindows.of(60000))  # 1 min tumbling window \
+    .aggregate(lambda: 0, lambda k, v, total: total + v['amount'])</span><br/><br/>Compute sum(amount) per category every 1 minute. RocksDB state store holds running totals.</>,
+    <><b style={{color:meta.color}}>Step 5 — Emit results to sink topic</b><br/><br/><span style={{color:"#a3e635"}}>aggregated.toStream() \
+    .map(lambda k, v: (str(k), json.dumps(v))) \
+    .to('revenue-per-category')</span><br/><br/>Write windowed results to a sink topic. Other consumers can read the real-time aggregations.</>,
+    <><b style={{color:meta.color}}>Step 6 — Run the topology</b><br/><br/><span style={{color:"#a3e635"}}>streams = KafkaStreams(builder.build(), config)<br/>streams.start()</span><br/><br/>The topology runs continuously, processing every message from the source topic. Fault-tolerant: state is checkpointed and restored on restart.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",fontSize:10}}>
+          <div style={{borderRadius:6,padding:"6px 10px",background:meta.color+"20",border:`1px solid ${meta.color}`,fontFamily:"monospace",color:meta.color,fontWeight:600}}>
+            orders (source)
+          </div>
+          {stage>=2&&(
+            <>
+              <div style={{fontSize:12,color:"#64748b"}}>→</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#e2e8f0",border:"1px solid #cbd5e1",fontFamily:"monospace",color:"#475569"}}>filter + map</div>
+            </>
+          )}
+          {stage>=3&&(
+            <>
+              <div style={{fontSize:12,color:"#64748b"}}>→</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#e2e8f0",border:"1px solid #cbd5e1",fontFamily:"monospace",color:"#475569"}}>groupBy</div>
+            </>
+          )}
+          {stage>=4&&(
+            <>
+              <div style={{fontSize:12,color:"#64748b"}}>→</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#e2e8f0",border:"1px solid #cbd5e1",fontFamily:"monospace",color:"#475569"}}>window(1m) + aggregate</div>
+            </>
+          )}
+          {stage>=5&&(
+            <>
+              <div style={{fontSize:12,color:"#64748b"}}>→</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:meta.color+"20",border:`1px solid ${meta.color}`,fontFamily:"monospace",color:meta.color,fontWeight:600}}>revenue (sink)</div>
+            </>
+          )}
+        </div>
+        {stage>=4&&(
+          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:10,fontFamily:"monospace",color:meta.color}}>
+            💾 State store (RocksDB): holds windowed aggregates. Persisted to changelog topic for recovery.
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 17 (Kafka): Kafka Connect ────────────────────────────────────────
+function KafkaConnectLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Problem: integrating external systems</b><br/><br/>You need to pull data from a PostgreSQL database and send it to a data warehouse. Writing custom consumer code is tedious and error-prone.</>,
+    <><b style={{color:meta.color}}>Step 2 — Kafka Connect: worker + connectors</b><br/><br/><span style={{color:"#a3e635"}}>connect-distributed.sh config/connect-distributed.properties</span><br/><br/>A Kafka Connect worker is a JVM process that loads connector plugins and manages tasks. Run multiple for HA.</>,
+    <><b style={{color:meta.color}}>Step 3 — Define source connector: PostgreSQL → Kafka</b><br/><br/><span style={{color:"#a3e635"}}>POST /connectors {"{"}<br/>  "name": "postgres-source",<br/>  "config": {"{"}<br/>    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",<br/>    "connection.url": "jdbc:postgresql://localhost/orders",<br/>    "table.whitelist": "orders",<br/>    "topic.prefix": "db_"<br/>  {"}"}<br/>{"}"}</span><br/><br/>The connector polls the database, captures changes, and publishes to Kafka topics. No custom code!</>,
+    <><b style={{color:meta.color}}>Step 4 — Define sink connector: Kafka → Elasticsearch</b><br/><br/><span style={{color:"#a3e635"}}>POST /connectors {"{"}<br/>  "name": "es-sink",<br/>  "config": {"{"}<br/>    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",<br/>    "connection.url": "http://elasticsearch:9200",<br/>    "topics": "db_orders"<br/>  {"}"}<br/>{"}"}</span><br/><br/>This sink connector consumes from 'db_orders' topic and indexes documents in Elasticsearch for real-time dashboards.</>,
+    <><b style={{color:meta.color}}>Step 5 — Distributed, fault-tolerant execution</b><br/><br/>Multiple workers share the tasks. If one worker crashes, another restarts the task. Offset tracking in Kafka ensures no data loss. Scale horizontally.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        <div style={{display:"flex",alignItems:"flex-start",gap:6,flexWrap:"wrap"}}>
+          <FlowNode tok={{bg:"#e0f2fe",border:"#0284c7",text:"#0c4a6e",glow:"#0284c730"}} icon="🗄️" label="PostgreSQL" sub="source" active={stage>=3} w={95}/>
+          {stage>=3&&<Arrow on color="#0284c7" label="poll"/>}
+          <FlowNode tok={T.kafka} icon="🗄️" label="Kafka Topic" sub="db_orders" active={stage>=3}/>
+          {stage>=4&&<Arrow on color={meta.color} label="sink"/>}
+          {stage>=4&&<FlowNode tok={{bg:"#fef3c7",border:"#f59e0b",text:"#92400e",glow:"#f59e0b30"}} icon="🔍" label="Elasticsearch" sub="index" active={stage>=4} w={95}/>}
+        </div>
+        {stage>=3&&(
+          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:10,fontFamily:"monospace",color:meta.color}}>
+            {stage<4?"✳️ Source connector running: polling database":"✅ Full pipeline: DB → Kafka → Elasticsearch (dashboards)"}
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 18 (Kafka): Security ─────────────────────────────────────────────
+function KafkaSecurityLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const [authType, setAuthType] = useState("tls");
+  const locked = stage > 0 && stage < STEPS;
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — TLS: Encrypt communication</b><br/><br/><span style={{color:"#a3e635"}}>security.protocol=SSL<br/>ssl.truststore.location=/path/to/truststore.jks<br/>ssl.truststore.password=***</span><br/><br/>All traffic between client and broker is encrypted. Requires server keystore + client truststore.</>,
+    <><b style={{color:meta.color}}>Step 2 — SASL: Authenticate the client</b><br/><br/><span style={{color:"#a3e635"}}>security.protocol=SASL_SSL<br/>sasl.mechanism=SCRAM-SHA-256<br/>sasl.username=alice<br/>sasl.password=secret</span><br/><br/>Client proves identity with username/password or other credentials. Broker verifies before accepting connection.</>,
+    <><b style={{color:meta.color}}>Step 3 — ACLs: Authorize operations</b><br/><br/><span style={{color:"#a3e635"}}>kafka-acls.sh --create \
+  --allow-principal User:alice \
+  --operation Read,Write \
+  --topic orders</span><br/><br/>Even authenticated clients must have permission. Alice can read and write to 'orders' topic. Bob cannot.</>,
+    <><b style={{color:meta.color}}>Step 4 — Complete flow: auth + authz</b><br/><br/>Client connects → TLS handshake (encrypt) → SASL auth (prove identity) → ACL check (verify permission) → Broker accepts or rejects.</>,
+    <><b style={{color:meta.color}}>Step 5 — Quotas: protect the cluster</b><br/><br/><span style={{color:"#a3e635"}}>kafka-configs.sh --alter --add-config \
+  'producer_byte_rate=1000000' \
+  --entity-type clients --entity-name alice</span><br/><br/>Limit clients to 1MB/sec. Prevents one rogue client from overwhelming the cluster.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+        {["tls","sasl","acl"].map(t=>(
+          <button key={t} disabled={locked} onClick={()=>setAuthType(t)} style={{padding:"6px 12px",borderRadius:8,fontSize:10,fontFamily:"monospace",fontWeight:600,background:authType===t?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${authType===t?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:authType===t?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"uppercase"}}>
+            {t}
+          </button>
+        ))}
+      </div>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        {stage>=2&&(
+          <div style={{display:"flex",alignItems:"center",gap:8,flexDirection:"column"}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,width:"100%"}}>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"rgba(59, 130, 246, 0.2)",border:"1px solid #3b82f6",fontFamily:"monospace",fontSize:10,color:"#1d4ed8"}}>Client</div>
+              <Arrow on={stage>=2} color={authType==="tls"||authType==="sasl"?meta.color:"#94a3b8"} label={stage>=2&&authType!=="acl"?"TLS":""}/>
+              <div style={{borderRadius:6,padding:"6px 10px",background:authType==="tls"||authType==="sasl"?meta.color+"20":"#f1f5f9",border:`1px solid ${authType==="tls"||authType==="sasl"?meta.color:"#cbd5e1"}`,fontFamily:"monospace",fontSize:10,color:authType==="tls"||authType==="sasl"?meta.color:"#64748b"}}>
+                {stage>=2?(authType==="sasl"?"SASL":"TLS"):"Broker"}
+              </div>
+              {stage>=3&&<Arrow on color={authType==="acl"?meta.color:"#94a3b8"} label={authType==="acl"?"ACL check":""}/>}
+              {stage>=3&&<div style={{borderRadius:6,padding:"6px 10px",background:authType==="acl"?meta.color+"20":"#f1f5f9",border:`1px solid ${authType==="acl"?meta.color:"#cbd5e1"}`,fontFamily:"monospace",fontSize:10,color:authType==="acl"?meta.color:"#64748b"}}>Broker</div>}
+            </div>
+            {stage>=2&&authType==="tls"&&<div style={{fontSize:9,fontFamily:"monospace",color:"#64748b",marginTop:4}}>🔒 SSL/TLS: all traffic encrypted</div>}
+            {stage>=2&&authType==="sasl"&&<div style={{fontSize:9,fontFamily:"monospace",color:"#64748b",marginTop:4}}>🆔 SASL: client identity verified</div>}
+            {stage>=3&&authType==="acl"&&<div style={{fontSize:9,fontFamily:"monospace",color:"#64748b",marginTop:4}}>✅ ACL: operation permitted</div>}
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 19 (Kafka): Production Project ────────────────────────────────────
+function KafkaProductionLesson({ meta }) {
+  const STEPS = 7;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Architecture: 3 producers, 3 Kafka topics, Streams, Sinks, DLQs</b><br/><br/>Producers: orders-svc, clicks-svc, inventory-svc. Each publishes to its own topic with the same Avro schema. Real-time analytics compute revenue trends. Elasticsearch shows live dashboards. S3 stores raw data for reporting.</>,
+    <><b style={{color:meta.color}}>Step 2 — Producer 1: orders-producer with idempotence</b><br/><br/><span style={{color:"#a3e635"}}>Producer({"{'bootstrap.servers':'kafka:9092',\n\'enable.idempotence\':\'true\',\n\'compression.type\':\'snappy\',\n\'acks\':\'all\'"})  <br/>produce('orders', key=user_id, value=order_json)</span><br/><br/>Each order message has a unique key (user_id) for ordering guarantee. Compression reduces bandwidth.</>,
+    <><b style={{color:meta.color}}>Step 3 — All messages validated with Avro schemas</b><br/><br/>OrderEvent, ClickEvent, InventoryEvent schemas registered in Schema Registry. Producers serialize; consumers deserialize automatically. Breaking changes are rejected.</>,
+    <><b style={{color:meta.color}}>Step 4 — Kafka Streams: compute revenue per category (1-min tumbling window)</b><br/><br/><span style={{color:"#a3e635"}}>source.groupByKey() \
+    .windowedBy(TimeWindows.of(60000)) \
+    .aggregate(sum_amount) \
+    .to('revenue-by-category')</span><br/><br/>Real-time aggregation. RocksDB state store backed by changelog topic. Fault-tolerant.</>,
+    <><b style={{color:meta.color}}>Step 5 — Kafka Connect: Elasticsearch sink (dashboards)</b><br/><br/>revenue-by-category topic → Kafka Connect ES sink → Elasticsearch index. Dashboards query ES for live metrics. Also S3 sink for historical data lake.</>,
+    <><b style={{color:meta.color}}>Step 6 — Consumer group: fraud detection with velocity checks</b><br/><br/><span style={{color:"#a3e635"}}>Consumer({"{'group.id':'fraud-detection'}"})<br/>if user_orders_last_1min > 10:<br/>{"    "}alert('velocity spike')</span><br/><br/>A dedicated consumer monitors for suspicious patterns and triggers alerts.</>,
+    <><b style={{color:meta.color}}>Step 7 — Monitoring: consumer lag, broker metrics, throughput</b><br/><br/><span style={{color:"#a3e635"}}>kafka-consumer-groups.sh --describe --group fraud-detection</span><br/><br/>Track consumer lag with Prometheus + Grafana. Alert if lag exceeds threshold. Monitor under-replicated partitions and broker disk space. This is production Kafka!</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px",fontSize:10,fontFamily:"monospace"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {stage>=1&&(
+            <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+              <span style={{color:"#64748b"}}>Producers:</span>
+              <FlowNode tok={T.producer} icon="📦" label="orders" w={80} active={stage>=2}/>
+              <FlowNode tok={T.producer} icon="🖱️" label="clicks" w={80} active={stage>=3}/>
+              <FlowNode tok={T.producer} icon="📊" label="inventory" w={80} active={stage>=3}/>
+            </div>
+          )}
+          {stage>=4&&(
+            <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+              <span style={{color:"#64748b"}}>Streams:</span>
+              <div style={{borderRadius:6,padding:"6px 10px",background:meta.color+"20",border:`1px solid ${meta.color}`,color:meta.color,fontWeight:600}}>revenue per category</div>
+            </div>
+          )}
+          {stage>=5&&(
+            <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+              <span style={{color:"#64748b"}}>Sinks:</span>
+              <FlowNode tok={{bg:"#fef3c7",border:"#f59e0b",text:"#92400e",glow:"#f59e0b30"}} icon="🔍" label="Elasticsearch" w={95}/>
+              <FlowNode tok={{bg:"#e0f2fe",border:"#0284c7",text:"#0c4a6e",glow:"#0284c730"}} icon="☁️" label="S3" w={80}/>
+            </div>
+          )}
+          {stage>=6&&(
+            <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+              <span style={{color:"#64748b"}}>Consumer:</span>
+              <FlowNode tok={T.consumer} icon="⚠️" label="fraud detection" w={110} active/>
+            </div>
+          )}
+          {stage>=7&&(
+            <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+              <span style={{color:"#64748b"}}>Monitoring:</span>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize:9}}>consumer lag</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize:9}}>throughput</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize:9}}>replication</div>
+            </div>
+          )}
+        </div>
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+
 // ─── LESSON 9 (Kafka): Kafka – Topics & Partitions ────────────────────────────
 const KAFKA_KEYS = ["user-123","order-456","user-123","payment-789","order-456"];
 function KafkaPartitionsLesson({ meta }) {
@@ -1577,6 +2134,395 @@ function KafkaGroupsLesson({ meta }) {
     </div>
   );
 }
+
+// ─── LESSON 9 (SQS): Hello SQS ────────────────────────────────────────────────
+function SQSHelloLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Create queue (fully managed — AWS handles everything)</b><br/><br/><span style={{color:"#a3e635"}}>import boto3<br/>sqs = boto3.client('sqs', region_name='us-east-1')<br/>response = sqs.create_queue(QueueName='orders-queue')<br/>queue_url = response['QueueUrl']</span><br/><br/>Unlike Kafka, there is NO broker to run. AWS manages the entire queue infrastructure behind the scenes.</>,
+    <><b style={{color:meta.color}}>Step 2 — Producer sends a message</b><br/><br/><span style={{color:"#a3e635"}}>sqs.send_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}MessageBody='Order #1234')</span><br/><br/>Message is stored in SQS. AWS keeps it safe and available for consumers.</>,
+    <><b style={{color:meta.color}}>Step 3 — Consumer receives (message becomes INVISIBLE)</b><br/><br/><span style={{color:"#a3e635"}}>response = sqs.receive_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}VisibilityTimeout=30)<br/>receipt = response['Messages'][0]['ReceiptHandle']</span><br/><br/>⚠️ Message is hidden from other consumers for 30 seconds. If consumer crashes, message reappears after timeout.</>,
+    <><b style={{color:meta.color}}>Step 4 — Consumer processes (has 30 seconds)</b><br/><br/>The consumer has up to 30 seconds (VisibilityTimeout) to process the message. If processing takes longer, extend the timeout with ChangeMessageVisibility.</>,
+    <><b style={{color:meta.color}}>Step 5 — Delete the message (only way to remove it)</b><br/><br/><span style={{color:"#a3e635"}}>sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt)</span><br/><br/>✅ Message permanently removed. If NOT deleted within timeout, message reappears for another consumer — this is SQS's crash-safety mechanism!</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"18px 16px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+          <FlowNode tok={T.producer} icon="💻" label="Producer" active={stage===2}/>
+          <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?"send":""}/>
+          <FlowNode tok={T.sqs} icon="📮" label="SQS Queue" sub={stage>=3?"(invisible 30s)":stage>=5?"(deleted)":stage>=2?"(visible)":""} active={stage>=2}/>
+          <Arrow on={stage>=3} color={T.sqs.border} label={stage>=3?"receive":""}/>
+          <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={stage>=4?"processing":stage===5?"✅ done":""} active={stage>=3}/>
+        </div>
+        {stage>=3&&stage<5&&(
+          <div style={{marginTop:12,padding:"10px 12px",borderRadius:8,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:10,fontFamily:"monospace",color:meta.color}}>
+            ⏱️ 30-second visibility timeout — must delete before it expires!
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 10 (SQS): Long Polling ────────────────────────────────────────────
+function SQSPollingLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const [pollType, setPollType] = useState("short");
+  const locked = stage > 0 && stage < STEPS;
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Short polling: request returns immediately (expensive)</b><br/><br/><span style={{color:"#a3e635"}}>for i in range(60):  # Every second for 60 seconds<br/>{"    "}response = sqs.receive_message(QueueUrl=queue_url)<br/>{"    "}# Usually empty!</span><br/><br/>Makes 60 API calls/minute. Most return empty. AWS charges per API call. Very expensive!</>,
+    <><b style={{color:meta.color}}>Step 2 — Long polling: wait up to 20 seconds (efficient)</b><br/><br/><span style={{color:"#a3e635"}}>response = sqs.receive_message(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}WaitTimeSeconds=20)</span><br/><br/>Waits up to 20 seconds for a message to arrive. If one shows up after 3 seconds, returns immediately. Reduces API calls 10× — much cheaper!</>,
+    <><b style={{color:meta.color}}>Step 3 — Batch send: 10 messages in one API call</b><br/><br/><span style={{color:"#a3e635"}}>sqs.send_message_batch(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Entries=[<br/>{"    "}{"    "}{"{'Id': 'msg1', 'MessageBody': 'Order 1'}"},<br/>{"    "}{"    "}{"{'Id': 'msg2', 'MessageBody': 'Order 2'}"},<br/>{"    "}{"    "}# ... up to 10 messages<br/>{"    "}])</span><br/><br/>Send/receive up to 10 messages per API call. Drastically reduces cost.</>,
+    <><b style={{color:meta.color}}>Step 4 — Compare: short vs long polling with batching</b><br/><br/>Short polling: 1000 receive_message calls/min, 99% empty. $3.50/mo<br/>Long polling + batch: 100 receive_message_batch calls/min, efficient. $0.35/mo — 10× cheaper!</>,
+    <><b style={{color:meta.color}}>Step 5 — Production recommendation</b><br/><br/>Always use WaitTimeSeconds=20 and batch operations. Single receive_message calls are rare and expensive. Best practice: few large batches rather than many small calls.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+        {["short","long"].map(t=>(
+          <button key={t} disabled={locked} onClick={()=>setPollType(t)} style={{padding:"6px 12px",borderRadius:8,fontSize:10,fontFamily:"monospace",fontWeight:600,background:pollType===t?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${pollType===t?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:pollType===t?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"capitalize"}}>
+            {t} polling
+          </button>
+        ))}
+      </div>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        {stage>=2&&(
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            <div style={{fontSize:10,fontFamily:"monospace",color:"#475569"}}>📊 API Calls per minute:</div>
+            <div style={{display:"flex",gap:4,alignItems:"flex-end",height:60}}>
+              {[...Array(5)].map((_, i)=>{
+                const h = pollType==="short" ? 50 : 10;
+                return (
+                  <div key={i} style={{flex:1,height:h,background:meta.color+"40",borderRadius:4,transition:"all 0.3s",opacity:0.7+(i*0.1)}}/>
+                );
+              })}
+            </div>
+            <div style={{fontSize:9,fontFamily:"monospace",color:"#64748b",display:"flex",justifyContent:"space-between"}}>
+              <span>{pollType==="short"?"Short: 60+ calls":"Long: 10 calls"}</span>
+              <span>{pollType==="short"?"99% empty":"Efficient"}</span>
+            </div>
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 12 (SQS): Dead Letter Queues ──────────────────────────────────────
+function SQSDLQLesson({ meta }) {
+  const STEPS = 6;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Problem: poison pills (messages that always fail)</b><br/><br/>A malformed message keeps failing on every retry. It blocks the consumer and wastes time. Need a way to isolate it.</>,
+    <><b style={{color:meta.color}}>Step 2 — Create a Dead Letter Queue (DLQ)</b><br/><br/><span style={{color:"#a3e635"}}>sqs.create_queue(QueueName='orders-dlq')</span><br/><br/>A separate SQS queue where problematic messages go. Think of it as a quarantine zone.</>,
+    <><b style={{color:meta.color}}>Step 3 — Configure main queue with RedrivePolicy</b><br/><br/><span style={{color:"#a3e635"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'RedrivePolicy': json.dumps({"{"}<br/>{"    "}{"    "}{"    "}'deadLetterTargetArn': 'arn:aws:sqs:...dlq',<br/>{"    "}{"    "}{"    "}'maxReceiveCount': 3<br/>{"    "}{"    "}{"}"}))<br/>{"    "}{"}"}})</span><br/><br/>After 3 failed receive attempts, SQS automatically moves the message to the DLQ.</>,
+    <><b style={{color:meta.color}}>Step 4 — Message flows: receive → process → delete or fail→retry→DLQ</b><br/><br/>Success path: receive → process → delete (done).<br/>Failure path: receive #1 fails → retry → receive #2 fails → retry → receive #3 fails → DLQ (quarantine).</>,
+    <><b style={{color:meta.color}}>Step 5 — Monitor DLQ with CloudWatch alarms</b><br/><br/><span style={{color:"#a3e635"}}>alarm = cloudwatch.put_metric_alarm(<br/>{"    "}AlarmName='orders-dlq-has-messages',<br/>{"    "}MetricName='ApproximateNumberOfMessagesVisible',<br/>{"    "}Dimensions=[{"{'Name': 'QueueName', 'Value': 'orders-dlq'}"}],<br/>{"    "}Threshold=1, ComparisonOperator='GreaterThanOrEqualToThreshold')</span><br/><br/>Alert your ops team immediately when messages appear in DLQ.</>,
+    <><b style={{color:meta.color}}>Step 6 — Manual investigation and redrive</b><br/><br/>Inspect the failed message in DLQ. Fix the bug. Re-send the message to the main queue (redrive). This is your fallback mechanism for unhandled errors.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+            <FlowNode tok={T.producer} icon="📮" label="Producer" active={stage>=1} w={90}/>
+            <Arrow on={stage>=1} color={T.producer.border}/>
+            <FlowNode tok={T.sqs} icon="📋" label="Main Queue" active={stage>=1} w={100}/>
+            {stage>=3&&<Arrow on color={T.dlq.border} label="maxReceive=3"/>}
+            {stage>=3&&<FlowNode tok={T.dlq} icon="☠️" label="DLQ" active={stage>=4} w={80}/>}
+          </div>
+          {stage>=4&&(
+            <div style={{marginTop:6,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${T.dlq.border}15, ${T.dlq.border}20)`,border:`1px solid ${T.dlq.border}30`,fontSize:10,fontFamily:"monospace",color:T.dlq.text}}>
+              ☠️ Poison pill: fails 3 times → quarantined in DLQ → ops alerted → manual redrive
+            </div>
+          )}
+        </div>
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 13 (SQS): SQS + Lambda ────────────────────────────────────────────
+function SQSLambdaLesson({ meta }) {
+  const STEPS = 6;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Create event source mapping: SQS → Lambda</b><br/><br/><span style={{color:"#a3e635"}}>lambda_client.create_event_source_mapping(<br/>{"    "}EventSourceArn='arn:aws:sqs:...:orders-queue',<br/>{"    "}FunctionName='process-order',<br/>{"    "}BatchSize=10,<br/>{"    "}BatchWindow=5)</span><br/><br/>AWS automatically polls the SQS queue and invokes your Lambda function whenever messages arrive.</>,
+    <><b style={{color:meta.color}}>Step 2 — Lambda is triggered with batch of messages</b><br/><br/><span style={{color:"#a3e635"}}>def process_order(event, context):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}body = json.loads(record['body'])<br/>{"    "}{"    "}print(f"Processing order {body['id']}")</span><br/><br/>event['Records'] contains up to 10 messages (BatchSize). Process them all in one Lambda invocation.</>,
+    <><b style={{color:meta.color}}>Step 3 — Successful processing: Lambda returns empty list</b><br/><br/><span style={{color:"#a3e635"}}>return {"{'batchItemFailures': []}"} {" "} # All succeeded</span><br/><br/>SQS automatically deletes all 10 messages from the queue. Done!</>,
+    <><b style={{color:meta.color}}>Step 4 — Partial batch failure: return failed message IDs</b><br/><br/><span style={{color:"#a3e635"}}>failed = []<br/>for record in event['Records']:<br/>{"    "}try:<br/>{"    "}{"    "}process(record)<br/>{"    "}except:<br/>{"    "}{"    "}failed.append({"{'itemId': record['messageId']}"})<br/>return {"{'batchItemFailures': failed}"}</span><br/><br/>Only failed messages are returned to queue. Successful ones are deleted. No all-or-nothing blocking.</>,
+    <><b style={{color:meta.color}}>Step 5 — Concurrency and scalability</b><br/><br/>Multiple Lambda instances run in parallel. Each processes a batch. As queue depth grows, AWS auto-scales Lambda concurrency. One Lambda instance = one batch = max 10 messages at a time.</>,
+    <><b style={{color:meta.color}}>Step 6 — Error handling: DLQ for Lambda failures</b><br/><br/><span style={{color:"#a3e635"}}>Lambda function crashes → SQS re-delivers → maxReceiveCount hits → DLQ</span><br/><br/>If your Lambda keeps crashing, after maxReceiveCount retries, the message goes to the DLQ. Chain SQS→Lambda→DLQ for complete safety.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+          <FlowNode tok={T.sqs} icon="📮" label="SQS Queue" sub={stage>=2?"polling":"wait"} active={stage>=1} w={100}/>
+          {stage>=2&&<Arrow on color={meta.color} label="batch(10)"/>}
+          {stage>=2&&<FlowNode tok={{bg:meta.color+"15",border:meta.color,text:meta.color,glow:meta.color+"30"}} icon="⚡" label="Lambda" sub={stage>=3?"processing":"invoked"} active={stage>=2} w={90}/>}
+          {stage>=3&&<Arrow on color={stage>=4?meta.color:"#ef4444"} label={stage>=4?"partial fail":""}/>}
+          {stage>=3&&<FlowNode tok={stage>=4?T.dlq:T.consumer} icon={stage>=4?"☠️":"✅"} label={stage>=4?"DLQ":"Deleted"} active w={80}/>}
+        </div>
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 14 (SQS): SNS + SQS Fan-out ───────────────────────────────────────
+function SQSFanoutLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Problem: one message, many independent consumers</b><br/><br/>When an order is placed, you need to: send email receipt, record analytics, update inventory. Three completely independent services. How to decouple?</>,
+    <><b style={{color:meta.color}}>Step 2 — SNS Topic: fan-out hub</b><br/><br/><span style={{color:"#a3e635"}}>sns = boto3.client('sns')<br/>sns.create_topic(Name='order-events')<br/>sns.publish(<br/>{"    "}TopicArn='arn:aws:sns:...:order-events',<br/>{"    "}Message=json.dumps({"{'order_id': 123}"}))</span><br/><br/>Publish ONE message to SNS. SNS automatically fans it out to all subscribed SQS queues.</>,
+    <><b style={{color:meta.color}}>Step 3 — Subscribe SQS queues to SNS topic</b><br/><br/><span style={{color:"#a3e635"}}># Create 3 queues<br/>email_queue = sqs.create_queue(QueueName='email-queue')<br/>analytics_queue = sqs.create_queue(QueueName='analytics-queue')<br/>inventory_queue = sqs.create_queue(QueueName='inventory-queue')<br/><br/># Subscribe each to SNS topic<br/>sns.subscribe(TopicArn=topic_arn, Protocol='sqs', Endpoint=email_queue_arn)</span><br/><br/>Each SQS queue receives a COPY of every message. Independent processing!</>,
+    <><b style={{color:meta.color}}>Step 4 — Consumers process independently</b><br/><br/>Email service polls email-queue. Analytics service polls analytics-queue. Inventory service polls inventory-queue. None interfere. One slow service doesn't block others. Perfect decoupling!</>,
+    <><b style={{color:meta.color}}>Step 5 — Add new consumer without changing publisher</b><br/><br/>New requirement: send SMS notifications. Create sms-queue, subscribe to SNS topic. Done! No change to producer code. This is the power of pub/sub with SQS.</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:10,alignItems:"center"}}>
+          {stage>=1&&<FlowNode tok={T.producer} icon="📤" label="Publisher" active w={100}/>}
+          {stage>=2&&<Arrow on color={meta.color} label="SNS Topic"/>}
+          {stage>=2&&(
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center"}}>
+              <FlowNode tok={T.sqs} icon="📧" label="Email Queue" active={stage>=3} w={95}/>
+              {stage>=4&&<FlowNode tok={T.consumer} icon="✉️" label="Email Svc" active w={95}/>}
+            </div>
+          )}
+          {stage>=3&&(
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center"}}>
+              <FlowNode tok={T.sqs} icon="📊" label="Analytics Queue" active={stage>=4} w={95}/>
+              {stage>=4&&<FlowNode tok={T.consumer} icon="📈" label="Analytics Svc" active w={95}/>}
+            </div>
+          )}
+          {stage>=3&&(
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center"}}>
+              <FlowNode tok={T.sqs} icon="📦" label="Inventory Queue" active={stage>=4} w={95}/>
+              {stage>=4&&<FlowNode tok={T.consumer} icon="🏭" label="Inventory Svc" active w={95}/>}
+            </div>
+          )}
+        </div>
+        {stage>=4&&(
+          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:10,fontFamily:"monospace",color:meta.color}}>
+            ✅ Decoupled: each consumer independent. Add/remove without affecting others.
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 15 (SQS): Message Attributes & Filtering ──────────────────────────
+function SQSFilteringLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const [filterType, setFilterType] = useState("string");
+  const locked = stage > 0 && stage < STEPS;
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Attach metadata to messages: MessageAttributes</b><br/><br/><span style={{color:"#a3e635"}}>sns.publish(<br/>{"    "}TopicArn=topic_arn,<br/>{"    "}Message=message,<br/>{"    "}MessageAttributes={"{"}<br/>{"    "}{"    "}'event_type': {"{'DataType': 'String', 'StringValue': 'order'}"},<br/>{"    "}{"    "}'priority': {"{'DataType': 'String', 'StringValue': 'high'}"},<br/>{"    "}{"    "}'region': {"{'DataType': 'String', 'StringValue': 'us-west-2'}"}<br/>{"    "}{"}"})</span><br/><br/>Each message carries structured metadata beyond the message body.</>,
+    <><b style={{color:meta.color}}>Step 2 — Define filter policy: only matching attributes are delivered</b><br/><br/><span style={{color:"#a3e635"}}>filter_policy = {"{"}<br/>{"    "}'event_type': ['order', 'payment'],<br/>{"    "}'priority': ['high'],<br/>{"    "}'region': ['us-west-2', 'us-east-1']<br/>{"}"}<br/>sns.set_subscription_attributes(..., AttributeName='FilterPolicy', AttributeValue=json.dumps(filter_policy))</span><br/><br/>SNS only delivers to this queue if: (event_type=order OR payment) AND priority=high AND (region=us-west OR us-east).</>,
+    <><b style={{color:meta.color}}>Step 3 — String matching: exact values</b><br/><br/>Filter: {"{'event_type': ['order']}"} → only messages with event_type=order pass. Messages with event_type=payment are dropped (saved to DLQ or lost, depending on SNS config).</>,
+    <><b style={{color:meta.color}}>Step 4 — Numeric and exists conditions</b><br/><br/><span style={{color:"#a3e635"}}>filter_policy = {"{"}<br/>{"    "}'amount': [{"{'numeric': ['>', 100]}"}],  # amount > 100<br/>{"    "}'optional_field': [{"{'exists': True}"}]  # field must be present<br/>{"}"}</span><br/><br/>Powerful matching: numeric comparisons, field existence, array contains. All without writing code.</>,
+    <><b style={{color:meta.color}}>Step 5 — Cost savings: unmatched messages never reach queue</b><br/><br/>SNS filter is applied server-side. Messages that don't match the filter policy are not fanned to the queue. No API charges, no storage cost for irrelevant messages. Filter early, filter often!</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+        {["string","numeric","exists"].map(f=>(
+          <button key={f} disabled={locked} onClick={()=>setFilterType(f)} style={{padding:"6px 12px",borderRadius:8,fontSize:10,fontFamily:"monospace",fontWeight:600,background:filterType===f?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${filterType===f?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:filterType===f?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"capitalize"}}>
+            {f}
+          </button>
+        ))}
+      </div>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        {stage>=2&&(
+          <div style={{display:"flex",flexDirection:"column",gap:6,fontSize:10,fontFamily:"monospace"}}>
+            <div style={{color:"#475569"}}>📋 Filter Policy:</div>
+            {filterType==="string"&&(
+              <div style={{padding:"8px 10px",borderRadius:6,background:"#f1f5f9",color:"#64748b"}}>
+                {"{"} "event_type": ["order", "payment"] {"}"}
+              </div>
+            )}
+            {filterType==="numeric"&&(
+              <div style={{padding:"8px 10px",borderRadius:6,background:"#f1f5f9",color:"#64748b"}}>
+                {"{"} "amount": [{"{numeric: [">", 100]}"} ] {"}"}
+              </div>
+            )}
+            {filterType==="exists"&&(
+              <div style={{padding:"8px 10px",borderRadius:6,background:"#f1f5f9",color:"#64748b"}}>
+                {"{"} "optional_field": [{"{exists: true}"} ] {"}"}
+              </div>
+            )}
+            {stage>=3&&(
+              <div style={{padding:"8px 10px",borderRadius:6,background:meta.color+"15",color:meta.color}}>
+                ✅ Only matching messages reach queue | ❌ Others dropped
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 16 (SQS): Security ────────────────────────────────────────────────
+function SQSSecurityLesson({ meta }) {
+  const STEPS = 5;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — IAM: control WHO can access the queue</b><br/><br/><span style={{color:"#a3e635"}}>{"{"}<br/>{"  "}"Effect": "Allow",<br/>{"  "}"Principal": {"{"} "AWS": "arn:aws:iam::123456:user/alice" {"}"},<br/>{"  "}"Action": ["sqs:SendMessage", "sqs:ReceiveMessage"],<br/>{"  "}"Resource": "arn:aws:sqs:us-east-1:123456:orders-queue"<br/>{"}"}</span><br/><br/>Only Alice can send and receive. Bob cannot. Fine-grained permission control.</>,
+    <><b style={{color:meta.color}}>Step 2 — Queue Policy: cross-account or service access</b><br/><br/><span style={{color:"#a3e635"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'Policy': json.dumps({"{"} "Effect": "Allow", "Principal": "arn:aws:iam::OTHER_ACCOUNT:role/service" {"}"})<br/>{"    "}{"}"})</span><br/><br/>Resource-based policy. Allows another AWS account's service to access this queue.</>,
+    <><b style={{color:meta.color}}>Step 3 — KMS: encrypt messages at rest</b><br/><br/><span style={{color:"#a3e635"}}>sqs.set_queue_attributes(<br/>{"    "}QueueUrl=queue_url,<br/>{"    "}Attributes={"{"}<br/>{"    "}{"    "}'KmsMasterKeyId': 'arn:aws:kms:...:key/...'<br/>{"    "}{"}"})</span><br/><br/>Each message is encrypted with the KMS key before storage. Decrypted on receive. Data safe at rest.</>,
+    <><b style={{color:meta.color}}>Step 4 — VPC Endpoint: private network (no internet)</b><br/><br/><span style={{color:"#a3e635"}}>ec2 = boto3.client('ec2')<br/>ec2.create_vpc_endpoint(<br/>{"    "}VpcEndpointType='Interface',<br/>{"    "}ServiceName='com.amazonaws.us-east-1.sqs')</span><br/><br/>EC2 instances in the VPC communicate with SQS via private endpoint. No internet gateway needed. Data never leaves AWS network.</>,
+    <><b style={{color:meta.color}}>Step 5 — Layered security: IAM + Queue Policy + KMS + VPC</b><br/><br/>All four together: who accesses (IAM), from where (VPC endpoint), how encrypted (KMS), what permissions (queue policy). Defense in depth!</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
+        {stage>=1&&(
+          <div style={{display:"flex",flexDirection:"column",gap:6,fontSize:10}}>
+            <div style={{display:"flex",gap:4,alignItems:"center"}}>
+              <div style={{width:16,height:16,borderRadius:4,background:"#ef4444"}}/>
+              <span style={{color:"#64748b",fontWeight:600}}>IAM</span>
+              <span style={{color:"#94a3b8",fontSize:9}}>Who</span>
+            </div>
+            {stage>=2&&(
+              <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                <div style={{width:16,height:16,borderRadius:4,background:"#f97316"}}/>
+                <span style={{color:"#64748b",fontWeight:600}}>Queue Policy</span>
+                <span style={{color:"#94a3b8",fontSize:9}}>Cross-Account</span>
+              </div>
+            )}
+            {stage>=3&&(
+              <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                <div style={{width:16,height:16,borderRadius:4,background:"#eab308"}}/>
+                <span style={{color:"#64748b",fontWeight:600}}>KMS Encryption</span>
+                <span style={{color:"#94a3b8",fontSize:9}}>At Rest</span>
+              </div>
+            )}
+            {stage>=4&&(
+              <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                <div style={{width:16,height:16,borderRadius:4,background:"#06b6d4"}}/>
+                <span style={{color:"#64748b",fontWeight:600}}>VPC Endpoint</span>
+                <span style={{color:"#94a3b8",fontSize:9}}>Private</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
+// ─── LESSON 17 (SQS): Production Project ──────────────────────────────────────
+function SQSProductionLesson({ meta }) {
+  const STEPS = 7;
+  const [stage, setStage] = useState(0);
+  const advance = useCallback(() => setStage(s => (s >= STEPS ? 0 : s + 1)), []);
+  const goBack  = useCallback(() => setStage(s => (s > 0 ? s - 1 : 0)), []);
+  const NARR = [null,
+    <><b style={{color:meta.color}}>Step 1 — Architecture: Order API → order-queue.fifo → validators → payment-queue → SNS fan-out → downstream queues + DLQs</b><br/><br/>Strict ordering, exactly-once delivery, multiple stages, independent consumers, comprehensive DLQ monitoring.</>,
+    <><b style={{color:meta.color}}>Step 2 — FIFO queue: strict ordering per customer</b><br/><br/><span style={{color:"#a3e635"}}>sqs.send_message(<br/>{"    "}QueueUrl='order-queue.fifo',<br/>{"    "}MessageGroupId=customer_id,  # Orders for Alice in sequence<br/>{"    "}MessageDeduplicationId=order_id,  # Idempotent<br/>{"    "}MessageBody=json.dumps(order))</span><br/><br/>Orders for customer "alice" always processed in sequence. Dedup ID prevents accidental replays within 5 min.</>,
+    <><b style={{color:meta.color}}>Step 3 — Lambda validator: check order, inventory, update DB</b><br/><br/><span style={{color:"#a3e635"}}>def validate_order(event):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}order = json.loads(record['body'])<br/>{"    "}{"    "}if check_inventory(order):<br/>{"    "}{"    "}{"    "}sqs.send_message(QueueUrl=payment_queue, MessageBody=order)<br/>{"    "}{"    "}else:<br/>{"    "}{"    "}{"    "}sqs.send_message(QueueUrl=dlq, MessageBody=order)</span><br/><br/>Success → payment queue. Failure → DLQ. Clean separation.</>,
+    <><b style={{color:meta.color}}>Step 4 — Payment processing: charge card, emit success</b><br/><br/><span style={{color:"#a3e635"}}>def process_payment(event):<br/>{"    "}for record in event['Records']:<br/>{"    "}{"    "}order = json.loads(record['body'])<br/>{"    "}{"    "}charge_result = stripe.charge(...)<br/>{"    "}{"    "}sns.publish(TopicArn=payment_success_topic, Message=order)</span><br/><br/>Successfully charged orders published to SNS payment_success topic.</>,
+    <><b style={{color:meta.color}}>Step 5 — SNS fan-out: email, analytics, inventory (independent)</b><br/><br/>payment_success topic → 3 queues:<br/>• email-queue (send receipt)<br/>• analytics-queue (track metrics)<br/>• inventory-queue (decrement stock)<br/><br/>All work in parallel. One slow consumer doesn't block others.</>,
+    <><b style={{color:meta.color}}>Step 6 — DLQ monitoring: alerts and manual redrive</b><br/><br/><span style={{color:"#a3e635"}}>cloudwatch.put_metric_alarm(<br/>{"    "}AlarmName='dlq-has-messages',<br/>{"    "}MetricName='ApproximateNumberOfMessagesVisible',<br/>{"    "}Threshold=1,<br/>{"    "}AlarmActions=['arn:aws:sns:...pagerduty'])</span><br/><br/>DLQ messages trigger PagerDuty. Ops investigates, fixes, redrives.</>,
+    <><b style={{color:meta.color}}>Step 7 — Cost optimization: batching, long polling, SQS Extended Client</b><br/><br/>• Long polling (WaitTimeSeconds=20) reduces API calls<br/>• Batch operations (10 per call) saves cost<br/>• SQS Extended Client for large payloads (>256KB): store in S3, reference in SQS<br/>• This production system is resilient, scalable, and cost-effective!</>,
+  ];
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <StepBar current={stage} total={STEPS} color={meta.color}/>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px",fontSize:9,fontFamily:"monospace"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          {stage>=1&&(
+            <div style={{display:"flex",alignItems:"center",gap:4}}>
+              <div style={{width:12,height:12,borderRadius:"50%",background:meta.color}}/>
+              <span style={{color:"#475569"}}>Order API → order-queue.fifo</span>
+            </div>
+          )}
+          {stage>=2&&(
+            <div style={{display:"flex",alignItems:"center",gap:4}}>
+              <div style={{width:12,height:12,borderRadius:"50%",background:"#10b981"}}/>
+              <span style={{color:"#475569"}}>Validator Lambda → payment-queue / dlq-validate</span>
+            </div>
+          )}
+          {stage>=4&&(
+            <div style={{display:"flex",alignItems:"center",gap:4}}>
+              <div style={{width:12,height:12,borderRadius:"50%",background:"#a855f7"}}/>
+              <span style={{color:"#475569"}}>Payment Lambda → SNS fan-out / dlq-payment</span>
+            </div>
+          )}
+          {stage>=5&&(
+            <>
+              <div style={{display:"flex",alignItems:"center",gap:4,marginLeft:16}}>
+                <div style={{width:8,height:8,borderRadius:"50%",background:"#ec4899"}}/>
+                <span style={{color:"#64748b"}}>email-queue</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:4,marginLeft:16}}>
+                <div style={{width:8,height:8,borderRadius:"50%",background:"#ec4899"}}/>
+                <span style={{color:"#64748b"}}>analytics-queue</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:4,marginLeft:16}}>
+                <div style={{width:8,height:8,borderRadius:"50%",background:"#ec4899"}}/>
+                <span style={{color:"#64748b"}}>inventory-queue</span>
+              </div>
+            </>
+          )}
+          {stage>=6&&(
+            <div style={{display:"flex",alignItems:"center",gap:4}}>
+              <div style={{width:12,height:12,borderRadius:"50%",background:"#ef4444"}}/>
+              <span style={{color:"#475569"}}>DLQ monitoring → PagerDuty alerts</span>
+            </div>
+          )}
+        </div>
+      </div>
+      <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
+      <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
+    </div>
+  );
+}
+
 
 // ─── LESSON 11: AWS SQS – Standard Queue ─────────────────────────────────────
 function SQSStandardLesson({ meta }) {
@@ -3348,7 +4294,7 @@ function RmqScenarioShell({ title, steps }) {
 // ── RabbitMQ Prod Scenario 1: E-commerce Order Processing ────────────────────
 function RmqProdEcommerce() {
   const steps = [
-    {
+  {
       stepLabel: "Topology",
       narTitle: "E-commerce Order Processing Architecture",
       narBody: "Three topic exchanges fan traffic to specialised queues: order.created events route to fulfillment, billing, and analytics workers. DLQ captures failed messages for retry.",
@@ -3388,7 +4334,7 @@ channel.queue_bind(
   queue='fulfillment',
   routing_key='order.created.*')`,
     },
-    {
+  {
       stepLabel: "Publish",
       narTitle: "Order Published with Routing Key",
       narBody: "The Order API publishes to the 'orders' topic exchange with routing key 'order.created.electronics'. delivery_mode=2 makes the message persistent — it survives a broker restart.",
@@ -3422,7 +4368,7 @@ channel.queue_bind(
     timestamp=int(time.time()),
   ))`,
     },
-    {
+  {
       stepLabel: "Routing",
       narTitle: "Topic Exchange Pattern Matching",
       narBody: "'order.created.electronics' matches 'order.created.*' (fulfillment) AND 'order.#' (analytics). The exchange copies the message to BOTH matching queues — this is fan-out with selectivity.",
@@ -3459,7 +4405,7 @@ for queue, pattern in bindings:
     queue=queue,
     routing_key=pattern)`,
     },
-    {
+  {
       stepLabel: "Fair Dispatch",
       narTitle: "prefetch_count=1 — Fair Worker Dispatch",
       narBody: "Without prefetch, RabbitMQ round-robins blindly — a slow worker gets flooded. With prefetch_count=1, each worker holds at most 1 unacknowledged message, ensuring faster workers do more work.",
@@ -3497,7 +4443,7 @@ for queue, pattern in bindings:
 
   channel.start_consuming()`,
     },
-    {
+  {
       stepLabel: "DLQ",
       narTitle: "Dead Letter Queue — Failed Message Handling",
       narBody: "Payment processing fails for ord-4893 (card declined). After 3 NACK + requeue=False, the message is dead-lettered to orders.dead exchange with original headers preserved for debugging.",
@@ -3539,7 +4485,7 @@ def callback(ch, method, props, body):
       method.delivery_tag,
       requeue=False)   # → DLQ`,
     },
-    {
+  {
       stepLabel: "Publisher Confirms",
       narTitle: "Publisher Confirms — Guaranteed Delivery",
       narBody: "channel.confirm_delivery() switches the channel to confirm mode. The broker sends a basic.ack once the message is persisted to disk (both exchange + all bound queues). No ack = retry.",
@@ -3578,7 +4524,7 @@ def publish_with_confirm(order):
   else:
     raise Exception("Nack received — retry")`,
     },
-    {
+  {
       stepLabel: "Consumer ACK",
       narTitle: "Consumer ACK Flow — At-Least-Once Delivery",
       narBody: "The worker calls basic_ack only AFTER successfully writing to the database. If the worker crashes mid-processing, RabbitMQ re-delivers the message to another worker — guaranteeing no loss.",
@@ -3627,7 +4573,7 @@ def publish_with_confirm(order):
 // ── RabbitMQ Prod Scenario 2: Financial Event Sourcing ───────────────────────
 function RmqProdFintech() {
   const steps = [
-    {
+  {
       stepLabel: "Topology",
       narTitle: "Financial Event Sourcing Architecture",
       narBody: "A headers exchange routes trade events by asset class and region. Compliance, risk, and audit services subscribe with independent queues. All messages are persistent with mandatory routing.",
@@ -3674,7 +4620,7 @@ channel.queue_bind(
     'notional_usd': 'large',
   })`,
     },
-    {
+  {
       stepLabel: "Persistent Msg",
       narTitle: "Persistent Messages with Mandatory Flag",
       narBody: "mandatory=True ensures the broker returns an Unroutable error if no queue matches the headers. This prevents silent data loss — critical in financial systems where every trade must be audited.",
@@ -3717,7 +4663,7 @@ channel.basic_publish(
       'trade_id': trade['id'],
     }))`,
     },
-    {
+  {
       stepLabel: "Tx & Confirms",
       narTitle: "AMQP Transactions vs Publisher Confirms",
       narBody: "For exactly-once publish semantics, choose between AMQP transactions (slower, atomic) or publisher confirms (async, higher throughput). For high-frequency trading, confirms are preferred.",
@@ -3760,7 +4706,7 @@ for trade in batch:
   tag = channel.basic_publish(...)
   pending[tag] = fut`,
     },
-    {
+  {
       stepLabel: "Priority Queue",
       narTitle: "Priority Queue for Regulatory Alerts",
       narBody: "Regulatory trade alerts use a priority queue (x-max-priority=10). A PRIORITY_10 Reg-NMS violation message skips ahead of thousands of normal audit messages.",
@@ -3801,7 +4747,7 @@ channel.basic_publish(
     expiration='10000',   # 10s TTL
   ))`,
     },
-    {
+  {
       stepLabel: "TTL & Expiry",
       narTitle: "Message TTL — Time-Sensitive Market Data",
       narBody: "Market data quotes expire quickly. x-message-ttl=500ms ensures stale price quotes are dropped from the queue rather than processed by a downstream service with outdated data.",
@@ -3841,7 +4787,7 @@ channel.basic_publish(
     delivery_mode=1,     # non-persistent ok
   ))`,
     },
-    {
+  {
       stepLabel: "Audit Stream",
       narTitle: "Audit Trail with Shovel + Remote Archival",
       narBody: "The Shovel plugin forwards a copy of every compliance queue message to a long-term S3-backed audit broker over federation. This creates a tamper-resistant append-only audit log.",
@@ -3883,7 +4829,7 @@ shovel.compliance_archive.reconnect-delay = 5
 // ── RabbitMQ Prod Scenario 3: High-Availability Cluster ──────────────────────
 function RmqProdHA() {
   const steps = [
-    {
+  {
       stepLabel: "Cluster Setup",
       narTitle: "3-Node RabbitMQ Cluster Topology",
       narBody: "Three nodes form a cluster sharing metadata (exchanges, bindings, users) but NOT queue data by default. Classic mirrored queues or Quorum queues distribute message data for HA.",
@@ -3921,7 +4867,7 @@ curl -u admin:pass \\
   -d '{"durable":true,
        "arguments":{"x-queue-type":"quorum"}}'`,
     },
-    {
+  {
       stepLabel: "Quorum Queue",
       narTitle: "Quorum Queues — Raft-Based Replication",
       narBody: "Quorum queues use the Raft consensus algorithm. A message is confirmed only after a majority (quorum) of replicas have persisted it. This guarantees no data loss even on a single node failure.",
@@ -3963,7 +4909,7 @@ channel.basic_consume(
   auto_ack=False,
   on_message_callback=callback)`,
     },
-    {
+  {
       stepLabel: "Node Failure",
       narTitle: "Node Failure — Automatic Leader Election",
       narBody: "node1 crashes. The Raft protocol elects node2 as the new leader within ~5 seconds. Consumers reconnect via HAProxy; no messages are lost because node2 already has all committed data.",
@@ -4006,7 +4952,7 @@ def connect_with_retry():
       time.sleep(2)
       continue  # HAProxy retries next node`,
     },
-    {
+  {
       stepLabel: "Rolling Upgrade",
       narTitle: "Zero-Downtime Rolling Upgrade",
       narBody: "RabbitMQ supports rolling upgrades one node at a time. Drain the node (remove from LB), upgrade, restart, re-join cluster. Quorum queues maintain availability as long as majority is up.",
@@ -4049,7 +4995,7 @@ rabbitmqctl list_queues name \
 
 ## Step 6: Re-add to HAProxy`,
     },
-    {
+  {
       stepLabel: "Monitoring",
       narTitle: "Production Monitoring — Prometheus + Grafana",
       narBody: "The rabbitmq_prometheus plugin exposes /metrics. Key SLOs: queue depth < 10k, consumer utilisation > 0.8, memory < 70% of watermark, disk free > 5GB. Alert on any breach.",
@@ -4136,7 +5082,7 @@ function RabbitMQProductionLab() {
 function ProdEcommerce() {
   const C = "#0ea5e9";
   const STEPS = [
-    {
+  {
       title: "Service Mesh Topology — 6 services, every pod Envoy-injected",
       hops: [
         { name: "Browser", sub: "user agent", color: "#64748b", active: true },
@@ -4157,7 +5103,7 @@ function ProdEcommerce() {
       narTitle: "How Envoy enters every pod",
       narBody: "The istio-init init container runs iptables rules before the app starts: all outbound TCP is redirected to Envoy :15001, all inbound to :15006. The app binds normally to :8080/:9090 — it never sees raw TCP. Istiod pushes xDS config (Listeners, Routes, Clusters, Endpoints) to each Envoy over gRPC. The entire mesh config is delivered in under 1 second after a pod starts.",
     },
-    {
+  {
       title: "iptables REDIRECT — how every sidecar captures traffic transparently",
       hops: [
         { name: "App :8080", sub: "frontend", color: "#38bdf8", active: true },
@@ -4200,7 +5146,7 @@ iptables -t nat -A PREROUTING -p tcp \\
       narTitle: "How iptables makes the sidecar completely transparent",
       narBody: "The istio-init init container installs NAT rules before any app traffic flows. Every outbound connection from the app (attempting to connect to cart:9090) is transparently redirected to Envoy :15001. Envoy uses the SO_ORIGINAL_DST socket option to recover the original destination and look up the correct xDS cluster. The app code in Frontend calls cart:9090 normally — it has no idea Envoy is in the path. No app code changes, no env vars, no proxy settings.",
     },
-    {
+  {
       title: "JWT Auth Filter — validating the Bearer token at the Ingress edge",
       hops: [
         { name: "Browser", sub: "Authorization: Bearer eyJ...", color: "#64748b", active: true },
@@ -4246,7 +5192,7 @@ spec:
       narTitle: "How JWT validation works inside Envoy — before any app code runs",
       narBody: "The JWT Auth filter intercepts the request before routing. It fetches the JWKS (public keys) from the issuer URL — cached with a 5-minute TTL, so latency is ~0 on cache hit. It verifies the RS256 signature, checks exp/nbf/aud claims. On success, it extracts the JWT payload into Envoy dynamic metadata (request.auth.claims). Downstream AuthorizationPolicy can then match against request.auth.claims[role]. If the token is missing or invalid: 401 Jwt verification fails — the request never touches the app.",
     },
-    {
+  {
       title: "mTLS Handshake — SPIFFE certificate exchange between sidecars",
       hops: [
         { name: "Frontend", sub: "plain HTTP out", color: C, active: true },
@@ -4289,7 +5235,7 @@ spec:
       narTitle: "How mTLS works without touching application code",
       narBody: "Istiod is the mesh Certificate Authority. Each Envoy sidecar calls the SDS gRPC API at startup to receive its X.509 SVID — a cert whose Subject Alternative Name (SAN) is a SPIFFE URI encoding the pod's namespace and ServiceAccount: spiffe://cluster.local/ns/istio-demo/sa/frontend. On every outbound connection, Envoy automatically presents this cert and verifies the peer cert. The app sends/receives plain HTTP internally — it has no idea TLS is happening. The XFCC (x-forwarded-client-cert) header makes the verified peer identity available to the app and AuthorizationPolicy.",
     },
-    {
+  {
       title: "Outlier Detection — Circuit Breaker ejecting a failing Product pod",
       hops: [
         { name: "Frontend", sub: "GET /product", color: C, active: true },
@@ -4329,7 +5275,7 @@ spec:
       narTitle: "How circuit breaking prevents cascading failure",
       narBody: "Outlier detection tracks each endpoint (pod IP:port) independently inside Envoy's EDS cluster. After consecutiveGatewayErrors=3 consecutive 5xx responses from pod-2, that specific pod is ejected from the load-balancing pool for baseEjectionTime=30s. The retry filter immediately re-routes to pod-3. The caller (Frontend) sees a 200 with one retry header — no 503 surfaces to the user. After 30s, pod-2 is re-probed at 10% traffic weight. If it recovers, weight gradually restores.",
     },
-    {
+  {
       title: "VirtualService Canary — 90/10 weighted routing to Payment v2",
       hops: [
         { name: "Frontend", sub: "POST /checkout", color: C, active: true },
@@ -4384,7 +5330,7 @@ spec:
       narTitle: "How Envoy implements weighted routing with no load balancer changes",
       narBody: "The VirtualService is compiled by Istiod into an xDS Route Configuration (RDS) and pushed to the Frontend's sidecar Envoy — no restart, no rolling update. At request time, Envoy evaluates the weighted route: it selects the destination subset using a random number in [0, total_weight). subset: v2 maps to a DestinationRule subset that filters EDS endpoints by label version=v2. The canary rollout is instant — one kubectl apply and the next request can hit v2. To increase the canary, edit the weight from 10 to 25 and re-apply.",
     },
-    {
+  {
       title: "Retry + Timeout — automatic recovery from transient Payment failures",
       hops: [
         { name: "Frontend", sub: "POST /checkout", color: C, active: true },
@@ -4428,7 +5374,7 @@ spec:
       narTitle: "How retry logic is entirely enforced in Envoy — zero app changes",
       narBody: "The VirtualService retry config is compiled into a per-route retry policy in Envoy's RDS config. On a 503 response, Envoy's retry filter checks: Does the response code match retryOn? Is perTryTimeout exceeded? Are we under the attempts limit? If all pass, Envoy backs off 100ms, picks a different healthy endpoint from the EDS cluster, and re-dispatches. The app in Frontend makes one HTTP call — it never sees the 503. The global timeout=3s caps the total attempt chain, preventing unbounded retries from holding connections indefinitely.",
     },
-    {
+  {
       title: "Distributed Tracing — x-b3 headers linking every hop in Jaeger",
       hops: [
         { name: "Ingress GW", sub: "span: ROOT", color: C, active: true, sidecarAction: "create traceid", sidecarNote: "x-b3-traceid" },
@@ -4478,7 +5424,7 @@ spec:
 function ProdFintech() {
   const C = "#a78bfa";
   const STEPS = [
-    {
+  {
       title: "Zero-Trust API Topology — JWT + SPIFFE + Egress Audit",
       hops: [
         { name: "Mobile App", sub: "Bearer JWT", color: "#64748b", active: true },
@@ -4499,7 +5445,7 @@ function ProdFintech() {
       narTitle: "Zero-trust FinTech: defense in depth with Istio",
       narBody: "Every request passes through 4 security checkpoints: (1) JWT signature validation at the ingress edge, (2) JWT claims-based AuthorizationPolicy per service, (3) SPIFFE mTLS between every internal service, (4) all external egress routed through a dedicated Egress Gateway with full access logs. No traffic ever reaches an internal service without passing all checkpoints. A compromised pod cannot talk to another service — SPIFFE identity prevents it.",
     },
-    {
+  {
       title: "JWT Validation — JWKS fetch, signature verification, claim extraction",
       hops: [
         { name: "Mobile App", sub: "Authorization: Bearer eyJ...", color: "#64748b", active: true },
@@ -4542,7 +5488,7 @@ spec:
       narTitle: "How Envoy validates JWTs without contacting the IdP on every request",
       narBody: "The JWT Auth filter uses public-key cryptography (RS256). It only needs the IdP's public key (JWKS) — not the IdP itself — to verify tokens. The JWKS is fetched once and cached for 5 minutes. On cache hit, verification is a pure CPU operation (~0.1ms). On cache miss, Envoy fetches JWKS async without blocking the request. If the token is expired, has a bad signature, or wrong audience: 401 Jwt verification fails is returned before the request reaches any backend.",
     },
-    {
+  {
       title: "Claims-based AuthorizationPolicy — role gating per endpoint",
       hops: [
         { name: "Ingress GW", sub: "JWT claims attached", color: C, active: true },
@@ -4589,7 +5535,7 @@ spec:
       narTitle: "How JWT claims become authorization decisions at the sidecar level",
       narBody: "The JWT Auth filter at the Ingress extracts claims into Envoy's dynamic metadata. When the request reaches Transaction svc's sidecar, the AuthorizationPolicy engine reads request.auth.claims[role] from that metadata — no extra network call. The ALLOW rule is an explicit allowlist: any request NOT matching a rule is implicitly DENIED (Istio default deny-all semantics). A user with role=user calling POST /transfer gets: 403 RBAC: access denied from the sidecar before the app code runs.",
     },
-    {
+  {
       title: "WasmPlugin Rate Limiter — request counting at the AUTHZ phase",
       hops: [
         { name: "Mobile App", sub: "200+ req/min", color: "#64748b", active: true },
@@ -4634,7 +5580,7 @@ spec:
       narTitle: "How WasmPlugin inserts custom logic into Envoy's filter chain",
       narBody: "WasmPlugin loads a compiled WebAssembly binary into Envoy's filter chain at a specified phase (AUTHN, AUTHZ, or STATS). The plugin runs in a sandboxed Wasm runtime — no host file/network access, safe to deploy. The rate limiter Wasm module reads the JWT sub claim from Envoy metadata (previously extracted by the JWT filter), increments a per-user counter in the module's memory, and returns HTTP 429 if over the limit. The OCI image is pulled by Istio's agent and distributed to all matching sidecars via xDS — no restart required.",
     },
-    {
+  {
       title: "Egress Gateway — centralised auditing of all outbound calls to Stripe",
       hops: [
         { name: "Transaction", sub: "call Stripe", color: "#0ea5e9", active: true },
@@ -4680,7 +5626,7 @@ spec:
       narTitle: "How egress gateway centralises external call auditing",
       narBody: "Without an egress gateway, any pod in the cluster can call Stripe directly — hard to audit, impossible to block selectively. The VirtualService mesh rule intercepts calls to api.stripe.com at the source pod's sidecar and redirects them to the Egress Gateway pod first. The Egress GW writes a structured access log entry for every call — capturing source service identity (SPIFFE), destination, path, status, and duration. Compliance teams get a single audit stream. External firewalls only need to allowlist the Egress GW's fixed IP.",
     },
-    {
+  {
       title: "mTLS STRICT — blocking plaintext inter-service calls entirely",
       hops: [
         { name: "Transaction", sub: "plain HTTP attempt", color: "#ef4444", active: true, warn: true },
@@ -4723,7 +5669,7 @@ spec:
       narTitle: "How STRICT mTLS prevents lateral movement from compromised pods",
       narBody: "PeerAuthentication STRICT mode makes Account svc's inbound listener reject any non-TLS connection immediately. A compromised pod in another namespace that tries to call Account svc directly gets a TLS error — even if it knows the Service DNS name. It cannot present a valid SPIFFE cert for the fintech namespace because Istiod only issues certs to pods with the correct ServiceAccount. STRICT mTLS is the last line of defence: even if network policies, ingress controls, and AuthzPolicy all fail, the cryptographic identity check holds.",
     },
-    {
+  {
       title: "Audit Access Log — structured egress log fields for compliance",
       hops: [
         { name: "Transaction", sub: "POST /charges", color: "#0ea5e9", active: true },
@@ -4776,7 +5722,7 @@ spec:
 function ProdSaaS() {
   const C = "#34d399";
   const STEPS = [
-    {
+  {
       title: "Multi-tenant SaaS Topology — namespace isolation via Istio",
       hops: [
         { name: "Tenant-A", sub: "frontend-a", color: C, active: true, sidecarAction: "STRICT mTLS", sidecarNote: "PeerAuth per-ns" },
@@ -4793,7 +5739,7 @@ function ProdSaaS() {
       narTitle: "How Istio enforces tenant isolation without network policies",
       narBody: "Each tenant runs in a dedicated Kubernetes namespace. Istio provides isolation at three layers: (1) PeerAuthentication STRICT in each namespace enforces mTLS — tenants cannot receive plaintext connections. (2) AuthorizationPolicy default-deny blocks all cross-namespace calls by default. (3) Istiod issues SPIFFE certs scoped to the namespace/ServiceAccount — Tenant-A pods physically cannot present a Tenant-B SPIFFE identity. No Kubernetes NetworkPolicy required.",
     },
-    {
+  {
       title: "Cross-tenant call blocked — AuthzPolicy evaluation at the sidecar",
       hops: [
         { name: "Frontend-A", sub: "tenant-a ns", color: C, active: true },
@@ -4836,7 +5782,7 @@ spec:
       narTitle: "How the sidecar enforces tenant isolation before any app code runs",
       narBody: "The cross-tenant denial happens entirely inside the destination sidecar (API-B's Envoy). The mTLS handshake succeeds — the cert is valid. But the AuthorizationPolicy rule checks the source namespace extracted from the SPIFFE URI. tenant-a does not match tenant-b, so no ALLOW rule fires and the default DENY is returned. API-B's application code is never invoked. This is a cryptographic guarantee: Tenant-A pods cannot fake a Tenant-B SPIFFE cert because Istiod only issues certs matching the pod's actual ServiceAccount and namespace.",
     },
-    {
+  {
       title: "SPIFFE Identity — namespace-scoped certificates from Istiod",
       hops: [
         { name: "Istiod CA", sub: "cert authority", color: "#f59e0b", active: true, sidecarAction: "issue SVIDs", sidecarNote: "X.509 + SPIFFE URI SAN" },
@@ -4878,7 +5824,7 @@ spec:
       narTitle: "How SPIFFE certificates encode namespace and ServiceAccount identity",
       narBody: "Istiod acts as the mesh Certificate Authority. Every Envoy calls the SDS gRPC API at startup, presenting its Kubernetes ServiceAccount JWT as proof of identity. Istiod verifies the token with the K8s API Server, then issues an X.509 cert with SAN = spiffe://cluster.local/ns/<namespace>/sa/<serviceaccount>. This SPIFFE URI is the cryptographic identity of the pod. Since Istiod only issues certs matching the pod's actual namespace and ServiceAccount (verified by K8s), a Tenant-A pod physically cannot obtain a Tenant-B cert.",
     },
-    {
+  {
       title: "Traffic Mirroring — dark launch of API-A v2 under real load",
       hops: [
         { name: "Client", sub: "live request", color: "#64748b", active: true },
@@ -4925,7 +5871,7 @@ spec:
       narTitle: "How traffic mirroring enables zero-risk production load testing",
       narBody: "Envoy's mirror filter sends an asynchronous copy of every request to the shadow destination. The copy is sent after the primary response is already on its way back to the client — zero added latency. The shadow response is discarded by Envoy regardless of status code. Errors, panics, or slow responses in v2 have zero user impact. Engineers monitor Grafana dashboards to compare v1 and v2 metrics under identical production load. When v2's metrics match v2's metrics, they shift live traffic with a VirtualService weight change.",
     },
-    {
+  {
       title: "Sidecar CRD — scoping Envoy config to slash memory by 75%",
       hops: [
         { name: "API-A Pod", sub: "before scoping", color: "#ef4444", active: true, sidecarAction: "200 clusters", sidecarNote: "~180MB Envoy RAM" },
@@ -4971,7 +5917,7 @@ spec:
       narTitle: "How Sidecar CRD reduces Envoy memory and limits blast radius",
       narBody: "By default, every Envoy sidecar holds config for every service in the entire mesh — this is Istiod's default 'push everything' model. In a 200-service mesh, that is ~180MB RAM per sidecar and 200 cluster entries. The Sidecar CRD creates an egress allowlist: Istiod only pushes config for services that pod can legitimately reach. The result: 188 unnecessary cluster entries removed, memory drops to 45MB, and xDS config push time halves. Side benefit: blast radius reduction — a compromised pod has no Envoy routes to services outside its allowlist.",
     },
-    {
+  {
       title: "Kiali Security Graph — visualising the mesh security posture",
       hops: [
         { name: "Kiali", sub: "service graph", color: "#0ea5e9", active: true, sidecarAction: "query Prometheus", sidecarNote: "Istio telemetry" },
@@ -5017,7 +5963,7 @@ spec:
       narTitle: "How Kiali turns Istio telemetry into a real-time security dashboard",
       narBody: "Kiali reads Istio's Prometheus metrics (specifically the connection_security_policy label on istio_requests_total) to determine the mTLS state of every edge in the service graph. Green padlock = STRICT mTLS confirmed. Yellow warning = PERMISSIVE (accepts plaintext). Red = plaintext detected. The graph also shows AuthzPolicy-blocked requests as red edges — invaluable for spotting misconfigured services or detecting lateral movement attempts. To upgrade Tenant-B from PERMISSIVE to STRICT, apply one PeerAuthentication resource. Kiali's graph turns green within 30 seconds.",
     },
-    {
+  {
       title: "Ambient Mesh option — sidecar-free mTLS for new tenant namespaces",
       hops: [
         { name: "Tenant-C Pod", sub: "no sidecar!", color: "#818cf8", active: true, sidecarAction: "just 1 container", sidecarNote: "label: ambient mode" },
@@ -5129,14 +6075,29 @@ const LESSON_COMPONENTS = {
   "rmq-quorum":          QuorumQueuesLesson,
   "rmq-flow":            FlowControlLesson,
   "rmq-cluster":         ClusteringLesson,
+  "kafka-hello":        KafkaHelloLesson,
   "kafka-partitions":    KafkaPartitionsLesson,
   "kafka-groups":        KafkaGroupsLesson,
   "kafka-offsets":       KafkaOffsetsLesson,
   "kafka-replication":   KafkaReplicationLesson,
+  "kafka-producer":      KafkaProducerLesson,
+  "kafka-schema":        KafkaSchemaLesson,
+  "kafka-streams-api":   KafkaStreamsApiLesson,
+  "kafka-connect":       KafkaConnectLesson,
   "kafka-transactions":  KafkaTransactionsLesson,
   "kafka-compaction":    KafkaCompactionLesson,
+  "kafka-security":      KafkaSecurityLesson,
+  "kafka-production":    KafkaProductionLesson,
+  "sqs-hello":           SQSHelloLesson,
   "sqs-standard":        SQSStandardLesson,
+  "sqs-polling":         SQSPollingLesson,
   "sqs-fifo":            SQSFIFOLesson,
+  "sqs-dlq":             SQSDLQLesson,
+  "sqs-lambda":          SQSLambdaLesson,
+  "sqs-fanout":          SQSFanoutLesson,
+  "sqs-filtering":       SQSFilteringLesson,
+  "sqs-security":        SQSSecurityLesson,
+  "sqs-production":      SQSProductionLesson,
   "istio-arch":          IstioArchLesson,
   "istio-routing":       IstioRoutingLesson,
   "istio-canary":        IstioCanaryLesson,
@@ -5180,9 +6141,9 @@ const HOME_CARDS = [
     subtitle: "Distributed Event Streaming",
     color: "#6366f1",
     bg: "#f0f0ff",
-    description: "Understand distributed log-based messaging: partitions, consumer groups, offsets, replication, transactions, and log compaction.",
-    features: ["Partitions & Key Routing", "Consumer Groups & Rebalance", "Offsets, Commits & Replay", "Transactions & Log Compaction"],
-    lessonCount: 6,
+    description: "Master distributed event streaming: from hello-world to production pipelines. Topics, partitions, consumer groups, producer optimization, Schema Registry, Kafka Streams, Connect integration, security (TLS/SASL), and real-time analytics.",
+    features: ["Hello & First Message", "Producer Batching & Acks", "Schema Registry & Avro", "Kafka Streams Topology", "Kafka Connect Integration", "Security & ACLs", "Production: Real-time Analytics"],
+    lessonCount: 13,
     stack: "Python · confluent-kafka",
   },
   {
@@ -5191,9 +6152,9 @@ const HOME_CARDS = [
     subtitle: "Managed Cloud Queue Service",
     color: "#f59e0b",
     bg: "#fffbf0",
-    description: "Explore AWS fully managed queues — Standard queues with at-least-once delivery and FIFO queues with strict ordering and deduplication.",
-    features: ["Standard Queue & Visibility Timeout", "Long Polling & At-Least-Once", "FIFO & Deduplication IDs", "Dead Letter Queues (DLQ)"],
-    lessonCount: 2,
+    description: "From hello-world to production order pipelines. Standard vs FIFO, polling, batching, Dead Letter Queues, Lambda triggers, SNS fan-out, message attributes & filtering, encryption & IAM security.",
+    features: ["Hello & First Message", "Long Polling & Batching", "FIFO & Deduplication", "Dead Letter Queues", "Lambda Event Triggers", "SNS Fan-out", "Message Attributes & Filtering", "Security & Monitoring"],
+    lessonCount: 10,
     stack: "Python · boto3",
   },
   {
