@@ -28,6 +28,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   color: #1e293b;
+  font-size: 16px;
 }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -84,13 +85,13 @@ function FlowNode({ tok, icon, label, sub, active, dimmed, w = 108 }) {
       transform: active ? "translateY(-2px)" : "translateY(0)",
       opacity: dimmed ? 0.3 : 1,
     }}>
-      <div style={{ fontSize: 20, filter: active ? "none" : dimmed ? "grayscale(1)" : "none" }}>{icon}</div>
+      <div style={{ fontSize: 22, filter: active ? "none" : dimmed ? "grayscale(1)" : "none" }}>{icon}</div>
       <div style={{
-        fontSize: 11, fontWeight: 600, fontFamily: "system-ui, -apple-system, sans-serif", lineHeight: 1.3, marginTop: 4,
+        fontSize: 13, fontWeight: 600, fontFamily: "system-ui, -apple-system, sans-serif", lineHeight: 1.3, marginTop: 4,
         color: active ? tok.border : dimmed ? "#94a3b8" : tok.text,
       }}>{label}</div>
       {sub && (
-        <div style={{ fontSize: 10, fontFamily: "monospace", lineHeight: 1.3, marginTop: 3, opacity: 0.7, color: tok.text }}>
+        <div style={{ fontSize: 12, fontFamily: "monospace", lineHeight: 1.3, marginTop: 3, opacity: 0.7, color: tok.text }}>
           {sub}
         </div>
       )}
@@ -118,7 +119,7 @@ function Arrow({ on, color = "rgba(148,163,184,0.60)", label = "" }) {
           transition: "border-color .3s" 
         }} />
       </div>
-      {label && <div style={{ fontSize: 9, fontFamily: "monospace", textAlign: "center", marginTop: 4, color: on ? color : "#64748b", maxWidth: 64, fontWeight: 500 }}>{label}</div>}
+      {label && <div style={{ fontSize: 11, fontFamily: "monospace", textAlign: "center", marginTop: 4, color: on ? color : "#64748b", maxWidth: 64, fontWeight: 500 }}>{label}</div>}
     </div>
   );
 }
@@ -130,7 +131,7 @@ function BackArrow({ on, color = "rgba(148,163,184,0.60)", label = "" }) {
         <div style={{ borderTop: "5px solid transparent", borderBottom: "5px solid transparent", borderRight: `7px solid ${on ? color : "rgba(148,163,184,0.60)"}`, transition: "border-color .35s" }} />
         <div style={{ height: 2, width: 26, transition: "all 0.35s", background: on ? color : "rgba(148,163,184,0.60)" }} />
       </div>
-      {label && <div style={{ fontSize: 9, fontFamily: "monospace", textAlign: "center", marginTop: 2, color: on ? color : "#2d3748", maxWidth: 58 }}>{label}</div>}
+      {label && <div style={{ fontSize: 11, fontFamily: "monospace", textAlign: "center", marginTop: 2, color: on ? color : "#2d3748", maxWidth: 58 }}>{label}</div>}
     </div>
   );
 }
@@ -139,7 +140,7 @@ function Narrative({ text, color = "#a855f7", step, total }) {
   if (!text) return null;
   return (
     <div style={{
-      borderRadius: 10, padding: "16px 18px", fontSize: 14,
+      borderRadius: 10, padding: "16px 18px", fontSize: 16,
       fontFamily: "system-ui, -apple-system, sans-serif", lineHeight: 1.6, transition: "all 0.3s",
       background: `linear-gradient(135deg, ${color}08, ${color}12)`, 
       border: `1px solid ${color}30`, 
@@ -147,7 +148,7 @@ function Narrative({ text, color = "#a855f7", step, total }) {
       backdropFilter: "blur(8px)"
     }}>
       {step != null && total != null && (
-        <div style={{ fontSize: 10, color, fontWeight: 600, marginBottom: 10, letterSpacing: 0.5, textTransform: "uppercase" }}>
+        <div style={{ fontSize: 12, color, fontWeight: 600, marginBottom: 10, letterSpacing: 0.5, textTransform: "uppercase" }}>
           Step {step} of {total}
         </div>
       )}
@@ -186,7 +187,7 @@ function StepBtn({ stage, total, color, onAdvance, onBack }) {
   return (
     <div style={{ display: "flex", gap: 10 }}>
       <button onClick={onBack} disabled={!canBack} style={{
-        padding: "12px 20px", borderRadius: 8, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: 14,
+        padding: "12px 20px", borderRadius: 8, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: 16,
         fontWeight: 600, border: "none",
         background: canBack ? `${color}15` : "rgba(241,245,249,0.80)",
         color: canBack ? color : "#64748b",
@@ -195,7 +196,7 @@ function StepBtn({ stage, total, color, onAdvance, onBack }) {
         boxShadow: canBack ? `0 2px 8px ${color}20` : "none"
       }}>← Back</button>
       <button onClick={onAdvance} style={{
-        flex: 1, padding: "12px 24px", borderRadius: 8, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: 14,
+        flex: 1, padding: "12px 24px", borderRadius: 8, fontFamily: "system-ui, -apple-system, sans-serif", fontSize: 16,
         fontWeight: 600, cursor: "pointer", border: "none",
         background: stage === 0 || stage >= total 
           ? `linear-gradient(135deg, ${color}dd, ${color})` 
@@ -224,14 +225,14 @@ function ConceptPanel({ lesson, color }) {
           <div style={{
             width: 44, height: 44, borderRadius: 12, flexShrink: 0,
             background: accent + "18", border: `1px solid ${accent}30`,
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24,
           }}>{lesson.analogy.icon}</div>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: accent, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Real World Analogy</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", lineHeight: 1.3 }}>{lesson.analogy.scenario}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: accent, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Real World Analogy</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", lineHeight: 1.3 }}>{lesson.analogy.scenario}</div>
           </div>
         </div>
-        <p style={{ fontSize: 12.5, color: "#64748b", lineHeight: 1.7, margin: 0 }}>{lesson.analogy.text}</p>
+        <p style={{ fontSize: 14.5, color: "#64748b", lineHeight: 1.7, margin: 0 }}>{lesson.analogy.text}</p>
       </div>
 
       {/* Key Terms card */}
@@ -240,7 +241,7 @@ function ConceptPanel({ lesson, color }) {
         background: "#ffffff", border: "1px solid #e8edf4",
       }}>
         <div style={{
-          fontSize: 10, fontWeight: 700, marginBottom: 14, color: "#64748b",
+          fontSize: 12, fontWeight: 700, marginBottom: 14, color: "#64748b",
           letterSpacing: 0.8, textTransform: "uppercase",
           display: "flex", alignItems: "center", gap: 6,
         }}>
@@ -255,11 +256,11 @@ function ConceptPanel({ lesson, color }) {
               <div style={{
                 flexShrink: 0, width: 32, height: 32, borderRadius: 9,
                 background: "#e8edf4", display: "flex", alignItems: "center",
-                justifyContent: "center", fontSize: 15,
+                justifyContent: "center", fontSize: 17,
               }}>{t.icon}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 700, color: "#94a3b8", marginBottom: 2 }}>{t.term}</div>
-                <div style={{ fontSize: 11.5, color: "#64748b", lineHeight: 1.6 }}>{t.def}</div>
+                <div style={{ fontSize: 14.5, fontWeight: 700, color: "#94a3b8", marginBottom: 2 }}>{t.term}</div>
+                <div style={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6 }}>{t.def}</div>
               </div>
             </div>
           ))}
@@ -974,7 +975,7 @@ function HelloWorldLesson({ meta }) {
           <Arrow on={stage>=4} color={T.queue.border}/>
           <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={stage>=5?"✅ ACK sent":"receive.py"} active={stage===4||stage===5}/>
         </div>
-        {stage>=5&&<div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:"rgba(34, 197, 94, 0.1)",border:"1px solid rgba(34, 197, 94, 0.3)",fontSize:12,fontFamily:"monospace",color:"#4ade80"}}>✅ ACK received → message deleted permanently</div>}
+        {stage>=5&&<div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:"rgba(34, 197, 94, 0.1)",border:"1px solid rgba(34, 197, 94, 0.3)",fontSize: 14,fontFamily:"monospace",color:"#4ade80"}}>✅ ACK received → message deleted permanently</div>}
       </div>
       <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
       <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
@@ -1006,11 +1007,11 @@ function WorkQueuesLesson({ meta }) {
           <FlowNode tok={T.producer} icon="💻" label="Producer" sub="new_task.py" active={stage===1||stage===2}/>
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?"4 tasks":""}/>
           <div style={{flex:1,minWidth:180,borderRadius:8,padding:"10px 12px",border:`1.5px solid ${stage>=1?T.queue.border+"80":"rgba(148,163,184,0.40)"}`,background:T.queue.bg,backdropFilter:"blur(8px)"}}>
-            <div style={{fontSize:11,color:T.queue.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>📦 task_queue {stage>=1?"(durable=True)":""}</div>
+            <div style={{fontSize: 13,color:T.queue.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>📦 task_queue {stage>=1?"(durable=True)":""}</div>
             <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
               {stage>=2?TASKS.map(t=>(
-                <div key={t.id} style={{borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:taken(t.id)?"rgba(255,255,255,0.96)":T.queue.border+"30",border:`1px solid ${taken(t.id)?"rgba(148,163,184,0.60)":T.queue.border}`,color:taken(t.id)?"#64748b":T.queue.text,textDecoration:taken(t.id)?"line-through":"none",transition:"all 0.3s"}}>{t.label}</div>
-              )):<div style={{fontSize:10,color:"#64748b",fontFamily:"monospace"}}>empty...</div>}
+                <div key={t.id} style={{borderRadius:6,padding:"4px 8px",fontSize: 12,fontFamily:"monospace",background:taken(t.id)?"rgba(255,255,255,0.96)":T.queue.border+"30",border:`1px solid ${taken(t.id)?"rgba(148,163,184,0.60)":T.queue.border}`,color:taken(t.id)?"#64748b":T.queue.text,textDecoration:taken(t.id)?"line-through":"none",transition:"all 0.3s"}}>{t.label}</div>
+              )):<div style={{fontSize: 12,color:"#64748b",fontFamily:"monospace"}}>empty...</div>}
             </div>
           </div>
         </div>
@@ -1095,11 +1096,11 @@ function RoutingLesson({ meta }) {
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-        <span style={{fontSize:11,color:"#475569",fontFamily:"monospace"}}>routing_key:</span>
+        <span style={{fontSize: 13,color:"#475569",fontFamily:"monospace"}}>routing_key:</span>
         {ROUTING_KEYS_LIST.map(k=>(
-          <button key={k} disabled={locked} onClick={()=>setRKey(k)} style={{padding:"3px 10px",borderRadius:9999,fontSize:11,fontFamily:"monospace",background:rKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${rKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:rKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
+          <button key={k} disabled={locked} onClick={()=>setRKey(k)} style={{padding:"3px 10px",borderRadius:9999,fontSize: 13,fontFamily:"monospace",background:rKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${rKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:rKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
         ))}
-        {locked&&<span style={{fontSize:10,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
+        {locked&&<span style={{fontSize: 12,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
       </div>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:4,flexWrap:"wrap"}}>
@@ -1154,9 +1155,9 @@ function TopicsLesson({ meta }) {
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{display:"flex",gap:5,alignItems:"center",flexWrap:"wrap"}}>
-        <span style={{fontSize:11,color:"#475569",fontFamily:"monospace"}}>routing_key:</span>
+        <span style={{fontSize: 13,color:"#475569",fontFamily:"monospace"}}>routing_key:</span>
         {TOPIC_KEYS_LIST.map(k=>(
-          <button key={k} disabled={locked} onClick={()=>setRKey(k)} style={{padding:"3px 8px",borderRadius:9999,fontSize:10,fontFamily:"monospace",background:rKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${rKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:rKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
+          <button key={k} disabled={locked} onClick={()=>setRKey(k)} style={{padding:"3px 8px",borderRadius:9999,fontSize: 12,fontFamily:"monospace",background:rKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${rKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:rKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
         ))}
       </div>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
@@ -1201,7 +1202,7 @@ function RPCLesson({ meta }) {
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
-        <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:6,letterSpacing:1}}>→ REQUEST PATH</div>
+        <div style={{fontSize: 12,color:"#475569",fontFamily:"monospace",marginBottom:6,letterSpacing:1}}>→ REQUEST PATH</div>
         <div style={{display:"flex",alignItems:"center",gap:4,flexWrap:"wrap",marginBottom:14}}>
           <FlowNode tok={T.producer} icon="💻" label="Client" sub="rpc_client.py" active={stage===1||stage===2||stage===5||stage===6}/>
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?"fib(30)":""}/>
@@ -1209,7 +1210,7 @@ function RPCLesson({ meta }) {
           <Arrow on={stage>=3} color={T.queue.border}/>
           <FlowNode tok={T.consumer} icon="🖥️" label="RPC Server" sub={stage>=4?"result=832040":"rpc_server.py"} active={stage===3||stage===4}/>
         </div>
-        <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:6,letterSpacing:1}}>← REPLY PATH</div>
+        <div style={{fontSize: 12,color:"#475569",fontFamily:"monospace",marginBottom:6,letterSpacing:1}}>← REPLY PATH</div>
         <div style={{display:"flex",alignItems:"center",gap:4,flexWrap:"wrap",marginBottom:10}}>
           <FlowNode tok={T.producer} icon="💻" label="Client" sub={stage>=6?"✅ 832040":stage>=1?`corr_id: ${CORR.slice(0,8)}…`:""} active={stage===5||stage===6}/>
           <BackArrow on={stage>=5} color={meta.color} label={stage>=5?"832040":""}/>
@@ -1217,7 +1218,7 @@ function RPCLesson({ meta }) {
           <BackArrow on={stage>=4} color={T.consumer.border} label={stage>=4?"result":""}/>
           <FlowNode tok={T.consumer} icon="🖥️" label="RPC Server" sub={stage>=4?"publishing…":""} active={stage===4} dimmed={stage<3}/>
         </div>
-        {stage>=2&&<div style={{padding:"8px 12px",borderRadius:8,background:T.rpc.bg,border:`1px solid ${T.rpc.border}50`,fontSize:11,fontFamily:"monospace",color:T.rpc.text}}>🔑 correlation_id: <b>{CORR}</b>{stage>=6?<span style={{color:"#22c55e"}}> ← ✅ MATCHED!</span>:stage>=5?" ← checking...":""}</div>}
+        {stage>=2&&<div style={{padding:"8px 12px",borderRadius:8,background:T.rpc.bg,border:`1px solid ${T.rpc.border}50`,fontSize: 13,fontFamily:"monospace",color:T.rpc.text}}>🔑 correlation_id: <b>{CORR}</b>{stage>=6?<span style={{color:"#22c55e"}}> ← ✅ MATCHED!</span>:stage>=5?" ← checking...":""}</div>}
       </div>
       <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
       <Narrative text={NARR[stage]} color={meta.color} step={stage>0&&stage<=STEPS?stage:null} total={STEPS}/>
@@ -1244,34 +1245,34 @@ function StreamHelloLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:8,letterSpacing:1}}>📜 STREAM: mystream (append-only log)</div>
+          <div style={{fontSize: 12,color:"#475569",fontFamily:"monospace",marginBottom:8,letterSpacing:1}}>📜 STREAM: mystream (append-only log)</div>
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
             {MSGS.map((m,i)=>(
-              <div key={i} style={{borderRadius:8,padding:"8px 12px",fontSize:11,fontFamily:"monospace",background:stage>=2?T.stream.border+"18":"#f1f5f9",border:`2px solid ${stage>=2?T.stream.border:"rgba(148,163,184,0.60)"}`,color:stage>=2?T.stream.text:"#64748b",transition:"all 0.35s"}}>
-                <div style={{fontSize:9,color:stage>=2?"#475569":"rgba(148,163,184,0.60)",marginBottom:3}}>offset {i}</div>
+              <div key={i} style={{borderRadius:8,padding:"8px 12px",fontSize: 13,fontFamily:"monospace",background:stage>=2?T.stream.border+"18":"#f1f5f9",border:`2px solid ${stage>=2?T.stream.border:"rgba(148,163,184,0.60)"}`,color:stage>=2?T.stream.text:"#64748b",transition:"all 0.35s"}}>
+                <div style={{fontSize: 11,color:stage>=2?"#475569":"rgba(148,163,184,0.60)",marginBottom:3}}>offset {i}</div>
                 📦 {m}
-                {stage>=4&&<div style={{fontSize:9,color:"#22c55e",marginTop:2}}>read by A ✅</div>}
-                {stage>=5&&<div style={{fontSize:9,color:T.stream.border,marginTop:1}}>read by B ✅</div>}
+                {stage>=4&&<div style={{fontSize: 11,color:"#22c55e",marginTop:2}}>read by A ✅</div>}
+                {stage>=5&&<div style={{fontSize: 11,color:T.stream.border,marginTop:1}}>read by B ✅</div>}
               </div>
             ))}
-            {stage>=2&&<div style={{borderRadius:8,padding:"8px 12px",fontSize:11,fontFamily:"monospace",background:"rgba(248,250,252,0.92)",border:"1px dashed rgba(148,163,184,0.50)",color:"#64748b"}}><div style={{fontSize:9,marginBottom:3}}>offset 3</div>📦 next...</div>}
+            {stage>=2&&<div style={{borderRadius:8,padding:"8px 12px",fontSize: 13,fontFamily:"monospace",background:"rgba(248,250,252,0.92)",border:"1px dashed rgba(148,163,184,0.50)",color:"#64748b"}}><div style={{fontSize: 11,marginBottom:3}}>offset 3</div>📦 next...</div>}
           </div>
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <FlowNode tok={T.producer} icon="💻" label="Producer" active={stage===1}/>
             <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?"3 msgs":""}/>
-            <div style={{fontSize:11,fontFamily:"monospace",color:stage>=2?T.stream.text:"#64748b"}}>📜 persisted forever</div>
+            <div style={{fontSize: 13,fontFamily:"monospace",color:stage>=2?T.stream.text:"#64748b"}}>📜 persisted forever</div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <FlowNode tok={T.consumer} icon="🖥️" label="Consumer A" sub={stage>=4?"✅ read all 3":stage>=3?"subscribing…":""} active={stage===3||stage===4} dimmed={stage<3}/>
             <Arrow on={stage>=4} color={T.consumer.border} label={stage>=4?"FIRST→end":""}/>
-            <div style={{fontSize:11,fontFamily:"monospace",color:stage>=4?"#86efac":"#64748b"}}>{stage>=4?"reads offsets 0,1,2 ✅":""}</div>
+            <div style={{fontSize: 13,fontFamily:"monospace",color:stage>=4?"#86efac":"#64748b"}}>{stage>=4?"reads offsets 0,1,2 ✅":""}</div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <FlowNode tok={T.consumer} icon="💻" label="Consumer B" sub={stage>=5?"✅ read all 3":""} active={stage===5} dimmed={stage<5}/>
             <Arrow on={stage>=5} color={T.consumer.border} label={stage>=5?"FIRST→end":""}/>
-            <div style={{fontSize:11,fontFamily:"monospace",color:stage>=5?T.stream.text:"#64748b"}}>{stage>=5?"reads offsets 0,1,2 ✅ (same data!)":""}</div>
+            <div style={{fontSize: 13,fontFamily:"monospace",color:stage>=5?T.stream.text:"#64748b"}}>{stage>=5?"reads offsets 0,1,2 ✅ (same data!)":""}</div>
           </div>
         </div>
       </div>
@@ -1302,14 +1303,14 @@ function StreamOffsetLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:8,letterSpacing:1}}>📜 STREAM: mystream</div>
+          <div style={{fontSize: 12,color:"#475569",fontFamily:"monospace",marginBottom:8,letterSpacing:1}}>📜 STREAM: mystream</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
             {ALL.map((m,i)=>{
               const done=(i<=2&&stage>=2)||(i>=3&&stage>=6);
               const old=i<=2&&stage>=5;
               const cur=i>=3&&stage===6;
-              return(<div key={i} style={{borderRadius:8,padding:"7px 10px",fontSize:10,fontFamily:"monospace",background:old?"#f0fff4":done?meta.color+"18":"#f1f5f9",border:`2px solid ${cur?meta.color:done?meta.color+"60":"rgba(148,163,184,0.60)"}`,color:old?"#1e3a2a":done?"#86efac":"#64748b",transition:"all 0.35s"}}>
-                <div style={{fontSize:8,marginBottom:2,color:old?"#1e3a2a":"#475569"}}>offset {i}</div>
+              return(<div key={i} style={{borderRadius:8,padding:"7px 10px",fontSize: 12,fontFamily:"monospace",background:old?"#f0fff4":done?meta.color+"18":"#f1f5f9",border:`2px solid ${cur?meta.color:done?meta.color+"60":"rgba(148,163,184,0.60)"}`,color:old?"#1e3a2a":done?"#86efac":"#64748b",transition:"all 0.35s"}}>
+                <div style={{fontSize: 10,marginBottom:2,color:old?"#1e3a2a":"#475569"}}>offset {i}</div>
                 {m}{i<=2&&stage>=2?" ✅":""}{cur?" ◀":""}
               </div>);
             })}
@@ -1317,8 +1318,8 @@ function StreamOffsetLesson({ meta }) {
         </div>
         <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
           <FlowNode tok={T.consumer} icon={crashed?"💥":"🖥️"} label="Consumer" sub={crashed?"CRASHED!":stage>=6?"resumed offset 3":stage>=5?"restarting…":stage>=1?`offset ${Math.min(stage-1,2)}`:"myapp-consumer"} active={!crashed&&stage>=1&&stage!==4} dimmed={crashed}/>
-          {stage>=3&&!crashed&&stage<5&&<><Arrow on color={meta.color} label="store_offset(2)"/><div style={{borderRadius:10,padding:"8px 12px",background:T.rpc.bg,border:`1px solid ${T.rpc.border}60`,fontSize:11,fontFamily:"monospace",color:T.rpc.text}}><div style={{fontSize:9,color:"#475569",marginBottom:4}}>💾 Offset Store (server)</div>myapp → offset <b>2</b></div></>}
-          {stage>=5&&<><BackArrow on color={meta.color} label="query=2"/><div style={{borderRadius:10,padding:"8px 12px",background:T.rpc.bg,border:`1px solid ${T.rpc.border}60`,fontSize:11,fontFamily:"monospace",color:T.rpc.text}}><div style={{fontSize:9,color:"#475569",marginBottom:4}}>💾 Offset Store (server)</div>myapp → offset <b>2</b><br/><span style={{color:meta.color}}>→ resume from offset 3</span></div></>}
+          {stage>=3&&!crashed&&stage<5&&<><Arrow on color={meta.color} label="store_offset(2)"/><div style={{borderRadius:10,padding:"8px 12px",background:T.rpc.bg,border:`1px solid ${T.rpc.border}60`,fontSize: 13,fontFamily:"monospace",color:T.rpc.text}}><div style={{fontSize: 11,color:"#475569",marginBottom:4}}>💾 Offset Store (server)</div>myapp → offset <b>2</b></div></>}
+          {stage>=5&&<><BackArrow on color={meta.color} label="query=2"/><div style={{borderRadius:10,padding:"8px 12px",background:T.rpc.bg,border:`1px solid ${T.rpc.border}60`,fontSize: 13,fontFamily:"monospace",color:T.rpc.text}}><div style={{fontSize: 11,color:"#475569",marginBottom:4}}>💾 Offset Store (server)</div>myapp → offset <b>2</b><br/><span style={{color:meta.color}}>→ resume from offset 3</span></div></>}
         </div>
       </div>
       <StepBtn stage={stage} total={STEPS} color={meta.color} onAdvance={advance} onBack={goBack}/>
@@ -1356,8 +1357,8 @@ function DlxLesson({ meta }) {
           <Arrow on={stage>=2} color={T.producer.border} label="publish"/>
           {/* Main queue */}
           <div style={{borderRadius:8,padding:"10px 12px",minWidth:120,background:mainActive?T.queue.bg:"rgba(241,245,249,0.80)",border:`1.5px solid ${mainActive?T.queue.border:"rgba(148,163,184,0.50)"}`,transition:"all 0.3s",textAlign:"center"}}>
-            <div style={{fontSize:11,fontWeight:600,color:mainActive?T.queue.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>📦 orders</div>
-            <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>TTL: 5s | DLX: dlx.orders</div>
+            <div style={{fontSize: 13,fontWeight:600,color:mainActive?T.queue.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>📦 orders</div>
+            <div style={{fontSize: 11,fontFamily:"monospace",color:"#475569"}}>TTL: 5s | DLX: dlx.orders</div>
           </div>
           <Arrow on={stage>=2&&stage<3} color={T.consumer.border} label="consume"/>
           <FlowNode tok={T.consumer} icon={nackActive?"❌":"🖥️"} label="Consumer" sub={nackActive?"nack(requeue=F)":stage>=3?"processed":stage>=2?"processing...":""} active={stage===2} dimmed={stage<2}/>
@@ -1365,20 +1366,20 @@ function DlxLesson({ meta }) {
         {/* DLX + retry path */}
         {stage >= 3 && (
           <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginTop:8,paddingTop:10,borderTop:"1px dashed rgba(239,68,68,0.3)"}}>
-            <div style={{fontSize:9,color:T.dlq.text,fontFamily:"monospace",minWidth:60}}>💀 DLX</div>
+            <div style={{fontSize: 11,color:T.dlq.text,fontFamily:"monospace",minWidth:60}}>💀 DLX</div>
             <Arrow on={stage>=3} color={T.dlq.border} label="dead-letter"/>
             <div style={{borderRadius:8,padding:"10px 12px",minWidth:120,background:retryActive?T.dlq.bg:"rgba(241,245,249,0.80)",border:`1.5px solid ${retryActive?T.dlq.border:"rgba(239,68,68,0.3)"}`,transition:"all 0.3s",textAlign:"center"}}>
-              <div style={{fontSize:11,fontWeight:600,color:retryActive?T.dlq.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>⏱️ orders.retry</div>
-              <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>hold 10s → re-route</div>
-              {retryNum > 0 && <div style={{fontSize:9,fontFamily:"monospace",color:T.dlq.text,marginTop:4}}>retry #{retryNum}</div>}
+              <div style={{fontSize: 13,fontWeight:600,color:retryActive?T.dlq.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>⏱️ orders.retry</div>
+              <div style={{fontSize: 11,fontFamily:"monospace",color:"#475569"}}>hold 10s → re-route</div>
+              {retryNum > 0 && <div style={{fontSize: 11,fontFamily:"monospace",color:T.dlq.text,marginTop:4}}>retry #{retryNum}</div>}
             </div>
             {stage >= 4 && <Arrow on={stage>=4} color={T.queue.border} label="TTL→requeue"/>}
             {stage >= 6 && (
               <>
                 <Arrow on color={T.dlq.border} label="≥3 retries"/>
                 <div style={{borderRadius:8,padding:"10px 12px",minWidth:100,background:deadActive?"rgba(239,68,68,0.15)":"rgba(241,245,249,0.80)",border:`1.5px solid ${deadActive?"#ef4444":"rgba(148,163,184,0.50)"}`,transition:"all 0.3s",textAlign:"center"}}>
-                  <div style={{fontSize:11,fontWeight:600,color:deadActive?T.dlq.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>🪣 orders.dead</div>
-                  <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>manual inspect</div>
+                  <div style={{fontSize: 13,fontWeight:600,color:deadActive?T.dlq.text:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:4}}>🪣 orders.dead</div>
+                  <div style={{fontSize: 11,fontFamily:"monospace",color:"#475569"}}>manual inspect</div>
                 </div>
               </>
             )}
@@ -1419,7 +1420,7 @@ function PublisherConfirmsLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         {/* Confirm mode channel */}
-        <div style={{marginBottom:12,padding:"8px 12px",borderRadius:8,background:`${meta.color}10`,border:`1px solid ${meta.color}30`,fontSize:11,fontFamily:"monospace",color:meta.color}}>
+        <div style={{marginBottom:12,padding:"8px 12px",borderRadius:8,background:`${meta.color}10`,border:`1px solid ${meta.color}30`,fontSize: 13,fontFamily:"monospace",color:meta.color}}>
           {stage>=1?"✅ channel in CONFIRM mode — delivery tags active":"⬜ standard channel (no confirms)"}
         </div>
         <div style={{display:"flex",alignItems:"flex-start",gap:6,flexWrap:"wrap"}}>
@@ -1427,12 +1428,12 @@ function PublisherConfirmsLesson({ meta }) {
           <Arrow on={stage>=2} color={T.producer.border} label="basic_publish"/>
           {/* Broker box */}
           <div style={{borderRadius:8,padding:"12px 14px",minWidth:140,background:"rgba(99,102,241,0.08)",border:`1px solid rgba(99,102,241,0.3)`,backdropFilter:"blur(8px)"}}>
-            <div style={{fontSize:11,fontWeight:600,color:"#818cf8",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:8}}>🏠 Broker</div>
+            <div style={{fontSize: 13,fontWeight:600,color:"#818cf8",fontFamily:"system-ui, -apple-system, sans-serif",marginBottom:8}}>🏠 Broker</div>
             {msgs.map(m => (
               <div key={m.tag} style={{display:"flex",alignItems:"center",gap:6,marginBottom:4,borderRadius:6,padding:"4px 8px",background:`${statusColor[m.status]}12`,border:`1px solid ${statusColor[m.status]}30`,transition:"all 0.3s"}}>
-                <span style={{fontSize:10,fontFamily:"monospace",color:"#475569"}}>tag={m.tag}</span>
-                <span style={{fontSize:12}}>{statusIcon[m.status]}</span>
-                <span style={{fontSize:10,fontFamily:"monospace",color:statusColor[m.status]}}>{m.status}</span>
+                <span style={{fontSize: 12,fontFamily:"monospace",color:"#475569"}}>tag={m.tag}</span>
+                <span style={{fontSize: 14}}>{statusIcon[m.status]}</span>
+                <span style={{fontSize: 12,fontFamily:"monospace",color:statusColor[m.status]}}>{m.status}</span>
               </div>
             ))}
           </div>
@@ -1440,11 +1441,11 @@ function PublisherConfirmsLesson({ meta }) {
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {stage>=4&&<div style={{display:"flex",alignItems:"center",gap:4}}>
               <BackArrow on color="#22c55e" label="Ack tag=1"/>
-              <span style={{fontSize:10,color:"#22c55e",fontFamily:"monospace"}}>✅ safe</span>
+              <span style={{fontSize: 12,color:"#22c55e",fontFamily:"monospace"}}>✅ safe</span>
             </div>}
             {stage>=5&&<div style={{display:"flex",alignItems:"center",gap:4}}>
               <BackArrow on color="#ef4444" label="Nack tag=2"/>
-              <span style={{fontSize:10,color:"#ef4444",fontFamily:"monospace"}}>❌ resend</span>
+              <span style={{fontSize: 12,color:"#ef4444",fontFamily:"monospace"}}>❌ resend</span>
             </div>}
           </div>
         </div>
@@ -1492,10 +1493,10 @@ function QuorumQueuesLesson({ meta }) {
                 transition:"all 0.3s"}}>
                 <div style={{width:10,height:10,borderRadius:"50%",background:n.down?"#ef4444":n.active?meta.color:"#334155",flexShrink:0,transition:"all 0.3s",boxShadow:n.active?`0 0 8px ${meta.color}60`:"none"}}/>
                 <div>
-                  <div style={{fontSize:11,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:n.down?"#ef4444":n.active?meta.color:"#64748b"}}>{n.label}</div>
-                  <div style={{fontSize:9,fontFamily:"monospace",color:n.down?"#7f1d1d":n.role==="LEADER"?meta.color:"#475569"}}>{n.role}</div>
-                  {stage>=3&&!n.down&&<div style={{fontSize:9,fontFamily:"monospace",color:"#22c55e",marginTop:2}}>✅ wrote</div>}
-                  {stage>=3&&n.role==="follower"&&!n.down&&n.id==="node-3"&&stage===3&&<div style={{fontSize:9,fontFamily:"monospace",color:"#f59e0b",marginTop:2}}>⏳ lagging</div>}
+                  <div style={{fontSize: 13,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:n.down?"#ef4444":n.active?meta.color:"#64748b"}}>{n.label}</div>
+                  <div style={{fontSize: 11,fontFamily:"monospace",color:n.down?"#7f1d1d":n.role==="LEADER"?meta.color:"#475569"}}>{n.role}</div>
+                  {stage>=3&&!n.down&&<div style={{fontSize: 11,fontFamily:"monospace",color:"#22c55e",marginTop:2}}>✅ wrote</div>}
+                  {stage>=3&&n.role==="follower"&&!n.down&&n.id==="node-3"&&stage===3&&<div style={{fontSize: 11,fontFamily:"monospace",color:"#f59e0b",marginTop:2}}>⏳ lagging</div>}
                 </div>
               </div>
             ))}
@@ -1504,7 +1505,7 @@ function QuorumQueuesLesson({ meta }) {
             <BackArrow on color="#22c55e" label="Ack (quorum)"/>
           </div>}
         </div>
-        {stage>=2&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:`${meta.color}08`,border:`1px solid ${meta.color}30`,fontSize:11,fontFamily:"monospace",color:meta.color}}>
+        {stage>=2&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:`${meta.color}08`,border:`1px solid ${meta.color}30`,fontSize: 13,fontFamily:"monospace",color:meta.color}}>
           quorum = ⌊3/2⌋+1 = <b>2 nodes</b> · {stage>=4?"2/3 alive → ✅ serving":"write confirmed when 2 of 3 ack"}
         </div>}
       </div>
@@ -1539,16 +1540,16 @@ function FlowControlLesson({ meta }) {
         {/* Memory gauge */}
         <div style={{marginBottom:14}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-            <span style={{fontSize:10,fontFamily:"monospace",color:"#475569"}}>🧠 Broker memory</span>
-            <span style={{fontSize:10,fontFamily:"monospace",color:memColor}}>{memPct}% {alarmOn?"🚨 ALARM":""}</span>
+            <span style={{fontSize: 12,fontFamily:"monospace",color:"#475569"}}>🧠 Broker memory</span>
+            <span style={{fontSize: 12,fontFamily:"monospace",color:memColor}}>{memPct}% {alarmOn?"🚨 ALARM":""}</span>
           </div>
           <div style={{height:10,borderRadius:999,background:"rgba(241,245,249,0.85)",overflow:"hidden",border:"1px solid rgba(148,163,184,0.50)"}}>
             <div style={{height:"100%",width:`${memPct}%`,background:`linear-gradient(90deg,#22c55e,${memColor})`,transition:"width 0.5s ease",borderRadius:999}}/>
           </div>
           <div style={{display:"flex",justifyContent:"space-between",marginTop:2}}>
-            <span style={{fontSize:9,fontFamily:"monospace",color:"#334155"}}>0%</span>
-            <span style={{fontSize:9,fontFamily:"monospace",color:"#f59e0b"}}>▲ 40% watermark</span>
-            <span style={{fontSize:9,fontFamily:"monospace",color:"#334155"}}>100%</span>
+            <span style={{fontSize: 11,fontFamily:"monospace",color:"#334155"}}>0%</span>
+            <span style={{fontSize: 11,fontFamily:"monospace",color:"#f59e0b"}}>▲ 40% watermark</span>
+            <span style={{fontSize: 11,fontFamily:"monospace",color:"#334155"}}>100%</span>
           </div>
         </div>
         {/* Flow diagram */}
@@ -1556,16 +1557,16 @@ function FlowControlLesson({ meta }) {
           <FlowNode tok={T.producer} icon={blocked?"🚫":"💻"} label="Producer" sub={blocked?"BLOCKED":draining?"wait…":"publishing"} active={stage===1&&!blocked} dimmed={blocked}/>
           <Arrow on={!blocked&&stage>=1} color={blocked?"#ef4444":T.producer.border} label={blocked?"blocked":"→ msgs"}/>
           <div style={{borderRadius:8,padding:"12px 14px",minWidth:120,background:alarmOn?"rgba(239,68,68,0.1)":"rgba(249,115,22,0.08)",border:`1.5px solid ${alarmOn?"#ef4444":"rgba(249,115,22,0.3)"}`,transition:"all 0.3s",textAlign:"center"}}>
-            <div style={{fontSize:11,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:alarmOn?"#f87171":T.queue.text,marginBottom:4}}>📦 Queue backlog</div>
-            <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>{stage>=2?"msgs accumulating":stage>=4?"draining…":"healthy"}</div>
+            <div style={{fontSize: 13,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:alarmOn?"#f87171":T.queue.text,marginBottom:4}}>📦 Queue backlog</div>
+            <div style={{fontSize: 11,fontFamily:"monospace",color:"#475569"}}>{stage>=2?"msgs accumulating":stage>=4?"draining…":"healthy"}</div>
           </div>
           <Arrow on={stage>=1} color={T.consumer.border} label="consume"/>
           <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={draining?"draining backlog…":"slow consumer"} active={draining}/>
         </div>
-        {alarmOn&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",fontSize:11,fontFamily:"monospace",color:"#f87171"}}>
+        {alarmOn&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",fontSize: 13,fontFamily:"monospace",color:"#f87171"}}>
           🚨 memory_alarm active · Connection.Blocked sent to all publishing connections
         </div>}
-        {draining&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(34,197,94,0.1)",border:"1px solid rgba(34,197,94,0.3)",fontSize:11,fontFamily:"monospace",color:"#4ade80"}}>
+        {draining&&<div style={{marginTop:12,padding:"8px 12px",borderRadius:8,background:"rgba(34,197,94,0.1)",border:"1px solid rgba(34,197,94,0.3)",fontSize: 13,fontFamily:"monospace",color:"#4ade80"}}>
           ✅ Connection.Unblocked sent · producers resumed · memory nominal
         </div>}
       </div>
@@ -1605,8 +1606,8 @@ function ClusteringLesson({ meta }) {
           <FlowNode tok={T.producer} icon="🖥️" label="Client" sub="pika connect" active={stage>=3}/>
           <Arrow on={stage>=3} color={T.producer.border} label="AMQP :5672"/>
           <div style={{borderRadius:8,padding:"10px 14px",background:"rgba(14,165,233,0.08)",border:"1px solid rgba(14,165,233,0.3)",textAlign:"center",minWidth:90}}>
-            <div style={{fontSize:11,fontWeight:600,color:"#38bdf8",fontFamily:"system-ui, -apple-system, sans-serif"}}>⚖️ HAProxy</div>
-            <div style={{fontSize:9,fontFamily:"monospace",color:"#475569"}}>load balancer</div>
+            <div style={{fontSize: 13,fontWeight:600,color:"#38bdf8",fontFamily:"system-ui, -apple-system, sans-serif"}}>⚖️ HAProxy</div>
+            <div style={{fontSize: 11,fontFamily:"monospace",color:"#475569"}}>load balancer</div>
           </div>
           <Arrow on={stage>=3} color={meta.color} label="round-robin"/>
           {/* Nodes */}
@@ -1618,10 +1619,10 @@ function ClusteringLesson({ meta }) {
                 transition:"all 0.35s",opacity:n.joined?1:0.4}}>
                 <div style={{width:10,height:10,borderRadius:"50%",background:n.down?"#ef4444":n.joined?meta.color:"#334155",flexShrink:0,transition:"all 0.35s",boxShadow:n.leader?`0 0 10px ${meta.color}80`:"none"}}/>
                 <div>
-                  <div style={{fontSize:11,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:n.down?"#ef4444":n.joined?meta.color:"#475569"}}>
+                  <div style={{fontSize: 13,fontWeight:600,fontFamily:"system-ui, -apple-system, sans-serif",color:n.down?"#ef4444":n.joined?meta.color:"#475569"}}>
                     {n.label} {n.leader&&"👑"} {n.down&&"💥"}
                   </div>
-                  <div style={{fontSize:9,fontFamily:"monospace",color:n.down?"#7f1d1d":"#475569"}}>
+                  <div style={{fontSize: 11,fontFamily:"monospace",color:n.down?"#7f1d1d":"#475569"}}>
                     {n.down?"UNREACHABLE":n.joined?"in cluster":"not joined"}
                   </div>
                 </div>
@@ -1629,10 +1630,10 @@ function ClusteringLesson({ meta }) {
             ))}
           </div>
         </div>
-        {node2Down&&<div style={{padding:"8px 12px",borderRadius:8,background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.3)",fontSize:11,fontFamily:"monospace",color:"#f87171"}}>
+        {node2Down&&<div style={{padding:"8px 12px",borderRadius:8,background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.3)",fontSize: 13,fontFamily:"monospace",color:"#f87171"}}>
           ⚠️ node-2 unreachable · pause_minority: node-2 paused itself · node-1 + node-3 serving (quorum intact)
         </div>}
-        {stage>=3&&!node2Down&&<div style={{padding:"8px 12px",borderRadius:8,background:`${meta.color}08`,border:`1px solid ${meta.color}30`,fontSize:11,fontFamily:"monospace",color:meta.color}}>
+        {stage>=3&&!node2Down&&<div style={{padding:"8px 12px",borderRadius:8,background:`${meta.color}08`,border:`1px solid ${meta.color}30`,fontSize: 13,fontFamily:"monospace",color:meta.color}}>
           ✅ 3-node cluster · quorum = 2/3 · 1 node failure tolerated
         </div>}
       </div>
@@ -1670,7 +1671,7 @@ function KafkaHelloLesson({ meta }) {
           <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={stage>=5?"payment-svc":""} active={stage>=5}/>
         </div>
         {stage>=4&&(
-          <div style={{marginTop:12,padding:"10px 12px",borderRadius:8,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:11,fontFamily:"monospace",color:meta.color}}>
+          <div style={{marginTop:12,padding:"10px 12px",borderRadius:8,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize: 13,fontFamily:"monospace",color:meta.color}}>
             💾 Message persisted on broker disk — survives restarts
           </div>
         )}
@@ -1702,35 +1703,35 @@ function KafkaProducerLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
         {["0","1","all"].map(a=>(
-          <button key={a} disabled={locked} onClick={()=>setAcks(a)} style={{padding:"6px 14px",borderRadius:8,fontSize:11,fontFamily:"monospace",fontWeight:600,background:acks===a?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${acks===a?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:acks===a?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>
+          <button key={a} disabled={locked} onClick={()=>setAcks(a)} style={{padding:"6px 14px",borderRadius:8,fontSize: 13,fontFamily:"monospace",fontWeight:600,background:acks===a?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${acks===a?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:acks===a?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>
             {"acks="} {a}
           </button>
         ))}
-        {locked&&<span style={{fontSize:10,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
+        {locked&&<span style={{fontSize: 12,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
       </div>
       <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          <div style={{fontSize:11,fontFamily:"monospace",color:"#475569"}}>📦 RecordAccumulator buffer:</div>
+          <div style={{fontSize: 13,fontFamily:"monospace",color:"#475569"}}>📦 RecordAccumulator buffer:</div>
           <div style={{display:"flex",alignItems:"center",gap:4}}>
             {[0,1,2,3].map((i,idx)=>(
               <div key={idx} style={{
                 flex:1,height:32,borderRadius:6,background:stage>=2?meta.color+"30":"#e2e8f0",
                 border:`1px solid ${stage>=2?meta.color+"60":"#cbd5e1"}`,
                 display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:10,fontFamily:"monospace",color:stage>=2?meta.color:"#64748b",transition:"all 0.3s"
+                fontSize: 12,fontFamily:"monospace",color:stage>=2?meta.color:"#64748b",transition:"all 0.3s"
               }}>
                 msg{i+1}
               </div>
             ))}
           </div>
           {stage>=3&&(
-            <div style={{marginTop:6,fontSize:10,fontFamily:"monospace",color:meta.color,padding:"8px 10px",borderRadius:6,background:meta.color+"15"}}>
+            <div style={{marginTop:6,fontSize: 12,fontFamily:"monospace",color:meta.color,padding:"8px 10px",borderRadius:6,background:meta.color+"15"}}>
               💨 Compressing with snappy...
             </div>
           )}
         </div>
         {stage>=4&&(
-          <div style={{marginTop:10,fontSize:10,fontFamily:"monospace",color:"#475569",padding:"8px 10px",borderRadius:6,background:"rgba(100,200,255,0.1)"}}>
+          <div style={{marginTop:10,fontSize: 12,fontFamily:"monospace",color:"#475569",padding:"8px 10px",borderRadius:6,background:"rgba(100,200,255,0.1)"}}>
             {acks==="0"?"🚀 Fire-forget: no wait":acks==="1"?"⏱️ Leader ACK: medium safety":"🛡️ All ISR ACK: maximum safety"}
           </div>
         )}
@@ -1767,7 +1768,7 @@ function KafkaSchemaLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
         {stage<2&&(
-          <div style={{fontSize:11,color:"#6b7280",fontFamily:"system-ui",lineHeight:1.6}}>
+          <div style={{fontSize: 13,color:"#6b7280",fontFamily:"system-ui",lineHeight:1.6}}>
             ⚠️ Without schemas: producers send JSON with different formats. Consumers crash on unexpected fields.
           </div>
         )}
@@ -1775,7 +1776,7 @@ function KafkaSchemaLesson({ meta }) {
           <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
             <FlowNode tok={{bg:meta.color+"15",border:meta.color,text:meta.color,glow:meta.color+"30"}} icon="💻" label="Producer" active={stage>=3}/>
             <Arrow on={stage>=3} color={meta.color} label={stage>=3?"serialize + ID":""}/>
-            <div style={{borderRadius:8,padding:"8px 12px",background:"rgba(30,41,59,0.05)",border:`1px solid ${meta.color}40`,fontSize:10,fontFamily:"monospace",color:"#475569"}}>
+            <div style={{borderRadius:8,padding:"8px 12px",background:"rgba(30,41,59,0.05)",border:`1px solid ${meta.color}40`,fontSize: 12,fontFamily:"monospace",color:"#475569"}}>
               {stage>=3?"[schemaId=1]...bytes":"Schema Reg."}
             </div>
             <Arrow on={stage>=4} color={meta.color} label={stage>=4?"deserialize":""}/>
@@ -1784,10 +1785,10 @@ function KafkaSchemaLesson({ meta }) {
         )}
         {stage>=4&&(
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            <div style={{fontSize:10,fontFamily:"monospace",color:"#475569",padding:"8px 10px",borderRadius:6,background:"#f1f5f9"}}>
+            <div style={{fontSize: 12,fontFamily:"monospace",color:"#475569",padding:"8px 10px",borderRadius:6,background:"#f1f5f9"}}>
               ✅ Schema evolution: new field with default value
             </div>
-            <div style={{fontSize:10,color:meta.color,fontFamily:"monospace",padding:"8px 10px",borderRadius:6,background:meta.color+"15"}}>
+            <div style={{fontSize: 12,color:meta.color,fontFamily:"monospace",padding:"8px 10px",borderRadius:6,background:meta.color+"15"}}>
               Old consumers + new message = works (default fills new field)<br/>New consumers + old message = works (new field absent)
             </div>
           </div>
@@ -1821,37 +1822,37 @@ function KafkaStreamsApiLesson({ meta }) {
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
-        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",fontSize:10}}>
+        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",fontSize: 12}}>
           <div style={{borderRadius:6,padding:"6px 10px",background:meta.color+"20",border:`1px solid ${meta.color}`,fontFamily:"monospace",color:meta.color,fontWeight:600}}>
             orders (source)
           </div>
           {stage>=2&&(
             <>
-              <div style={{fontSize:12,color:"#64748b"}}>→</div>
+              <div style={{fontSize: 14,color:"#64748b"}}>→</div>
               <div style={{borderRadius:6,padding:"6px 10px",background:"#e2e8f0",border:"1px solid #cbd5e1",fontFamily:"monospace",color:"#475569"}}>filter + map</div>
             </>
           )}
           {stage>=3&&(
             <>
-              <div style={{fontSize:12,color:"#64748b"}}>→</div>
+              <div style={{fontSize: 14,color:"#64748b"}}>→</div>
               <div style={{borderRadius:6,padding:"6px 10px",background:"#e2e8f0",border:"1px solid #cbd5e1",fontFamily:"monospace",color:"#475569"}}>groupBy</div>
             </>
           )}
           {stage>=4&&(
             <>
-              <div style={{fontSize:12,color:"#64748b"}}>→</div>
+              <div style={{fontSize: 14,color:"#64748b"}}>→</div>
               <div style={{borderRadius:6,padding:"6px 10px",background:"#e2e8f0",border:"1px solid #cbd5e1",fontFamily:"monospace",color:"#475569"}}>window(1m) + aggregate</div>
             </>
           )}
           {stage>=5&&(
             <>
-              <div style={{fontSize:12,color:"#64748b"}}>→</div>
+              <div style={{fontSize: 14,color:"#64748b"}}>→</div>
               <div style={{borderRadius:6,padding:"6px 10px",background:meta.color+"20",border:`1px solid ${meta.color}`,fontFamily:"monospace",color:meta.color,fontWeight:600}}>revenue (sink)</div>
             </>
           )}
         </div>
         {stage>=4&&(
-          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:10,fontFamily:"monospace",color:meta.color}}>
+          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize: 12,fontFamily:"monospace",color:meta.color}}>
             💾 State store (RocksDB): holds windowed aggregates. Persisted to changelog topic for recovery.
           </div>
         )}
@@ -1887,7 +1888,7 @@ function KafkaConnectLesson({ meta }) {
           {stage>=4&&<FlowNode tok={{bg:"#fef3c7",border:"#f59e0b",text:"#92400e",glow:"#f59e0b30"}} icon="🔍" label="Elasticsearch" sub="index" active={stage>=4} w={95}/>}
         </div>
         {stage>=3&&(
-          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:10,fontFamily:"monospace",color:meta.color}}>
+          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize: 12,fontFamily:"monospace",color:meta.color}}>
             {stage<4?"✳️ Source connector running: polling database":"✅ Full pipeline: DB → Kafka → Elasticsearch (dashboards)"}
           </div>
         )}
@@ -1923,7 +1924,7 @@ function KafkaSecurityLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
         {["tls","sasl","acl"].map(t=>(
-          <button key={t} disabled={locked} onClick={()=>setAuthType(t)} style={{padding:"6px 12px",borderRadius:8,fontSize:10,fontFamily:"monospace",fontWeight:600,background:authType===t?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${authType===t?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:authType===t?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"uppercase"}}>
+          <button key={t} disabled={locked} onClick={()=>setAuthType(t)} style={{padding:"6px 12px",borderRadius:8,fontSize: 12,fontFamily:"monospace",fontWeight:600,background:authType===t?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${authType===t?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:authType===t?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"uppercase"}}>
             {t}
           </button>
         ))}
@@ -1932,17 +1933,17 @@ function KafkaSecurityLesson({ meta }) {
         {stage>=2&&(
           <div style={{display:"flex",alignItems:"center",gap:8,flexDirection:"column"}}>
             <div style={{display:"flex",alignItems:"center",gap:6,width:"100%"}}>
-              <div style={{borderRadius:6,padding:"6px 10px",background:"rgba(59, 130, 246, 0.2)",border:"1px solid #3b82f6",fontFamily:"monospace",fontSize:10,color:"#1d4ed8"}}>Client</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"rgba(59, 130, 246, 0.2)",border:"1px solid #3b82f6",fontFamily:"monospace",fontSize: 12,color:"#1d4ed8"}}>Client</div>
               <Arrow on={stage>=2} color={authType==="tls"||authType==="sasl"?meta.color:"#94a3b8"} label={stage>=2&&authType!=="acl"?"TLS":""}/>
-              <div style={{borderRadius:6,padding:"6px 10px",background:authType==="tls"||authType==="sasl"?meta.color+"20":"#f1f5f9",border:`1px solid ${authType==="tls"||authType==="sasl"?meta.color:"#cbd5e1"}`,fontFamily:"monospace",fontSize:10,color:authType==="tls"||authType==="sasl"?meta.color:"#64748b"}}>
+              <div style={{borderRadius:6,padding:"6px 10px",background:authType==="tls"||authType==="sasl"?meta.color+"20":"#f1f5f9",border:`1px solid ${authType==="tls"||authType==="sasl"?meta.color:"#cbd5e1"}`,fontFamily:"monospace",fontSize: 12,color:authType==="tls"||authType==="sasl"?meta.color:"#64748b"}}>
                 {stage>=2?(authType==="sasl"?"SASL":"TLS"):"Broker"}
               </div>
               {stage>=3&&<Arrow on color={authType==="acl"?meta.color:"#94a3b8"} label={authType==="acl"?"ACL check":""}/>}
-              {stage>=3&&<div style={{borderRadius:6,padding:"6px 10px",background:authType==="acl"?meta.color+"20":"#f1f5f9",border:`1px solid ${authType==="acl"?meta.color:"#cbd5e1"}`,fontFamily:"monospace",fontSize:10,color:authType==="acl"?meta.color:"#64748b"}}>Broker</div>}
+              {stage>=3&&<div style={{borderRadius:6,padding:"6px 10px",background:authType==="acl"?meta.color+"20":"#f1f5f9",border:`1px solid ${authType==="acl"?meta.color:"#cbd5e1"}`,fontFamily:"monospace",fontSize: 12,color:authType==="acl"?meta.color:"#64748b"}}>Broker</div>}
             </div>
-            {stage>=2&&authType==="tls"&&<div style={{fontSize:9,fontFamily:"monospace",color:"#64748b",marginTop:4}}>🔒 SSL/TLS: all traffic encrypted</div>}
-            {stage>=2&&authType==="sasl"&&<div style={{fontSize:9,fontFamily:"monospace",color:"#64748b",marginTop:4}}>🆔 SASL: client identity verified</div>}
-            {stage>=3&&authType==="acl"&&<div style={{fontSize:9,fontFamily:"monospace",color:"#64748b",marginTop:4}}>✅ ACL: operation permitted</div>}
+            {stage>=2&&authType==="tls"&&<div style={{fontSize: 11,fontFamily:"monospace",color:"#64748b",marginTop:4}}>🔒 SSL/TLS: all traffic encrypted</div>}
+            {stage>=2&&authType==="sasl"&&<div style={{fontSize: 11,fontFamily:"monospace",color:"#64748b",marginTop:4}}>🆔 SASL: client identity verified</div>}
+            {stage>=3&&authType==="acl"&&<div style={{fontSize: 11,fontFamily:"monospace",color:"#64748b",marginTop:4}}>✅ ACL: operation permitted</div>}
           </div>
         )}
       </div>
@@ -1973,7 +1974,7 @@ function KafkaProductionLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px",fontSize:10,fontFamily:"monospace"}}>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px",fontSize: 12,fontFamily:"monospace"}}>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           {stage>=1&&(
             <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
@@ -2005,9 +2006,9 @@ function KafkaProductionLesson({ meta }) {
           {stage>=7&&(
             <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
               <span style={{color:"#64748b"}}>Monitoring:</span>
-              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize:9}}>consumer lag</div>
-              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize:9}}>throughput</div>
-              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize:9}}>replication</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize: 11}}>consumer lag</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize: 11}}>throughput</div>
+              <div style={{borderRadius:6,padding:"6px 10px",background:"#f1f5f9",border:"1px solid #cbd5e1",color:"#64748b",fontSize: 11}}>replication</div>
             </div>
           )}
         </div>
@@ -2040,11 +2041,11 @@ function KafkaPartitionsLesson({ meta }) {
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-        <span style={{fontSize:11,color:"#475569",fontFamily:"monospace"}}>message key:</span>
+        <span style={{fontSize: 13,color:"#475569",fontFamily:"monospace"}}>message key:</span>
         {KAFKA_KEYS.filter((k,i,a)=>a.indexOf(k)===i).map(k=>(
-          <button key={k} disabled={locked} onClick={()=>setMsgKey(k)} style={{padding:"3px 10px",borderRadius:9999,fontSize:11,fontFamily:"monospace",background:msgKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${msgKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:msgKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
+          <button key={k} disabled={locked} onClick={()=>setMsgKey(k)} style={{padding:"3px 10px",borderRadius:9999,fontSize: 13,fontFamily:"monospace",background:msgKey===k?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${msgKey===k?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:msgKey===k?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer"}}>{k}</button>
         ))}
-        {locked&&<span style={{fontSize:10,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
+        {locked&&<span style={{fontSize: 12,color:"#475569",fontFamily:"monospace"}}>🔒 locked</span>}
       </div>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex",alignItems:"flex-start",gap:6,flexWrap:"wrap"}}>
@@ -2052,11 +2053,11 @@ function KafkaPartitionsLesson({ meta }) {
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?msgKey:""}/>
           {/* Kafka broker with 3 partitions */}
           <div style={{borderRadius:10,padding:"12px 14px",background:"rgba(99, 102, 241, 0.1)",border:`1px solid ${T.kafka.border}40`,minWidth:160,backdropFilter:"blur(8px)"}}>
-            <div style={{fontSize:11,color:T.kafka.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>🗄️ Kafka Topic: orders</div>
+            <div style={{fontSize: 13,color:T.kafka.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>🗄️ Kafka Topic: orders</div>
             {[0,1,2].map(p=>(
               <div key={p} style={{display:"flex",alignItems:"center",gap:6,marginBottom:p<2?6:0}}>
                 <div style={{width:8,height:8,borderRadius:"50%",background:PART_COLORS[p],flexShrink:0,boxShadow:`0 0 8px ${PART_COLORS[p]}40`}}/>
-                <div style={{flex:1,borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:stage>=4&&p===targetPart?PART_COLORS[p]+"20":"#f1f5f9",border:`1px solid ${stage>=4&&p===targetPart?PART_COLORS[p]:stage>=3&&p===targetPart?PART_COLORS[p]+"80":"rgba(148,163,184,0.60)"}`,color:stage>=3&&p===targetPart?PART_COLORS[p]:"#64748b",transition:"all 0.35s"}}>
+                <div style={{flex:1,borderRadius:6,padding:"4px 8px",fontSize: 12,fontFamily:"monospace",background:stage>=4&&p===targetPart?PART_COLORS[p]+"20":"#f1f5f9",border:`1px solid ${stage>=4&&p===targetPart?PART_COLORS[p]:stage>=3&&p===targetPart?PART_COLORS[p]+"80":"rgba(148,163,184,0.60)"}`,color:stage>=3&&p===targetPart?PART_COLORS[p]:"#64748b",transition:"all 0.35s"}}>
                   P{p}: offset 0→{p===1?8:p===0?5:3}{stage>=4&&p===targetPart?` ← NEW`:""}
                 </div>
               </div>
@@ -2066,7 +2067,7 @@ function KafkaPartitionsLesson({ meta }) {
           <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={stage>=5?"payment-svc":""} active={stage===5} dimmed={stage<5}/>
         </div>
         {stage>=3&&(
-          <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${PART_COLORS[targetPart]}08, ${PART_COLORS[targetPart]}12)`,border:`1px solid ${PART_COLORS[targetPart]}40`,fontSize:12,fontFamily:"system-ui, -apple-system, sans-serif",color:PART_COLORS[targetPart],backdropFilter:"blur(8px)"}}>
+          <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${PART_COLORS[targetPart]}08, ${PART_COLORS[targetPart]}12)`,border:`1px solid ${PART_COLORS[targetPart]}40`,fontSize: 14,fontFamily:"system-ui, -apple-system, sans-serif",color:PART_COLORS[targetPart],backdropFilter:"blur(8px)"}}>
             hash('{msgKey}') % 3 = <b>{targetPart}</b> → always Partition {targetPart} → ordering guaranteed for '{msgKey}'
           </div>
         )}
@@ -2096,14 +2097,14 @@ function KafkaGroupsLesson({ meta }) {
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         {/* Topic partitions */}
         <div style={{marginBottom:12}}>
-          <div style={{fontSize:10,color:"#475569",fontFamily:"monospace",marginBottom:6,letterSpacing:1}}>🗄️ KAFKA TOPIC: orders (3 partitions)</div>
+          <div style={{fontSize: 12,color:"#475569",fontFamily:"monospace",marginBottom:6,letterSpacing:1}}>🗄️ KAFKA TOPIC: orders (3 partitions)</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {[0,1,2].map(p=>{
               const c1active=(p===0&&stage===3);
               const rebalanced=(p===0&&stage===5);
               return(
                 <div key={p} style={{display:"flex",alignItems:"center",gap:6}}>
-                  <div style={{width:80,borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:PART_COLORS[p]+"20",border:`1px solid ${PART_COLORS[p]}`,color:PART_COLORS[p],textAlign:"center"}}>P{p}</div>
+                  <div style={{width:80,borderRadius:6,padding:"4px 8px",fontSize: 12,fontFamily:"monospace",background:PART_COLORS[p]+"20",border:`1px solid ${PART_COLORS[p]}`,color:PART_COLORS[p],textAlign:"center"}}>P{p}</div>
                   <Arrow on={stage>=2} color={PART_COLORS[p]} label={stage>=2?`→ C${rebalanced&&p===0?2:p+1}${rebalanced&&p===0?" (rebalanced)":""}`:""} />
                   <FlowNode tok={{bg:"#f0fdf4",border:PART_COLORS[p],text:PART_COLORS[p],glow:PART_COLORS[p]+"30"}}
                     icon={p===0&&stage===5?"💥":"⚙️"}
@@ -2124,7 +2125,7 @@ function KafkaGroupsLesson({ meta }) {
           </div>
         </div>
         {stage>=4&&(
-          <div style={{padding:"8px 12px",borderRadius:8,background:"#f5f3ff",border:"1px solid #a855f750",fontSize:11,fontFamily:"monospace",color:"#d8b4fe"}}>
+          <div style={{padding:"8px 12px",borderRadius:8,background:"#f5f3ff",border:"1px solid #a855f750",fontSize: 13,fontFamily:"monospace",color:"#d8b4fe"}}>
             💡 Two groups read the same topic independently. payment-svc and analytics-svc both get every message — zero overlap, zero interference.
           </div>
         )}
@@ -2160,7 +2161,7 @@ function SQSHelloLesson({ meta }) {
           <FlowNode tok={T.consumer} icon="🖥️" label="Consumer" sub={stage>=4?"processing":stage===5?"✅ done":""} active={stage>=3}/>
         </div>
         {stage>=3&&stage<5&&(
-          <div style={{marginTop:12,padding:"10px 12px",borderRadius:8,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:10,fontFamily:"monospace",color:meta.color}}>
+          <div style={{marginTop:12,padding:"10px 12px",borderRadius:8,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize: 12,fontFamily:"monospace",color:meta.color}}>
             ⏱️ 30-second visibility timeout — must delete before it expires!
           </div>
         )}
@@ -2191,7 +2192,7 @@ function SQSPollingLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
         {["short","long"].map(t=>(
-          <button key={t} disabled={locked} onClick={()=>setPollType(t)} style={{padding:"6px 12px",borderRadius:8,fontSize:10,fontFamily:"monospace",fontWeight:600,background:pollType===t?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${pollType===t?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:pollType===t?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"capitalize"}}>
+          <button key={t} disabled={locked} onClick={()=>setPollType(t)} style={{padding:"6px 12px",borderRadius:8,fontSize: 12,fontFamily:"monospace",fontWeight:600,background:pollType===t?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${pollType===t?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:pollType===t?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"capitalize"}}>
             {t} polling
           </button>
         ))}
@@ -2199,7 +2200,7 @@ function SQSPollingLesson({ meta }) {
       <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
         {stage>=2&&(
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
-            <div style={{fontSize:10,fontFamily:"monospace",color:"#475569"}}>📊 API Calls per minute:</div>
+            <div style={{fontSize: 12,fontFamily:"monospace",color:"#475569"}}>📊 API Calls per minute:</div>
             <div style={{display:"flex",gap:4,alignItems:"flex-end",height:60}}>
               {[...Array(5)].map((_, i)=>{
                 const h = pollType==="short" ? 50 : 10;
@@ -2208,7 +2209,7 @@ function SQSPollingLesson({ meta }) {
                 );
               })}
             </div>
-            <div style={{fontSize:9,fontFamily:"monospace",color:"#64748b",display:"flex",justifyContent:"space-between"}}>
+            <div style={{fontSize: 11,fontFamily:"monospace",color:"#64748b",display:"flex",justifyContent:"space-between"}}>
               <span>{pollType==="short"?"Short: 60+ calls":"Long: 10 calls"}</span>
               <span>{pollType==="short"?"99% empty":"Efficient"}</span>
             </div>
@@ -2248,7 +2249,7 @@ function SQSDLQLesson({ meta }) {
             {stage>=3&&<FlowNode tok={T.dlq} icon="☠️" label="DLQ" active={stage>=4} w={80}/>}
           </div>
           {stage>=4&&(
-            <div style={{marginTop:6,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${T.dlq.border}15, ${T.dlq.border}20)`,border:`1px solid ${T.dlq.border}30`,fontSize:10,fontFamily:"monospace",color:T.dlq.text}}>
+            <div style={{marginTop:6,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${T.dlq.border}15, ${T.dlq.border}20)`,border:`1px solid ${T.dlq.border}30`,fontSize: 12,fontFamily:"monospace",color:T.dlq.text}}>
               ☠️ Poison pill: fails 3 times → quarantined in DLQ → ops alerted → manual redrive
             </div>
           )}
@@ -2332,7 +2333,7 @@ function SQSFanoutLesson({ meta }) {
           )}
         </div>
         {stage>=4&&(
-          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize:10,fontFamily:"monospace",color:meta.color}}>
+          <div style={{marginTop:10,padding:"8px 10px",borderRadius:6,background:`linear-gradient(135deg, ${meta.color}15, ${meta.color}20)`,border:`1px solid ${meta.color}30`,fontSize: 12,fontFamily:"monospace",color:meta.color}}>
             ✅ Decoupled: each consumer independent. Add/remove without affecting others.
           </div>
         )}
@@ -2363,14 +2364,14 @@ function SQSFilteringLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
         {["string","numeric","exists"].map(f=>(
-          <button key={f} disabled={locked} onClick={()=>setFilterType(f)} style={{padding:"6px 12px",borderRadius:8,fontSize:10,fontFamily:"monospace",fontWeight:600,background:filterType===f?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${filterType===f?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:filterType===f?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"capitalize"}}>
+          <button key={f} disabled={locked} onClick={()=>setFilterType(f)} style={{padding:"6px 12px",borderRadius:8,fontSize: 12,fontFamily:"monospace",fontWeight:600,background:filterType===f?meta.color+"20":"rgba(248,250,252,0.92)",border:`1px solid ${filterType===f?meta.color:"rgba(71, 85, 105, 0.5)"}`,color:filterType===f?meta.color:locked?"#64748b":"#6b7280",cursor:locked?"not-allowed":"pointer",textTransform:"capitalize"}}>
             {f}
           </button>
         ))}
       </div>
       <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
         {stage>=2&&(
-          <div style={{display:"flex",flexDirection:"column",gap:6,fontSize:10,fontFamily:"monospace"}}>
+          <div style={{display:"flex",flexDirection:"column",gap:6,fontSize: 12,fontFamily:"monospace"}}>
             <div style={{color:"#475569"}}>📋 Filter Policy:</div>
             {filterType==="string"&&(
               <div style={{padding:"8px 10px",borderRadius:6,background:"#f1f5f9",color:"#64748b"}}>
@@ -2419,31 +2420,31 @@ function SQSSecurityLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px"}}>
         {stage>=1&&(
-          <div style={{display:"flex",flexDirection:"column",gap:6,fontSize:10}}>
+          <div style={{display:"flex",flexDirection:"column",gap:6,fontSize: 12}}>
             <div style={{display:"flex",gap:4,alignItems:"center"}}>
               <div style={{width:16,height:16,borderRadius:4,background:"#ef4444"}}/>
               <span style={{color:"#64748b",fontWeight:600}}>IAM</span>
-              <span style={{color:"#94a3b8",fontSize:9}}>Who</span>
+              <span style={{color:"#94a3b8",fontSize: 11}}>Who</span>
             </div>
             {stage>=2&&(
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <div style={{width:16,height:16,borderRadius:4,background:"#f97316"}}/>
                 <span style={{color:"#64748b",fontWeight:600}}>Queue Policy</span>
-                <span style={{color:"#94a3b8",fontSize:9}}>Cross-Account</span>
+                <span style={{color:"#94a3b8",fontSize: 11}}>Cross-Account</span>
               </div>
             )}
             {stage>=3&&(
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <div style={{width:16,height:16,borderRadius:4,background:"#eab308"}}/>
                 <span style={{color:"#64748b",fontWeight:600}}>KMS Encryption</span>
-                <span style={{color:"#94a3b8",fontSize:9}}>At Rest</span>
+                <span style={{color:"#94a3b8",fontSize: 11}}>At Rest</span>
               </div>
             )}
             {stage>=4&&(
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <div style={{width:16,height:16,borderRadius:4,background:"#06b6d4"}}/>
                 <span style={{color:"#64748b",fontWeight:600}}>VPC Endpoint</span>
-                <span style={{color:"#94a3b8",fontSize:9}}>Private</span>
+                <span style={{color:"#94a3b8",fontSize: 11}}>Private</span>
               </div>
             )}
           </div>
@@ -2473,7 +2474,7 @@ function SQSProductionLesson({ meta }) {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
-      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px",fontSize:9,fontFamily:"monospace"}}>
+      <div style={{borderRadius:10,background:meta.color+"08",border:`1px solid ${meta.color}25`,padding:"16px 14px",fontSize: 11,fontFamily:"monospace"}}>
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
           {stage>=1&&(
             <div style={{display:"flex",alignItems:"center",gap:4}}>
@@ -2547,17 +2548,17 @@ function SQSStandardLesson({ meta }) {
           <Arrow on={stage>=2} color={T.producer.border} label={stage>=2?"send_message":""}/>
           {/* SQS Queue */}
           <div style={{flex:1,minWidth:160,borderRadius:10,padding:"12px 14px",background:T.sqs.bg,border:`1.5px solid ${stage>=1?T.sqs.border+"80":"rgba(148,163,184,0.40)"}`,transition:"all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",backdropFilter:"blur(8px)"}}>
-            <div style={{fontSize:11,color:T.sqs.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>☁️ AWS SQS: order-queue</div>
-            {stage===0&&<div style={{fontSize:10,color:"#64748b",fontFamily:"monospace"}}>empty</div>}
-            {stage>=2&&stage<3&&<div style={{borderRadius:6,padding:"5px 10px",fontSize:11,fontFamily:"monospace",background:T.sqs.border+"30",border:`1px solid ${T.sqs.border}`,color:T.sqs.text}}>📨 Process order #1234 ← visible</div>}
-            {stage>=3&&stage<5&&<div style={{borderRadius:6,padding:"4px 8px",fontSize:10,fontFamily:"monospace",background:"rgba(255,255,255,0.96)",border:"1px dashed rgba(71, 85, 105, 0.5)",color:"#64748b"}}>👻 Process order #1234 ← INVISIBLE (30s timer)</div>}
-            {stage>=5&&<div style={{fontSize:10,color:"#64748b",fontFamily:"monospace"}}>empty (deleted ✅)</div>}
+            <div style={{fontSize: 13,color:T.sqs.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>☁️ AWS SQS: order-queue</div>
+            {stage===0&&<div style={{fontSize: 12,color:"#64748b",fontFamily:"monospace"}}>empty</div>}
+            {stage>=2&&stage<3&&<div style={{borderRadius:6,padding:"5px 10px",fontSize: 13,fontFamily:"monospace",background:T.sqs.border+"30",border:`1px solid ${T.sqs.border}`,color:T.sqs.text}}>📨 Process order #1234 ← visible</div>}
+            {stage>=3&&stage<5&&<div style={{borderRadius:6,padding:"4px 8px",fontSize: 12,fontFamily:"monospace",background:"rgba(255,255,255,0.96)",border:"1px dashed rgba(71, 85, 105, 0.5)",color:"#64748b"}}>👻 Process order #1234 ← INVISIBLE (30s timer)</div>}
+            {stage>=5&&<div style={{fontSize: 12,color:"#64748b",fontFamily:"monospace"}}>empty (deleted ✅)</div>}
           </div>
           <Arrow on={stage>=3} color={T.sqs.border} label={stage>=3?"receive_message":""}/>
           <FlowNode tok={T.consumer} icon="🖥️" label="Consumer (boto3)" sub={stage>=5?"✅ deleted":stage>=3?"processing…":""} active={stage>=3&&stage<=5}/>
         </div>
         {stage>=3&&stage<5&&(
-          <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${T.rpc.border}08, ${T.rpc.border}12)`,border:`1px solid ${T.rpc.border}30`,fontSize:12,fontFamily:"system-ui, -apple-system, sans-serif",color:T.rpc.text,backdropFilter:"blur(8px)"}}>
+          <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${T.rpc.border}08, ${T.rpc.border}12)`,border:`1px solid ${T.rpc.border}30`,fontSize: 14,fontFamily:"system-ui, -apple-system, sans-serif",color:T.rpc.text,backdropFilter:"blur(8px)"}}>
             ⏱️ VisibilityTimeout countdown: 30s... message invisible to others. Must delete before timer expires!
           </div>
         )}
@@ -2591,14 +2592,14 @@ function SQSFIFOLesson({ meta }) {
           <Arrow on={stage>=2} color={T.producer.border}/>
           {/* FIFO queue */}
           <div style={{flex:1,minWidth:170,borderRadius:10,padding:"12px 14px",background:T.sqs.bg,border:`1.5px solid ${meta.color}80`,backdropFilter:"blur(8px)"}}>
-            <div style={{fontSize:11,color:T.sqs.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>☁️ orders.fifo (FIFO Queue)</div>
+            <div style={{fontSize: 13,color:T.sqs.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>☁️ orders.fifo (FIFO Queue)</div>
             <div style={{display:"flex",flexDirection:"column",gap:4}}>
               {MSGS.map((m,i)=>{
                 const active=stage>=3&&i<3&&!(stage>=4&&i===0);
                 const failed=stage>=4&&i===0;
-                return(<div key={i} style={{borderRadius:6,padding:"3px 8px",fontSize:10,fontFamily:"monospace",background:failed?"#fff5f5":active?meta.color+"20":"#f1f5f9",border:`1px solid ${failed?T.dlq.border:active?meta.color:"rgba(148,163,184,0.60)"}`,color:failed?T.dlq.text:active?T.sqs.text:"#64748b",transition:"all 0.3s"}}>{i+1}. {m}{failed?" ← FAILED 3x ↓":""}</div>);
+                return(<div key={i} style={{borderRadius:6,padding:"3px 8px",fontSize: 12,fontFamily:"monospace",background:failed?"#fff5f5":active?meta.color+"20":"#f1f5f9",border:`1px solid ${failed?T.dlq.border:active?meta.color:"rgba(148,163,184,0.60)"}`,color:failed?T.dlq.text:active?T.sqs.text:"#64748b",transition:"all 0.3s"}}>{i+1}. {m}{failed?" ← FAILED 3x ↓":""}</div>);
               })}
-              {stage<2&&<div style={{fontSize:10,color:"#64748b",fontFamily:"monospace"}}>empty</div>}
+              {stage<2&&<div style={{fontSize: 12,color:"#64748b",fontFamily:"monospace"}}>empty</div>}
             </div>
           </div>
           <Arrow on={stage>=3} color={meta.color}/>
@@ -2607,11 +2608,11 @@ function SQSFIFOLesson({ meta }) {
         {/* DLQ */}
         {stage>=4&&(
           <div style={{display:"flex",alignItems:"center",gap:8,paddingLeft:16}}>
-            <div style={{fontSize:10,color:T.dlq.text,fontFamily:"monospace"}}>↓ maxReceiveCount exceeded (3x)</div>
+            <div style={{fontSize: 12,color:T.dlq.text,fontFamily:"monospace"}}>↓ maxReceiveCount exceeded (3x)</div>
             <Arrow on color={T.dlq.border}/>
             <div style={{borderRadius:10,padding:"12px 14px",background:T.dlq.bg,border:`1.5px solid ${T.dlq.border}`,backdropFilter:"blur(8px)"}}>
-              <div style={{fontSize:11,color:T.dlq.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:4}}>☠️ orders-dlq.fifo (Dead Letter Queue)</div>
-              <div style={{fontSize:11,color:T.dlq.text,fontFamily:"monospace"}}>1. Order #1 (group: user-A) ← investigate!</div>
+              <div style={{fontSize: 13,color:T.dlq.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:4}}>☠️ orders-dlq.fifo (Dead Letter Queue)</div>
+              <div style={{fontSize: 13,color:T.dlq.text,fontFamily:"monospace"}}>1. Order #1 (group: user-A) ← investigate!</div>
             </div>
             {stage>=5&&<><Arrow on color="#f59e0b" label="alert!"/><FlowNode tok={T.rpc} icon="🔔" label="CloudWatch Alert" sub="DLQ depth > 0" active w={110}/></>}
           </div>
@@ -2647,7 +2648,7 @@ function KafkaOffsetsLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={PART_C}/>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
         {/* Partition strip */}
-        <div style={{fontSize:10,color:T.stream.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>📦 Partition 0 — offsets 0 to 7</div>
+        <div style={{fontSize: 12,color:T.stream.text,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:8}}>📦 Partition 0 — offsets 0 to 7</div>
         <div style={{display:"flex",gap:4,marginBottom:12}}>
           {Array.from({length:MSGS},(_,i)=>{
             const isConsumed = stage >= 2 && i < consumerAt;
@@ -2659,20 +2660,20 @@ function KafkaOffsetsLesson({ meta }) {
                 background: isReplay ? PART_C+"30" : isCommitted ? PART_C+"20" : isConsumed ? "rgba(148,163,184,0.60)" : "#0f172a",
                 border:`1px solid ${isReplay ? PART_C : isCommitted ? PART_C+"80" : isConsumed ? "#64748b" : "rgba(148,163,184,0.60)"}`,
               }}>
-                <div style={{fontSize:9,fontFamily:"monospace",color:isCommitted||isReplay?PART_C:"#475569"}}>off</div>
-                <div style={{fontSize:13,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,color:isReplay?PART_C:isCommitted?PART_C:isConsumed?"#64748b":"rgba(148,163,184,0.60)"}}>{i}</div>
+                <div style={{fontSize: 11,fontFamily:"monospace",color:isCommitted||isReplay?PART_C:"#475569"}}>off</div>
+                <div style={{fontSize: 15,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,color:isReplay?PART_C:isCommitted?PART_C:isConsumed?"#64748b":"rgba(148,163,184,0.60)"}}>{i}</div>
               </div>
             );
           })}
         </div>
         {/* Legend row */}
-        <div style={{display:"flex",gap:16,fontSize:10,fontFamily:"monospace"}}>
+        <div style={{display:"flex",gap:16,fontSize: 12,fontFamily:"monospace"}}>
           <span style={{color:PART_C}}>■ committed</span>
           <span style={{color:"#475569"}}>■ read (uncommitted)</span>
           <span style={{color:"rgba(148,163,184,0.60)"}}>■ unread</span>
         </div>
         {stage>=1&&(
-          <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${PART_C}08, ${PART_C}12)`,border:`1px solid ${PART_C}30`,fontSize:12,fontFamily:"system-ui, -apple-system, sans-serif",color:PART_C}}>
+          <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${PART_C}08, ${PART_C}12)`,border:`1px solid ${PART_C}30`,fontSize: 14,fontFamily:"system-ui, -apple-system, sans-serif",color:PART_C}}>
             {stage===5 ? "⏮️  seek(partition=0, offset=0) — replaying from the start"
              : stage===4 ? `💥 Crashed at offset 4 | Last committed: 3 | Will re-read from 3`
              : `Consumer position: ${consumerAt} | Committed: ${committedAt} | Lag: ${MSGS-committedAt}`}
@@ -2709,7 +2710,7 @@ function KafkaReplicationLesson({ meta }) {
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
-        <div style={{fontSize:10,color:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:12}}>🗄️ KAFKA CLUSTER — Partition 0 (RF=3)</div>
+        <div style={{fontSize: 12,color:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:12}}>🗄️ KAFKA CLUSTER — Partition 0 (RF=3)</div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           {BROKERS.map((b)=>{
             const isFailed = broker0Failed && b.id===0;
@@ -2723,15 +2724,15 @@ function KafkaReplicationLesson({ meta }) {
                 border:`1px solid ${isFailed ? "#ef4444" : isNewLeader ? "#f97316" : b.color+"60"}`,
                 opacity: isFailed ? 0.4 : 1,
               }}>
-                <div style={{fontSize:20}}>{isFailed ? "💀" : b.id===0 ? "👑" : "📋"}</div>
-                <div style={{flex:1,fontFamily:"monospace",fontSize:11}}>
+                <div style={{fontSize: 22}}>{isFailed ? "💀" : b.id===0 ? "👑" : "📋"}</div>
+                <div style={{flex:1,fontFamily:"monospace",fontSize: 13}}>
                   <div style={{color: isFailed?"#ef4444":isNewLeader?"#f97316":b.color,fontWeight:"bold"}}>{b.label} — {roleLabel}</div>
                   <div style={{color:"#475569",marginTop:2}}>
                     Partition 0 {inISR ? "✅ in ISR" : stage>0?"⏳ syncing…":""}
                   </div>
                 </div>
                 {stage>=3&&!isFailed&&(
-                  <div style={{fontSize:10,fontFamily:"monospace",padding:"3px 8px",borderRadius:6,
+                  <div style={{fontSize: 12,fontFamily:"monospace",padding:"3px 8px",borderRadius:6,
                     background: stage>=4?"#22c55e20":"#f9731620",
                     color: stage>=4?"#22c55e":"#f97316",
                     border: `1px solid ${stage>=4?"#22c55e40":"#f9731640"}`}}>
@@ -2743,7 +2744,7 @@ function KafkaReplicationLesson({ meta }) {
           })}
         </div>
         {stage>=3&&(
-          <div style={{marginTop:10,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${meta.color}08, ${meta.color}12)`,border:`1px solid ${meta.color}30`,fontSize:12,fontFamily:"system-ui, -apple-system, sans-serif",color:meta.color}}>
+          <div style={{marginTop:10,padding:"10px 14px",borderRadius:8,background:`linear-gradient(135deg, ${meta.color}08, ${meta.color}12)`,border:`1px solid ${meta.color}30`,fontSize: 14,fontFamily:"system-ui, -apple-system, sans-serif",color:meta.color}}>
             {stage===5?"🔄 Controller elected Broker 1 as new leader. Writes resume automatically."
              :stage===4?"acks=all: leader waits for ALL ISR replicas → zero data loss"
              :"acks=1: leader acks immediately → possible data loss on failover"}
@@ -2781,8 +2782,8 @@ function KafkaTransactionsLesson({ meta }) {
         {/* Idempotence layer */}
         {stage>=2&&(
           <div style={{marginBottom:12,padding:"10px 14px",borderRadius:8,background:"rgba(34, 197, 94, 0.1)",border:"1px solid rgba(34, 197, 94, 0.3)",display:"flex",gap:8,alignItems:"center"}}>
-            <span style={{fontSize:16}}>🔑</span>
-            <span style={{fontSize:12,fontFamily:"system-ui, -apple-system, sans-serif",color:"#4ade80",fontWeight:500}}>Idempotent Producer — PID: 42 | Seq: {stage >= 3 ? "2,3" : "1"} | duplicates auto-dropped</span>
+            <span style={{fontSize: 18}}>🔑</span>
+            <span style={{fontSize: 14,fontFamily:"system-ui, -apple-system, sans-serif",color:"#4ade80",fontWeight:500}}>Idempotent Producer — PID: 42 | Seq: {stage >= 3 ? "2,3" : "1"} | duplicates auto-dropped</span>
           </div>
         )}
         {/* Transaction state */}
@@ -2793,9 +2794,9 @@ function KafkaTransactionsLesson({ meta }) {
               background: txColors[topicState]+"15",
               border:`1px solid ${txColors[topicState]}60`,
             }}>
-              <div style={{fontSize:16}}>{i===0?"📦":"📋"}</div>
-              <div style={{fontSize:11,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,color:txColors[topicState],marginTop:4}}>{t}</div>
-              <div style={{fontSize:10,fontFamily:"monospace",color:"#475569",marginTop:2}}>
+              <div style={{fontSize: 18}}>{i===0?"📦":"📋"}</div>
+              <div style={{fontSize: 13,fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,color:txColors[topicState],marginTop:4}}>{t}</div>
+              <div style={{fontSize: 12,fontFamily:"monospace",color:"#475569",marginTop:2}}>
                 {topicState==="committed"?"✅ committed"
                  :topicState==="pending"&&stage>=i+3?"⏳ PENDING"
                  :"(empty)"}
@@ -2808,7 +2809,7 @@ function KafkaTransactionsLesson({ meta }) {
           <div style={{padding:"8px 12px",borderRadius:8,textAlign:"center",
             background: txColors[topicState]+"15",
             border:`1px solid ${txColors[topicState]}60`,
-            fontSize:12,fontFamily:"monospace",color:txColors[topicState]}}>
+            fontSize: 14,fontFamily:"monospace",color:txColors[topicState]}}>
             {topicState==="committed" ? "✅ COMMITTED — read_committed consumers see both messages"
              :"⏳ TRANSACTION OPEN — messages pending, not yet visible"}
           </div>
@@ -2847,7 +2848,7 @@ function KafkaCompactionLesson({ meta }) {
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <StepBar current={stage} total={STEPS} color={meta.color}/>
       <div style={{borderRadius:10,background:"rgba(248,250,252,0.85)",border:"1px solid rgba(148,163,184,0.40)",padding:"20px 16px",backdropFilter:"blur(12px)"}}>
-        <div style={{fontSize:10,color:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:12}}>
+        <div style={{fontSize: 12,color:"#475569",fontFamily:"system-ui, -apple-system, sans-serif",fontWeight:600,marginBottom:12}}>
           📜 Topic: user_profiles (cleanup.policy=compact)
           {compacted && <span style={{color:meta.color}}> — AFTER COMPACTION</span>}
         </div>
@@ -2867,13 +2868,13 @@ function KafkaCompactionLesson({ meta }) {
                 background: hidden ? "#f1f5f9" : isTombstone ? "#fff5f540" : `${color}12`,
                 border:`1px solid ${hidden ? "rgba(148,163,184,0.60)" : color+"50"}`,
               }}>
-                <div style={{fontSize:10,fontFamily:"monospace",color:"#475569",minWidth:60}}>offset={e.offset}</div>
-                <div style={{fontSize:11,fontFamily:"monospace",color,fontWeight:"bold",minWidth:60}}>key='{e.key}'</div>
-                <div style={{fontSize:11,fontFamily:"monospace",color: isTombstone?"#ef4444":color}}>
+                <div style={{fontSize: 12,fontFamily:"monospace",color:"#475569",minWidth:60}}>offset={e.offset}</div>
+                <div style={{fontSize: 13,fontFamily:"monospace",color,fontWeight:"bold",minWidth:60}}>key='{e.key}'</div>
+                <div style={{fontSize: 13,fontFamily:"monospace",color: isTombstone?"#ef4444":color}}>
                   {isTombstone ? "🪦 TOMBSTONE (value=None)" : `value='${e.val}'`}
                 </div>
-                {hidden && <div style={{fontSize:10,fontFamily:"monospace",color:"rgba(71, 85, 105, 0.5)",marginLeft:"auto"}}>compacted away</div>}
-                {compacted && !hidden && !isTombstone && <div style={{fontSize:10,color:meta.color,marginLeft:"auto"}}>✅ retained</div>}
+                {hidden && <div style={{fontSize: 12,fontFamily:"monospace",color:"rgba(71, 85, 105, 0.5)",marginLeft:"auto"}}>compacted away</div>}
+                {compacted && !hidden && !isTombstone && <div style={{fontSize: 12,color:meta.color,marginLeft:"auto"}}>✅ retained</div>}
               </div>
             );
           })}
@@ -2904,8 +2905,8 @@ function IstioArchLesson({ meta }) {
   ];
   const box = (label, sub, color, active) => (
     <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? color : color + "40"}`, background: active ? color + "20" : "#0f172a", transition: "all 0.35s", minWidth: 90, textAlign: "center" }}>
-      <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: active ? color : color + "80" }}>{label}</div>
-      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>{sub}</div>}
+      <div style={{ fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: active ? color : color + "80" }}>{label}</div>
+      {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>{sub}</div>}
     </div>
   );
   return (
@@ -2914,27 +2915,27 @@ function IstioArchLesson({ meta }) {
       {/* Istiod control plane */}
       <div style={{ textAlign: "center", padding: "8px 0" }}>
         <div style={{ display: "inline-block", borderRadius: 10, padding: "6px 20px", border: `2px solid ${istiodActive ? "#0ea5e9" : "rgba(148,163,184,0.60)"}`, background: istiodActive ? "#0ea5e920" : "#0f172a", transition: "all 0.4s" }}>
-          <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: istiodActive ? "#0ea5e9" : "#64748b" }}>🧠 Istiod (Control Plane)</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>Pilot · Citadel · Galley</div>
+          <div style={{ fontSize: 14, fontWeight: "bold", fontFamily: "monospace", color: istiodActive ? "#0ea5e9" : "#64748b" }}>🧠 Istiod (Control Plane)</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>Pilot · Citadel · Galley</div>
         </div>
-        {istiodActive && <div style={{ fontSize: 10, fontFamily: "monospace", color: "#0ea5e9", marginTop: 4 }}>↓ xDS config push (gRPC)</div>}
+        {istiodActive && <div style={{ fontSize: 12, fontFamily: "monospace", color: "#0ea5e9", marginTop: 4 }}>↓ xDS config push (gRPC)</div>}
       </div>
       {/* Pod */}
       <div style={{ borderRadius: 12, border: `2px solid ${injected ? "#0ea5e9" : "#64748b"}`, padding: 14, background: "#f8fafc", transition: "all 0.4s" }}>
-        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginBottom: 10 }}>
+        <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b", marginBottom: 10 }}>
           {stage >= 2 ? "✅ namespace: demo  |  label: istio-injection=enabled" : "namespace: demo  |  no injection label"}
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
           {box("📦 App Container", "port :8080", "#22c55e", true)}
           {injected && (
             <>
-              <div style={{ fontSize: 16, color: "#0ea5e9" }}>+</div>
+              <div style={{ fontSize: 18, color: "#0ea5e9" }}>+</div>
               {box("🔷 Envoy Sidecar", "port :15001", "#0ea5e9", traffic)}
             </>
           )}
         </div>
         {traffic && (
-          <div style={{ marginTop: 10, fontSize: 10, fontFamily: "monospace", color: "#0ea5e9", textAlign: "center", padding: "4px 8px", background: "#0ea5e910", borderRadius: 6, border: "1px solid #0ea5e930" }}>
+          <div style={{ marginTop: 10, fontSize: 12, fontFamily: "monospace", color: "#0ea5e9", textAlign: "center", padding: "4px 8px", background: "#0ea5e910", borderRadius: 6, border: "1px solid #0ea5e930" }}>
             iptables intercepts all traffic → Envoy → App (transparent proxy)
           </div>
         )}
@@ -2967,16 +2968,16 @@ function IstioRoutingLesson({ meta }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {/* Request */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
-          <div style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(71, 85, 105, 0.4)", background: "rgba(248,250,252,0.92)", fontSize: 12, fontFamily: "system-ui, -apple-system, sans-serif", color: "#64748b", backdropFilter: "blur(8px)" }}>
+          <div style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(71, 85, 105, 0.4)", background: "rgba(248,250,252,0.92)", fontSize: 14, fontFamily: "system-ui, -apple-system, sans-serif", color: "#64748b", backdropFilter: "blur(8px)" }}>
             {useHeader ? "🌐 Request  [x-version: v2]" : "🌐 Request  [no version header]"}
           </div>
-          {stage >= 2 && <div style={{ fontSize: 10, color: "#14b8a6" }}>→</div>}
+          {stage >= 2 && <div style={{ fontSize: 12, color: "#14b8a6" }}>→</div>}
         </div>
         {/* VirtualService */}
         {stage >= 2 && (
           <div style={{ borderRadius: 10, border: `1px solid #14b8a6`, background: "#14b8a610", padding: "8px 14px", textAlign: "center" }}>
-            <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#14b8a6" }}>📋 VirtualService: myapp</div>
-            <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: "#14b8a6" }}>📋 VirtualService: myapp</div>
+            <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b", marginTop: 4 }}>
               {stage >= 4 ? "match: x-version=v2 → subset: v2 | default → subset: v1" : "default route → subset: v1"}
             </div>
           </div>
@@ -2984,12 +2985,12 @@ function IstioRoutingLesson({ meta }) {
         {/* DestinationRule + subsets */}
         {stage >= 3 && (
           <div style={{ borderRadius: 10, border: "1px solid #8b5cf6", background: "#8b5cf610", padding: "8px 14px" }}>
-            <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#8b5cf6", marginBottom: 6 }}>🎯 DestinationRule: myapp</div>
+            <div style={{ fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: "#8b5cf6", marginBottom: 6 }}>🎯 DestinationRule: myapp</div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               {["v1", "v2"].map(v => (
                 <div key={v} style={{ borderRadius: 8, padding: "5px 16px", border: `1px solid ${activeSubset === v ? "#22c55e" : "#64748b"}`, background: activeSubset === v ? "#22c55e20" : "#0f172a", transition: "all 0.35s", textAlign: "center" }}>
-                  <div style={{ fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: activeSubset === v ? "#22c55e" : "#64748b" }}>subset: {v}</div>
-                  <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b" }}>version={v}</div>
+                  <div style={{ fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: activeSubset === v ? "#22c55e" : "#64748b" }}>subset: {v}</div>
+                  <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b" }}>version={v}</div>
                 </div>
               ))}
             </div>
@@ -3023,10 +3024,10 @@ function IstioCanaryLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {/* Traffic split bar */}
       <div style={{ borderRadius: 12, border: "1px solid rgba(148,163,184,0.60)", background: "#f8fafc", padding: 16 }}>
-        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginBottom: 10, textAlign: "center" }}>VirtualService weight split</div>
+        <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b", marginBottom: 10, textAlign: "center" }}>VirtualService weight split</div>
         <div style={{ display: "flex", borderRadius: 8, overflow: "hidden", height: 32, marginBottom: 10, transition: "all 0.5s" }}>
-          {w1 > 0 && <div style={{ flex: w1, background: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#fff", transition: "flex 0.5s" }}>{w1}% v1</div>}
-          {w2 > 0 && <div style={{ flex: w2, background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#fff", transition: "flex 0.5s" }}>{w2}% v2</div>}
+          {w1 > 0 && <div style={{ flex: w1, background: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: "#fff", transition: "flex 0.5s" }}>{w1}% v1</div>}
+          {w2 > 0 && <div style={{ flex: w2, background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: "#fff", transition: "flex 0.5s" }}>{w2}% v2</div>}
         </div>
         {/* Pods */}
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
@@ -3035,9 +3036,9 @@ function IstioCanaryLesson({ meta }) {
             { label: "v2 pods", color: "#22c55e", weight: w2 },
           ].map(({ label, color, weight }) => (
             <div key={label} style={{ textAlign: "center", opacity: weight === 0 ? 0.3 : 1, transition: "opacity 0.4s" }}>
-              <div style={{ fontSize: 20 }}>📦📦</div>
-              <div style={{ fontSize: 10, fontFamily: "monospace", color, marginTop: 2 }}>{label}</div>
-              <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b" }}>weight: {weight}</div>
+              <div style={{ fontSize: 22 }}>📦📦</div>
+              <div style={{ fontSize: 12, fontFamily: "monospace", color, marginTop: 2 }}>{label}</div>
+              <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b" }}>weight: {weight}</div>
             </div>
           ))}
         </div>
@@ -3070,31 +3071,31 @@ function IstioFaultLesson({ meta }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-        <div style={{ padding: "10px 16px", borderRadius: 8, border: "1px solid rgba(71, 85, 105, 0.4)", background: "rgba(248,250,252,0.92)", fontSize: 12, fontFamily: "system-ui, -apple-system, sans-serif", color: "#64748b", textAlign: "center", backdropFilter: "blur(8px)" }}>
+        <div style={{ padding: "10px 16px", borderRadius: 8, border: "1px solid rgba(71, 85, 105, 0.4)", background: "rgba(248,250,252,0.92)", fontSize: 14, fontFamily: "system-ui, -apple-system, sans-serif", color: "#64748b", textAlign: "center", backdropFilter: "blur(8px)" }}>
           🌐 Client<br />{headerScoped ? "[x-test-fault: inject]" : "[request]"}
         </div>
-        <div style={{ fontSize: 16, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 18, color: "#64748b" }}>→</div>
         {/* Fault injector */}
-        <div style={{ padding: "8px 14px", borderRadius: 8, border: `2px solid ${fc}`, background: fc + "15", fontSize: 11, fontFamily: "monospace", color: fc, textAlign: "center", minWidth: 110, transition: "all 0.4s" }}>
+        <div style={{ padding: "8px 14px", borderRadius: 8, border: `2px solid ${fc}`, background: fc + "15", fontSize: 13, fontFamily: "monospace", color: fc, textAlign: "center", minWidth: 110, transition: "all 0.4s" }}>
           🔷 Envoy<br />
           {faultType === "delay" && "⏰ +5s delay (50%)"}
           {faultType === "abort" && "💥 503 abort (10%)"}
           {faultType === "none" && "no fault"}
         </div>
-        {faultType !== "abort" && <div style={{ fontSize: 16, color: "#64748b" }}>→</div>}
+        {faultType !== "abort" && <div style={{ fontSize: 18, color: "#64748b" }}>→</div>}
         {faultType !== "abort" && (
-          <div style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #22c55e55", background: "#f0fdf4", fontSize: 11, fontFamily: "monospace", color: "#86efac", textAlign: "center" }}>
+          <div style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #22c55e55", background: "#f0fdf4", fontSize: 13, fontFamily: "monospace", color: "#86efac", textAlign: "center" }}>
             📦 Service
           </div>
         )}
         {faultType === "abort" && (
-          <div style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid #ef4444", background: "#ef444415", fontSize: 11, fontFamily: "monospace", color: "#ef4444" }}>
+          <div style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid #ef4444", background: "#ef444415", fontSize: 13, fontFamily: "monospace", color: "#ef4444" }}>
             ← HTTP 503
           </div>
         )}
       </div>
       {stage >= 4 && (
-        <div style={{ borderRadius: 8, padding: "8px 12px", border: "1px solid #f59e0b40", background: "#f59e0b10", fontSize: 10, fontFamily: "monospace", color: "#f59e0b", textAlign: "center" }}>
+        <div style={{ borderRadius: 8, padding: "8px 12px", border: "1px solid #f59e0b40", background: "#f59e0b10", fontSize: 12, fontFamily: "monospace", color: "#f59e0b", textAlign: "center" }}>
           Combined: 50% requests get +5s delay · 10% get 503 abort
         </div>
       )}
@@ -3131,7 +3132,7 @@ function IstioCircuitLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {/* Load balancer → pods */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-        <div style={{ padding: "6px 20px", borderRadius: 8, border: "1px solid #f97316", background: "#f9731620", fontSize: 11, fontWeight: "bold", fontFamily: "monospace", color: "#f97316" }}>
+        <div style={{ padding: "6px 20px", borderRadius: 8, border: "1px solid #f97316", background: "#f9731620", fontSize: 13, fontWeight: "bold", fontFamily: "monospace", color: "#f97316" }}>
           ⚖️ Envoy Load Balancer
         </div>
         <div style={{ display: "flex", gap: 12 }}>
@@ -3140,15 +3141,15 @@ function IstioCircuitLesson({ meta }) {
             const label = p.ejected ? (p.recovering ? "🔄 PROBE" : "🚫 EJECTED") : p.error ? "⚠️ ERRORS" : "✅ healthy";
             return (
               <div key={p.id} style={{ borderRadius: 10, padding: "10px 14px", border: `2px solid ${color}`, background: color + "15", textAlign: "center", minWidth: 80, transition: "all 0.4s", opacity: p.ejected && !p.recovering ? 0.5 : 1 }}>
-                <div style={{ fontSize: 18 }}>📦</div>
-                <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color, marginTop: 4 }}>{p.id}</div>
-                <div style={{ fontSize: 9, fontFamily: "monospace", color, marginTop: 2 }}>{label}</div>
+                <div style={{ fontSize: 20 }}>📦</div>
+                <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color, marginTop: 4 }}>{p.id}</div>
+                <div style={{ fontSize: 11, fontFamily: "monospace", color, marginTop: 2 }}>{label}</div>
               </div>
             );
           })}
         </div>
         {pod3Ejected && !pod3Recovering && (
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#ef4444", padding: "4px 12px", background: "#ef444415", borderRadius: 6, border: "1px solid #ef444430" }}>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#ef4444", padding: "4px 12px", background: "#ef444415", borderRadius: 6, border: "1px solid #ef444430" }}>
             Pod-3 ejected for 30s · ejectionCount × baseEjectionTime
           </div>
         )}
@@ -3179,9 +3180,9 @@ function IstioGatewayLesson({ meta }) {
   const step = (label, sub, active, icon) => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 90 }}>
       <div style={{ padding: "7px 12px", borderRadius: 8, border: `2px solid ${active ? "#8b5cf6" : "rgba(148,163,184,0.60)"}`, background: active ? "#8b5cf620" : "#0f172a", textAlign: "center", transition: "all 0.4s", width: "100%" }}>
-        <div style={{ fontSize: 16 }}>{icon}</div>
-        <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: active ? "#8b5cf6" : "#64748b", marginTop: 2 }}>{label}</div>
-        {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", marginTop: 1 }}>{sub}</div>}
+        <div style={{ fontSize: 18 }}>{icon}</div>
+        <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: active ? "#8b5cf6" : "#64748b", marginTop: 2 }}>{label}</div>
+        {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", marginTop: 1 }}>{sub}</div>}
       </div>
     </div>
   );
@@ -3190,15 +3191,15 @@ function IstioGatewayLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center", flexWrap: "wrap" }}>
         {step("Internet", "HTTPS :443", stage >= 2, "🌐")}
-        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         {step("Gateway", tlsActive ? "TLS terminated" : "port :443", stage >= 2, "🚪")}
-        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         {step("VirtualService", "host/path rules", vsActive, "🗺️")}
-        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         {step("Service Pod", "app:myapp", svcActive, "📦")}
       </div>
       {tlsActive && (
-        <div style={{ borderRadius: 8, padding: "6px 12px", border: "1px solid #06b6d440", background: "#06b6d410", fontSize: 10, fontFamily: "monospace", color: "#06b6d4", textAlign: "center" }}>
+        <div style={{ borderRadius: 8, padding: "6px 12px", border: "1px solid #06b6d440", background: "#06b6d410", fontSize: 12, fontFamily: "monospace", color: "#06b6d4", textAlign: "center" }}>
           🔐 TLS secret: myapp-tls-secret  |  HTTP → 301 → HTTPS redirect active
         </div>
       )}
@@ -3228,10 +3229,10 @@ function IstioMtlsLesson({ meta }) {
   ];
   const serviceBox = (label, sa, side) => (
     <div style={{ borderRadius: 10, border: `2px solid ${encrypted ? "#06b6d4" : mode !== "none" ? "#06b6d460" : "#64748b"}`, background: "#f0faff", padding: "10px 14px", textAlign: "center", minWidth: 100, transition: "all 0.4s" }}>
-      <div style={{ fontSize: 18 }}>📦</div>
-      <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#7dd3fc" }}>{label}</div>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>sa/{sa}</div>
-      {certExchange && <div style={{ marginTop: 4, fontSize: 9, fontFamily: "monospace", color: "#06b6d4" }}>📜 SVID cert</div>}
+      <div style={{ fontSize: 20 }}>📦</div>
+      <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: "#7dd3fc" }}>{label}</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>sa/{sa}</div>
+      {certExchange && <div style={{ marginTop: 4, fontSize: 11, fontFamily: "monospace", color: "#06b6d4" }}>📜 SVID cert</div>}
     </div>
   );
   return (
@@ -3239,7 +3240,7 @@ function IstioMtlsLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {/* Mode badge */}
       <div style={{ textAlign: "center" }}>
-        <span style={{ padding: "3px 14px", borderRadius: 20, fontSize: 11, fontWeight: "bold", fontFamily: "monospace", background: modeColor + "20", border: `1px solid ${modeColor}`, color: modeColor, transition: "all 0.4s" }}>
+        <span style={{ padding: "3px 14px", borderRadius: 20, fontSize: 13, fontWeight: "bold", fontFamily: "monospace", background: modeColor + "20", border: `1px solid ${modeColor}`, color: modeColor, transition: "all 0.4s" }}>
           PeerAuthentication mode: {mode.toUpperCase()}
         </span>
       </div>
@@ -3248,7 +3249,7 @@ function IstioMtlsLesson({ meta }) {
         {serviceBox("frontend", "frontend")}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
           <div style={{ height: 3, width: 60, borderRadius: 2, background: encrypted ? "#06b6d4" : mode !== "none" ? "#06b6d440" : "#64748b", transition: "all 0.4s" }} />
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: encrypted ? "#06b6d4" : "#64748b", transition: "all 0.4s" }}>
+          <div style={{ fontSize: 11, fontFamily: "monospace", color: encrypted ? "#06b6d4" : "#64748b", transition: "all 0.4s" }}>
             {encrypted ? "🔒 mTLS 1.3" : mode === "permissive" ? "⚡ mTLS or HTTP" : "HTTP (plain)"}
           </div>
         </div>
@@ -3288,16 +3289,16 @@ function IstioAuthzLesson({ meta }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {callers.map(c => (
             <div key={c.label} style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${c.tried ? (c.allowed ? "#22c55e" : "#ef4444") : "rgba(148,163,184,0.60)"}`, background: "#f8fafc", textAlign: "center", minWidth: 100, transition: "all 0.4s" }}>
-              <div style={{ fontSize: 14 }}>{c.allowed ? "📦" : "☠️"}</div>
-              <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: c.tried ? (c.allowed ? "#22c55e" : "#ef4444") : "#64748b" }}>{c.label}</div>
-              <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>{c.sa}</div>
-              {c.tried && <div style={{ fontSize: 10, marginTop: 4, color: c.allowed ? "#22c55e" : "#ef4444" }}>{c.allowed ? "✅ 200 OK" : "🚫 403"}</div>}
+              <div style={{ fontSize: 16 }}>{c.allowed ? "📦" : "☠️"}</div>
+              <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: c.tried ? (c.allowed ? "#22c55e" : "#ef4444") : "#64748b" }}>{c.label}</div>
+              <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>{c.sa}</div>
+              {c.tried && <div style={{ fontSize: 12, marginTop: 4, color: c.allowed ? "#22c55e" : "#ef4444" }}>{c.allowed ? "✅ 200 OK" : "🚫 403"}</div>}
             </div>
           ))}
         </div>
         {/* Policy */}
         {policyActive && (
-          <div style={{ borderRadius: 10, border: `1px solid #ec4899`, background: "#ec489910", padding: "10px 14px", minWidth: 180, fontSize: 10, fontFamily: "monospace" }}>
+          <div style={{ borderRadius: 10, border: `1px solid #ec4899`, background: "#ec489910", padding: "10px 14px", minWidth: 180, fontSize: 12, fontFamily: "monospace" }}>
             <div style={{ fontWeight: "bold", color: "#ec4899", marginBottom: 6 }}>🔑 AuthorizationPolicy</div>
             <div style={{ color: "#64748b" }}>action: ALLOW</div>
             <div style={{ color: "#64748b" }}>from: sa/frontend</div>
@@ -3308,9 +3309,9 @@ function IstioAuthzLesson({ meta }) {
         )}
         {/* Backend */}
         <div style={{ borderRadius: 10, border: "1px solid #ec489950", background: "#f0faff", padding: "10px 14px", textAlign: "center", alignSelf: "center", minWidth: 90 }}>
-          <div style={{ fontSize: 18 }}>📦</div>
-          <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#7dd3fc" }}>backend</div>
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>sa/backend</div>
+          <div style={{ fontSize: 20 }}>📦</div>
+          <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: "#7dd3fc" }}>backend</div>
+          <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>sa/backend</div>
         </div>
       </div>
       <Narrative text={NARR[stage]} color={meta.color} step={stage > 0 && stage <= STEPS ? stage : null} total={STEPS} />
@@ -3339,9 +3340,9 @@ function IstioObserveLesson({ meta }) {
   ];
   const tool = (icon, label, sub, active, color) => (
     <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${active ? color : "rgba(148,163,184,0.60)"}`, background: active ? color + "15" : "#0f172a", textAlign: "center", minWidth: 90, transition: "all 0.4s" }}>
-      <div style={{ fontSize: 18 }}>{icon}</div>
-      <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: active ? color : "#64748b" }}>{label}</div>
-      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", marginTop: 1 }}>{sub}</div>}
+      <div style={{ fontSize: 20 }}>{icon}</div>
+      <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: active ? color : "#64748b" }}>{label}</div>
+      {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", marginTop: 1 }}>{sub}</div>}
     </div>
   );
   return (
@@ -3351,10 +3352,10 @@ function IstioObserveLesson({ meta }) {
       <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
         {["frontend", "orders", "payment"].map(s => (
           <div key={s} style={{ borderRadius: 8, padding: "6px 10px", border: "1px solid rgba(148,163,184,0.60)", background: "#f8fafc", textAlign: "center" }}>
-            <div style={{ fontSize: 13 }}>📦</div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>{s}</div>
-            {metricsFlow && <div style={{ fontSize: 8, color: "#eab308", marginTop: 2 }}>→ metrics</div>}
-            {tracingFlow  && <div style={{ fontSize: 8, color: "#a855f7", marginTop: 1 }}>→ traces</div>}
+            <div style={{ fontSize: 15 }}>📦</div>
+            <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>{s}</div>
+            {metricsFlow && <div style={{ fontSize: 10, color: "#eab308", marginTop: 2 }}>→ metrics</div>}
+            {tracingFlow  && <div style={{ fontSize: 10, color: "#a855f7", marginTop: 1 }}>→ traces</div>}
           </div>
         ))}
       </div>
@@ -3366,7 +3367,7 @@ function IstioObserveLesson({ meta }) {
         {tool("🗺️", "Kiali", "service graph", kialiActive, "#22c55e")}
       </div>
       {alertActive && (
-        <div style={{ borderRadius: 8, padding: "6px 14px", border: "1px solid #ef4444", background: "#ef444415", fontSize: 10, fontFamily: "monospace", color: "#ef4444", textAlign: "center" }}>
+        <div style={{ borderRadius: 8, padding: "6px 14px", border: "1px solid #ef4444", background: "#ef444415", fontSize: 12, fontFamily: "monospace", color: "#ef4444", textAlign: "center" }}>
           🚨 Alert: payment error rate 8.3% {">"} threshold 5% → PagerDuty notified
         </div>
       )}
@@ -3401,7 +3402,7 @@ function IstioInstallLesson({ meta }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, fontFamily: "monospace" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, fontFamily: "monospace" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
               {["Profile", "Control Plane", "Ingress GW", "Egress GW", "~Memory", "Best For"].map(h => (
@@ -3428,7 +3429,7 @@ function IstioInstallLesson({ meta }) {
         </table>
       </div>
       {stage >= 4 && (
-        <div style={{ borderRadius: 8, padding: "8px 12px", border: "1px solid #38bdf840", background: "#38bdf810", fontSize: 10, fontFamily: "monospace", color: "#38bdf8" }}>
+        <div style={{ borderRadius: 8, padding: "8px 12px", border: "1px solid #38bdf840", background: "#38bdf810", fontSize: 12, fontFamily: "monospace", color: "#38bdf8" }}>
           IstioOperator: set components.pilot.k8s.resources.requests.memory=256Mi · replicaCount=2 · meshConfig.accessLogFile=/dev/stdout
         </div>
       )}
@@ -3457,10 +3458,10 @@ function IstioServiceEntryLesson({ meta }) {
   ];
   const extService = (label, registered, blocked) => (
     <div style={{ borderRadius: 8, padding: "8px 12px", border: `1px solid ${registered ? "#34d399" : blocked ? "#ef4444" : "#94a3b8"}`, background: registered ? "#34d39915" : blocked ? "#ef444415" : "#0f172a", transition: "all 0.35s", textAlign: "center", minWidth: 140 }}>
-      <div style={{ fontSize: 12 }}>{registered ? "🌐" : blocked ? "🚫" : "🌐"}</div>
-      <div style={{ fontSize: 10, fontFamily: "monospace", color: registered ? "#34d399" : blocked ? "#ef4444" : "#64748b", fontWeight: "bold" }}>{label}</div>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginTop: 2 }}>{registered ? "✅ ServiceEntry" : blocked ? "BLOCKED" : "external"}</div>
-      {tlsOrig && registered && <div style={{ fontSize: 9, color: "#06b6d4", marginTop: 2 }}>🔐 TLS origination</div>}
+      <div style={{ fontSize: 14 }}>{registered ? "🌐" : blocked ? "🚫" : "🌐"}</div>
+      <div style={{ fontSize: 12, fontFamily: "monospace", color: registered ? "#34d399" : blocked ? "#ef4444" : "#64748b", fontWeight: "bold" }}>{label}</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginTop: 2 }}>{registered ? "✅ ServiceEntry" : blocked ? "BLOCKED" : "external"}</div>
+      {tlsOrig && registered && <div style={{ fontSize: 11, color: "#06b6d4", marginTop: 2 }}>🔐 TLS origination</div>}
     </div>
   );
   return (
@@ -3468,15 +3469,15 @@ function IstioServiceEntryLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
         <div style={{ borderRadius: 10, padding: "10px 14px", border: "1px solid #34d39930", background: "#f0faff", textAlign: "center" }}>
-          <div style={{ fontSize: 16 }}>📦</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#7dd3fc" }}>app pod</div>
+          <div style={{ fontSize: 18 }}>📦</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#7dd3fc" }}>app pod</div>
         </div>
-        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 16, color: "#64748b" }}>→</div>
         <div style={{ borderRadius: 8, padding: "6px 10px", border: "1px solid #0ea5e940", background: "#f0faff", textAlign: "center" }}>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#0ea5e9" }}>🔷 Envoy</div>
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8" }}>{stage >= 2 ? "REGISTRY_ONLY" : "ALLOW_ANY"}</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#0ea5e9" }}>🔷 Envoy</div>
+          <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8" }}>{stage >= 2 ? "REGISTRY_ONLY" : "ALLOW_ANY"}</div>
         </div>
-        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 16, color: "#64748b" }}>→</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {extService("api.payment.com", registered, blocked)}
           {extService("api.maps.com", false, stage >= 2)}
@@ -3507,9 +3508,9 @@ function IstioEgressLesson({ meta }) {
   ];
   const node = (icon, label, sub, active) => (
     <div style={{ borderRadius: 10, padding: "8px 12px", border: `2px solid ${active ? "#fb7185" : "#94a3b8"}`, background: active ? "#fb718515" : "#0f172a", textAlign: "center", minWidth: 80, transition: "all 0.35s" }}>
-      <div style={{ fontSize: 16 }}>{icon}</div>
-      <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: active ? "#fb7185" : "#64748b" }}>{label}</div>
-      {sub && <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginTop: 2 }}>{sub}</div>}
+      <div style={{ fontSize: 18 }}>{icon}</div>
+      <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: active ? "#fb7185" : "#64748b" }}>{label}</div>
+      {sub && <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginTop: 2 }}>{sub}</div>}
     </div>
   );
   return (
@@ -3517,18 +3518,18 @@ function IstioEgressLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
         {node("📦", "App Pod", "namespace", true)}
-        <div style={{ fontSize: 11, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 13, color: "#64748b" }}>→</div>
         {gwActive
           ? node("🚪", "Egress GW", tlsOrig ? "TLS orig" : "istio-system", true)
           : <div style={{ borderRadius: 10, padding: "8px 12px", border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center", minWidth: 80 }}>
-              <div style={{ fontSize: 10, fontFamily: "monospace", color: "#94a3b8" }}>no gateway</div>
+              <div style={{ fontSize: 12, fontFamily: "monospace", color: "#94a3b8" }}>no gateway</div>
             </div>
         }
-        <div style={{ fontSize: 11, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 13, color: "#64748b" }}>→</div>
         {node("🌐", "api.payment.com", ":443 external", gwActive)}
       </div>
       {auditOn && (
-        <div style={{ borderRadius: 8, padding: "6px 12px", border: "1px solid #fb718440", background: "#fb718410", fontSize: 10, fontFamily: "monospace", color: "#fb7185", textAlign: "center" }}>
+        <div style={{ borderRadius: 8, padding: "6px 12px", border: "1px solid #fb718440", background: "#fb718410", fontSize: 12, fontFamily: "monospace", color: "#fb7185", textAlign: "center" }}>
           📋 Egress Gateway access log: 200 api.payment.com /charge 142ms  ·  AuthzPolicy enforced
         </div>
       )}
@@ -3557,8 +3558,8 @@ function IstioJwtLesson({ meta }) {
     "Step 5 — Combined policy: AuthorizationPolicy checks BOTH the SPIFFE principal (service identity via mTLS) AND the JWT claim role=admin. Dual-layer zero-trust.",
   ];
   const tokenBox = (label, valid, shown, icon, color) => !shown ? null : (
-    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${color}`, background: color + "12", textAlign: "center", fontSize: 10, fontFamily: "monospace", color }}>
-      <div style={{ fontSize: 14 }}>{icon}</div>
+    <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${color}`, background: color + "12", textAlign: "center", fontSize: 12, fontFamily: "monospace", color }}>
+      <div style={{ fontSize: 16 }}>{icon}</div>
       <div style={{ fontWeight: "bold" }}>{label}</div>
     </div>
   );
@@ -3567,24 +3568,24 @@ function IstioJwtLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
         <div style={{ borderRadius: 10, padding: "10px 12px", border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center" }}>
-          <div style={{ fontSize: 16 }}>🌐</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b" }}>Client</div>
-          {validToken && <div style={{ fontSize: 9, color: "#22c55e", marginTop: 2 }}>🎫 JWT token</div>}
-          {noToken    && <div style={{ fontSize: 9, color: "#ef4444", marginTop: 2 }}>❌ no token</div>}
+          <div style={{ fontSize: 18 }}>🌐</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b" }}>Client</div>
+          {validToken && <div style={{ fontSize: 11, color: "#22c55e", marginTop: 2 }}>🎫 JWT token</div>}
+          {noToken    && <div style={{ fontSize: 11, color: "#ef4444", marginTop: 2 }}>❌ no token</div>}
         </div>
-        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         {raActive && (
           <div style={{ borderRadius: 10, padding: "8px 12px", border: `1px solid #a78bfa`, background: "#a78bfa12", textAlign: "center", minWidth: 130 }}>
-            <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#a78bfa" }}>RequestAuthentication</div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>issuer: auth.example.com</div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>jwksUri: /.well-known/jwks</div>
-            {combined && <div style={{ fontSize: 9, color: "#ec4899", marginTop: 4 }}>+ AuthzPolicy: role=admin</div>}
+            <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: "#a78bfa" }}>RequestAuthentication</div>
+            <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", marginTop: 2 }}>issuer: auth.example.com</div>
+            <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>jwksUri: /.well-known/jwks</div>
+            {combined && <div style={{ fontSize: 11, color: "#ec4899", marginTop: 4 }}>+ AuthzPolicy: role=admin</div>}
           </div>
         )}
-        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         <div style={{ borderRadius: 10, padding: "8px 12px", border: `1px solid ${noToken ? "#ef444450" : validToken ? "#22c55e50" : "#94a3b8"}`, background: "#f0faff", textAlign: "center", transition: "all 0.4s" }}>
-          <div style={{ fontSize: 16 }}>📦</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: noToken ? "#ef4444" : validToken ? "#22c55e" : "#64748b" }}>
+          <div style={{ fontSize: 18 }}>📦</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: noToken ? "#ef4444" : validToken ? "#22c55e" : "#64748b" }}>
             {noToken ? "403 Forbidden" : validToken ? "200 OK" : "service"}
           </div>
         </div>
@@ -3641,9 +3642,9 @@ backend.istio-demo.svc.cluster.local:9090  OK        mTLS          mTLS
       {stage > 0 && active && (
         <div style={{ borderRadius: 10, border: `1px solid ${active.color}40`, background: "#f8fafc", overflow: "hidden" }}>
           <div style={{ padding: "7px 12px", background: active.color + "18", borderBottom: `1px solid ${active.color}30`, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 10, fontFamily: "monospace", fontWeight: "bold", color: active.color }}>{active.title}</span>
+            <span style={{ fontSize: 12, fontFamily: "monospace", fontWeight: "bold", color: active.color }}>{active.title}</span>
           </div>
-          <div style={{ padding: "8px 12px", fontFamily: "monospace", fontSize: 10, color: "#4ade80", background: "#f8fafc" }}>
+          <div style={{ padding: "8px 12px", fontFamily: "monospace", fontSize: 12, color: "#4ade80", background: "#f8fafc" }}>
             <div style={{ color: "#64748b", marginBottom: 4 }}>$ {active.cmd}</div>
             <pre style={{ margin: 0, whiteSpace: "pre-wrap", color: "#64748b", lineHeight: 1.6 }}>{active.output}</pre>
           </div>
@@ -3677,21 +3678,21 @@ function IstioMirrorLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
         <div style={{ borderRadius: 10, padding: "8px 12px", border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center" }}>
-          <div style={{ fontSize: 16 }}>🌐</div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b" }}>Client</div>
-          {headerMod && <div style={{ fontSize: 9, color: "#67e8f9", marginTop: 2 }}>x-source: production</div>}
+          <div style={{ fontSize: 18 }}>🌐</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b" }}>Client</div>
+          {headerMod && <div style={{ fontSize: 11, color: "#67e8f9", marginTop: 2 }}>x-source: production</div>}
         </div>
-        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 16, color: "#64748b" }}>→</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
           <div style={{ borderRadius: 10, padding: "8px 12px", border: "2px solid #6366f1", background: "#6366f115", textAlign: "center", minWidth: 80 }}>
-            <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#a5b4fc" }}>📦 v1</div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: "#22c55e" }}>← response returned</div>
+            <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: "#a5b4fc" }}>📦 v1</div>
+            <div style={{ fontSize: 11, fontFamily: "monospace", color: "#22c55e" }}>← response returned</div>
           </div>
           {mirrorOn && (
             <div style={{ borderRadius: 10, padding: "8px 12px", border: `2px dashed #67e8f9`, background: "#67e8f910", textAlign: "center", minWidth: 80, opacity: 0.85 }}>
-              <div style={{ fontSize: 10, fontWeight: "bold", fontFamily: "monospace", color: "#67e8f9" }}>📦 v2 (mirror)</div>
-              <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>response discarded</div>
-              {pct > 0 && <div style={{ fontSize: 9, color: "#67e8f9" }}>{pct}% mirrored</div>}
+              <div style={{ fontSize: 12, fontWeight: "bold", fontFamily: "monospace", color: "#67e8f9" }}>📦 v2 (mirror)</div>
+              <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>response discarded</div>
+              {pct > 0 && <div style={{ fontSize: 11, color: "#67e8f9" }}>{pct}% mirrored</div>}
             </div>
           )}
         </div>
@@ -3723,7 +3724,7 @@ function IstioSidecarResourceLesson({ meta }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ borderRadius: 10, border: "1px solid #e2e8f0", background: "#f8fafc", padding: 12 }}>
-        <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", marginBottom: 8, textAlign: "center" }}>
+        <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b", marginBottom: 8, textAlign: "center" }}>
           {scoped ? "🔷 Envoy config (scoped — after Sidecar resource)" : "🔷 Envoy config (default — all services)"}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center" }}>
@@ -3731,14 +3732,14 @@ function IstioSidecarResourceLesson({ meta }) {
             const needed = neededSvcs.includes(s);
             const visible = !scoped || needed;
             return (
-              <div key={s} style={{ padding: "3px 8px", borderRadius: 6, border: `1px solid ${visible ? "#4ade8050" : "#94a3b8"}`, background: visible ? "#4ade8010" : "transparent", fontSize: 9, fontFamily: "monospace", color: visible ? "#4ade80" : "#94a3b8", transition: "all 0.4s", opacity: visible ? 1 : 0.2 }}>
+              <div key={s} style={{ padding: "3px 8px", borderRadius: 6, border: `1px solid ${visible ? "#4ade8050" : "#94a3b8"}`, background: visible ? "#4ade8010" : "transparent", fontSize: 11, fontFamily: "monospace", color: visible ? "#4ade80" : "#94a3b8", transition: "all 0.4s", opacity: visible ? 1 : 0.2 }}>
                 {s}
               </div>
             );
           })}
         </div>
         {scoped && (
-          <div style={{ marginTop: 8, fontSize: 10, fontFamily: "monospace", color: "#4ade80", textAlign: "center" }}>
+          <div style={{ marginTop: 8, fontSize: 12, fontFamily: "monospace", color: "#4ade80", textAlign: "center" }}>
             8 services dropped · memory: ~200 MB → ~50 MB
           </div>
         )}
@@ -3779,15 +3780,15 @@ function IstioLbLesson({ meta }) {
           const isActive = i === (stage === 0 ? 0 : stage - 1);
           return (
             <div key={algo.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderRadius: 8, border: `1px solid ${isActive ? algo.color : "#94a3b8"}`, background: isActive ? algo.color + "15" : "#0f172a", transition: "all 0.35s" }}>
-              <span style={{ fontSize: 10, fontFamily: "monospace", fontWeight: "bold", color: isActive ? algo.color : "#94a3b8", minWidth: 130 }}>{algo.name}</span>
-              <span style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b", flex: 1 }}>{algo.desc}</span>
-              <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: isActive ? algo.color + "25" : "#94a3b8", color: isActive ? algo.color : "#94a3b8", fontFamily: "monospace" }}>{algo.tag}</span>
+              <span style={{ fontSize: 12, fontFamily: "monospace", fontWeight: "bold", color: isActive ? algo.color : "#94a3b8", minWidth: 130 }}>{algo.name}</span>
+              <span style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b", flex: 1 }}>{algo.desc}</span>
+              <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 4, background: isActive ? algo.color + "25" : "#94a3b8", color: isActive ? algo.color : "#94a3b8", fontFamily: "monospace" }}>{algo.tag}</span>
             </div>
           );
         })}
       </div>
       {stage >= 4 && (
-        <div style={{ borderRadius: 8, padding: "7px 12px", border: "1px solid #0ea5e940", background: "#0ea5e910", fontSize: 10, fontFamily: "monospace", color: "#0ea5e9" }}>
+        <div style={{ borderRadius: 8, padding: "7px 12px", border: "1px solid #0ea5e940", background: "#0ea5e910", fontSize: 12, fontFamily: "monospace", color: "#0ea5e9" }}>
           Cookie hash: httpCookie.name=session · ttl=0s → Istio generates cookie if absent · client sends it back → always same pod
         </div>
       )}
@@ -3816,9 +3817,9 @@ function IstioAmbientLesson({ meta }) {
   ];
   const podStyle = (label, hasEnvoy, active) => (
     <div style={{ borderRadius: 8, padding: "6px 10px", border: `1px solid ${active ? "#818cf8" : "#94a3b8"}`, background: active ? "#818cf815" : "#0f172a", textAlign: "center", minWidth: 70, transition: "all 0.4s" }}>
-      <div style={{ fontSize: 12 }}>📦</div>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: active ? "#818cf8" : "#94a3b8" }}>{label}</div>
-      {hasEnvoy && <div style={{ fontSize: 8, color: "#f59e0b", marginTop: 1 }}>+Envoy 🔷</div>}
+      <div style={{ fontSize: 14 }}>📦</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: active ? "#818cf8" : "#94a3b8" }}>{label}</div>
+      {hasEnvoy && <div style={{ fontSize: 10, color: "#f59e0b", marginTop: 1 }}>+Envoy 🔷</div>}
     </div>
   );
   return (
@@ -3826,23 +3827,23 @@ function IstioAmbientLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       {!ambientMode ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#64748b", textAlign: "center" }}>Sidecar mode — Envoy injected into every pod</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#64748b", textAlign: "center" }}>Sidecar mode — Envoy injected into every pod</div>
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             {["pod-1","pod-2","pod-3","pod-4","pod-5"].map(p => podStyle(p, true, false))}
           </div>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#ef4444", textAlign: "center" }}>5 × ~50 MB = ~250 MB proxy overhead</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#ef4444", textAlign: "center" }}>5 × ~50 MB = ~250 MB proxy overhead</div>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ fontSize: 10, fontFamily: "monospace", color: "#818cf8", textAlign: "center" }}>Ambient mode — no sidecars, ztunnel on each node</div>
+          <div style={{ fontSize: 12, fontFamily: "monospace", color: "#818cf8", textAlign: "center" }}>Ambient mode — no sidecars, ztunnel on each node</div>
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             {["pod-1","pod-2","pod-3","pod-4","pod-5"].map(p => podStyle(p, false, true))}
           </div>
-          <div style={{ borderRadius: 8, padding: "6px 12px", border: "1px solid #818cf840", background: "#818cf810", fontSize: 10, fontFamily: "monospace", color: "#818cf8", textAlign: "center" }}>
+          <div style={{ borderRadius: 8, padding: "6px 12px", border: "1px solid #818cf840", background: "#818cf810", fontSize: 12, fontFamily: "monospace", color: "#818cf8", textAlign: "center" }}>
             🔷 ztunnel (DaemonSet, 1 per node · ~50 MB) handles L4 mTLS for all pods
           </div>
           {waypointOn && (
-            <div style={{ borderRadius: 8, padding: "6px 12px", border: "1px solid #06b6d440", background: "#06b6d410", fontSize: 10, fontFamily: "monospace", color: "#06b6d4", textAlign: "center" }}>
+            <div style={{ borderRadius: 8, padding: "6px 12px", border: "1px solid #06b6d440", background: "#06b6d410", fontSize: 12, fontFamily: "monospace", color: "#06b6d4", textAlign: "center" }}>
               🚦 Waypoint proxy (optional, per-namespace) handles L7: VS routing, JWT, WasmPlugin
             </div>
           )}
@@ -3881,22 +3882,22 @@ function IstioWasmLesson({ meta }) {
       <StepBar current={stage} total={STEPS} color={meta.color} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
         <div style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", textAlign: "center" }}>
-          <div style={{ fontSize: 14 }}>🌐</div>
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: "#64748b" }}>Request</div>
+          <div style={{ fontSize: 16 }}>🌐</div>
+          <div style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>Request</div>
         </div>
-        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
           {PHASES.map(ph => (
-            <div key={ph.name} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${ph.active ? ph.color : "#94a3b8"}`, background: ph.active ? ph.color + "15" : "#0f172a", fontSize: 9, fontFamily: "monospace", color: ph.active ? ph.color : "#94a3b8", transition: "all 0.35s", display: "flex", gap: 8 }}>
+            <div key={ph.name} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${ph.active ? ph.color : "#94a3b8"}`, background: ph.active ? ph.color + "15" : "#0f172a", fontSize: 11, fontFamily: "monospace", color: ph.active ? ph.color : "#94a3b8", transition: "all 0.35s", display: "flex", gap: 8 }}>
               <span style={{ fontWeight: "bold", minWidth: 40 }}>{ph.name}</span>
               <span style={{ color: ph.active ? ph.color + "cc" : "#94a3b8" }}>{ph.desc}</span>
             </div>
           ))}
         </div>
-        <div style={{ fontSize: 12, color: "#64748b" }}>→</div>
+        <div style={{ fontSize: 14, color: "#64748b" }}>→</div>
         <div style={{ padding: "8px 12px", borderRadius: 8, border: `1px solid ${rateLimited ? "#ef4444" : customHeader ? "#22c55e" : "#94a3b8"}`, background: "#f8fafc", textAlign: "center", transition: "all 0.4s" }}>
-          <div style={{ fontSize: 14 }}>📦</div>
-          <div style={{ fontSize: 9, fontFamily: "monospace", color: rateLimited ? "#ef4444" : customHeader ? "#22c55e" : "#64748b" }}>
+          <div style={{ fontSize: 16 }}>📦</div>
+          <div style={{ fontSize: 11, fontFamily: "monospace", color: rateLimited ? "#ef4444" : customHeader ? "#22c55e" : "#64748b" }}>
             {rateLimited ? "429 Rate Limited" : customHeader ? "200 + x-filtered-by" : "Service"}
           </div>
         </div>
@@ -3919,8 +3920,8 @@ function SvcBox({ label, sub, color = "#0ea5e9", pulse = false, warn = false, di
       boxShadow: pulse && !dim ? `0 0 12px ${color}50` : "none",
       transition: "all 0.4s", opacity: dim ? 0.35 : 1,
     }}>
-      <div style={{ fontSize: 11, fontWeight: "bold", color: dim ? "#334155" : (warn ? "#fca5a5" : color), fontFamily: "monospace" }}>{label}</div>
-      {sub && <div style={{ fontSize: 9, color: dim ? "#94a3b8" : "#64748b", marginTop: 2, fontFamily: "monospace" }}>{sub}</div>}
+      <div style={{ fontSize: 13, fontWeight: "bold", color: dim ? "#334155" : (warn ? "#fca5a5" : color), fontFamily: "monospace" }}>{label}</div>
+      {sub && <div style={{ fontSize: 11, color: dim ? "#94a3b8" : "#64748b", marginTop: 2, fontFamily: "monospace" }}>{sub}</div>}
     </div>
   );
 }
@@ -3932,7 +3933,7 @@ function ScenarioArrow({ label, active, color = "#0ea5e9", blocked = false, vert
       display: "flex", flexDirection: vertical ? "column" : "row",
       alignItems: "center", gap: 2, minWidth: vertical ? "auto" : 40,
     }}>
-      {label && <span style={{ fontSize: 8, fontFamily: "monospace", color: C, whiteSpace: "nowrap" }}>{label}</span>}
+      {label && <span style={{ fontSize: 10, fontFamily: "monospace", color: C, whiteSpace: "nowrap" }}>{label}</span>}
       <div style={{
         [vertical ? "width" : "height"]: 2, [vertical ? "height" : "width"]: vertical ? 28 : "100%",
         background: active ? `linear-gradient(90deg, ${C}00, ${C}, ${C}00)` : C,
@@ -3940,7 +3941,7 @@ function ScenarioArrow({ label, active, color = "#0ea5e9", blocked = false, vert
         transition: "all 0.4s",
         boxShadow: active && !blocked ? `0 0 6px ${C}` : "none",
       }} />
-      <span style={{ fontSize: 9, color: C }}>{blocked ? "✗" : "→"}</span>
+      <span style={{ fontSize: 11, color: C }}>{blocked ? "✗" : "→"}</span>
     </div>
   );
 }
@@ -3948,7 +3949,7 @@ function ScenarioArrow({ label, active, color = "#0ea5e9", blocked = false, vert
 function PolicyBadge({ text, color }) {
   return (
     <span style={{
-      fontSize: 8, fontFamily: "monospace", padding: "2px 6px", borderRadius: 4,
+      fontSize: 10, fontFamily: "monospace", padding: "2px 6px", borderRadius: 4,
       background: color + "20", border: `1px solid ${color}50`, color,
     }}>{text}</span>
   );
@@ -3968,12 +3969,12 @@ function HopLane({ hops, arrows }) {
               boxShadow: hop.active && !hop.dim ? `0 0 10px ${hop.color}30` : "none",
               opacity: hop.dim ? 0.22 : 1, transition: "all 0.35s",
             }}>
-              <div style={{ fontSize: 10, fontWeight: "bold", color: hop.dim ? "#e2e8f0" : (hop.warn ? "#fca5a5" : hop.color), fontFamily: "monospace" }}>{hop.name}</div>
-              {hop.sub && <div style={{ fontSize: 8, color: hop.dim ? "#ffffff" : "#64748b", marginTop: 1, fontFamily: "monospace" }}>{hop.sub}</div>}
+              <div style={{ fontSize: 12, fontWeight: "bold", color: hop.dim ? "#e2e8f0" : (hop.warn ? "#fca5a5" : hop.color), fontFamily: "monospace" }}>{hop.name}</div>
+              {hop.sub && <div style={{ fontSize: 10, color: hop.dim ? "#ffffff" : "#64748b", marginTop: 1, fontFamily: "monospace" }}>{hop.sub}</div>}
             </div>
             {hop.sidecarAction && (
               <div style={{
-                padding: "2px 6px", borderRadius: 4, fontSize: 8, fontFamily: "monospace",
+                padding: "2px 6px", borderRadius: 4, fontSize: 10, fontFamily: "monospace",
                 background: hop.warn ? "#3f0505" : "#080f1f",
                 border: `1px solid ${hop.warn ? "#ef444450" : hop.active ? hop.color + "55" : "#94a3b8"}`,
                 color: hop.warn ? "#fca5a5" : hop.active ? hop.color : "#94a3b8",
@@ -3983,7 +3984,7 @@ function HopLane({ hops, arrows }) {
               </div>
             )}
             {hop.sidecarNote && (
-              <div style={{ fontSize: 7, color: hop.warn ? "#ef444450" : "#283141", fontFamily: "monospace", maxWidth: 108, textAlign: "center", lineHeight: 1.3 }}>
+              <div style={{ fontSize: 9, color: hop.warn ? "#ef444450" : "#283141", fontFamily: "monospace", maxWidth: 108, textAlign: "center", lineHeight: 1.3 }}>
                 {hop.sidecarNote}
               </div>
             )}
@@ -3992,17 +3993,17 @@ function HopLane({ hops, arrows }) {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", paddingTop: 10, gap: 1, minWidth: 38 }}>
               {arrows && arrows[i] ? (
                 <>
-                  <span style={{ fontSize: 7, fontFamily: "monospace", color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8", whiteSpace: "nowrap" }}>{arrows[i].label}</span>
+                  <span style={{ fontSize: 9, fontFamily: "monospace", color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8", whiteSpace: "nowrap" }}>{arrows[i].label}</span>
                   <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
                     <div style={{ flex: 1, height: 1.5, background: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8" }} />
-                    <span style={{ fontSize: 9, color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8" }}>{arrows[i].blocked ? "✗" : "▶"}</span>
+                    <span style={{ fontSize: 11, color: arrows[i].blocked ? "#ef4444" : arrows[i].active ? (arrows[i].color || "#0ea5e9") : "#94a3b8" }}>{arrows[i].blocked ? "✗" : "▶"}</span>
                   </div>
-                  {arrows[i].proto && <span style={{ fontSize: 7, fontFamily: "monospace", color: "#94a3b8" }}>{arrows[i].proto}</span>}
+                  {arrows[i].proto && <span style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8" }}>{arrows[i].proto}</span>}
                 </>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", width: "100%", marginTop: 9 }}>
                   <div style={{ flex: 1, height: 1, background: "#94a3b8" }} />
-                  <span style={{ fontSize: 9, color: "#94a3b8" }}>▶</span>
+                  <span style={{ fontSize: 11, color: "#94a3b8" }}>▶</span>
                 </div>
               )}
             </div>
@@ -4016,7 +4017,7 @@ function HopLane({ hops, arrows }) {
 function FilterChainBox({ filters, active, color }) {
   return (
     <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", minWidth: 210 }}>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginBottom: 7, letterSpacing: "0.04em" }}>⚙ ENVOY FILTER CHAIN</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginBottom: 7, letterSpacing: "0.04em" }}>⚙ ENVOY FILTER CHAIN</div>
       {filters.map((f, i) => (
         <div key={i} style={{
           display: "flex", alignItems: "flex-start", gap: 7, padding: "4px 7px", borderRadius: 6, marginBottom: 3,
@@ -4025,8 +4026,8 @@ function FilterChainBox({ filters, active, color }) {
         }}>
           <div style={{ width: 5, height: 5, borderRadius: "50%", background: i === active ? color : i < active ? color + "45" : "#94a3b8", flexShrink: 0, marginTop: 3 }} />
           <div>
-            <div style={{ fontSize: 9, fontFamily: "monospace", color: i === active ? color : i < active ? color + "80" : "#94a3b8", fontWeight: i === active ? "bold" : "normal" }}>{f.name}</div>
-            {i === active && f.detail && <div style={{ fontSize: 8, color: "#64748b", marginTop: 2, lineHeight: 1.45 }}>{f.detail}</div>}
+            <div style={{ fontSize: 11, fontFamily: "monospace", color: i === active ? color : i < active ? color + "80" : "#94a3b8", fontWeight: i === active ? "bold" : "normal" }}>{f.name}</div>
+            {i === active && f.detail && <div style={{ fontSize: 10, color: "#64748b", marginTop: 2, lineHeight: 1.45 }}>{f.detail}</div>}
           </div>
         </div>
       ))}
@@ -4037,10 +4038,10 @@ function FilterChainBox({ filters, active, color }) {
 function RequestStateBox({ headers, status, color }) {
   return (
     <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 200 }}>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginBottom: 7, letterSpacing: "0.04em" }}>📋 REQUEST STATE</div>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginBottom: 7, letterSpacing: "0.04em" }}>📋 REQUEST STATE</div>
       {status && (
         <div style={{
-          fontSize: 9, fontFamily: "monospace", marginBottom: 7,
+          fontSize: 11, fontFamily: "monospace", marginBottom: 7,
           color: status.startsWith("2") ? "#22c55e" : status.startsWith("4") ? "#ef4444" : "#f59e0b",
           padding: "2px 8px", background: "#eff6ff", borderRadius: 4, display: "inline-block",
         }}>HTTP {status}</div>
@@ -4049,15 +4050,15 @@ function RequestStateBox({ headers, status, color }) {
         <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 2 }}>
           {h.badge && (
             <span style={{
-              fontSize: 6.5, padding: "1px 3px", borderRadius: 2, flexShrink: 0,
+              fontSize: 8.5, padding: "1px 3px", borderRadius: 2, flexShrink: 0,
               background: h.badge === "NEW" ? "#14532d" : h.badge === "SET" ? "#1e3a5f" : "#3f0505",
               color: h.badge === "NEW" ? "#4ade80" : h.badge === "SET" ? "#7dd3fc" : "#fca5a5",
               fontFamily: "monospace",
             }}>{h.badge}</span>
           )}
-          <span style={{ fontSize: 8, fontFamily: "monospace", color: "#4b5563", flexShrink: 0 }}>{h.k}:</span>
+          <span style={{ fontSize: 10, fontFamily: "monospace", color: "#4b5563", flexShrink: 0 }}>{h.k}:</span>
           <span style={{
-            fontSize: 8, fontFamily: "monospace", wordBreak: "break-all",
+            fontSize: 10, fontFamily: "monospace", wordBreak: "break-all",
             color: h.badge === "NEW" ? "#4ade8085" : h.badge === "SET" ? "#7dd3fc85" : h.badge === "DEL" ? "#4b5563" : "#64748b",
             textDecoration: h.badge === "DEL" ? "line-through" : "none",
           }}>{h.v}</span>
@@ -4070,8 +4071,8 @@ function RequestStateBox({ headers, status, color }) {
 function YamlBox({ code, color }) {
   return (
     <div style={{ background: "#f0faff", border: `1px solid ${color}25`, borderRadius: 10, padding: "10px 12px", flex: 1, minWidth: 210 }}>
-      <div style={{ fontSize: 9, fontFamily: "monospace", color: "#94a3b8", marginBottom: 6, letterSpacing: "0.04em" }}>📄 ACTIVE ISTIO CONFIG</div>
-      <pre style={{ margin: 0, fontSize: 8, fontFamily: "monospace", color: "#4ade8090", whiteSpace: "pre-wrap", lineHeight: 1.6, maxHeight: 152, overflowY: "auto" }}>{code}</pre>
+      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", marginBottom: 6, letterSpacing: "0.04em" }}>📄 ACTIVE ISTIO CONFIG</div>
+      <pre style={{ margin: 0, fontSize: 10, fontFamily: "monospace", color: "#4ade8090", whiteSpace: "pre-wrap", lineHeight: 1.6, maxHeight: 152, overflowY: "auto" }}>{code}</pre>
     </div>
   );
 }
@@ -4084,10 +4085,10 @@ function ScenarioShell({ icon, name, subtitle, steps, color }) {
   return (
     <div style={{ background: "#f0f9ff", border: `1px solid ${color}20`, borderRadius: 14, padding: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-        <span style={{ fontSize: 18 }}>{icon}</span>
+        <span style={{ fontSize: 20 }}>{icon}</span>
         <div>
-          <div style={{ fontSize: 13, fontWeight: "bold", color: color + "cc", fontFamily: "monospace" }}>{name}</div>
-          <div style={{ fontSize: 10, color: "#64748b", fontFamily: "monospace" }}>{subtitle}</div>
+          <div style={{ fontSize: 15, fontWeight: "bold", color: color + "cc", fontFamily: "monospace" }}>{name}</div>
+          <div style={{ fontSize: 12, color: "#64748b", fontFamily: "monospace" }}>{subtitle}</div>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
           {steps.map((_, i) => (
@@ -4100,7 +4101,7 @@ function ScenarioShell({ icon, name, subtitle, steps, color }) {
         </div>
       </div>
       <div style={{ background: color + "10", border: `1px solid ${color}28`, borderRadius: 8, padding: "7px 14px", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: "bold", color, fontFamily: "monospace" }}>
+        <span style={{ fontSize: 13, fontWeight: "bold", color, fontFamily: "monospace" }}>
           [{String(step).padStart(2, "0")}/{String(steps.length - 1).padStart(2, "0")}] {S.title}
         </span>
       </div>
@@ -4113,13 +4114,13 @@ function ScenarioShell({ icon, name, subtitle, steps, color }) {
         {(S.headers || S.status) && <RequestStateBox headers={S.headers || []} status={S.status} color={color} />}
       </div>
       <div style={{ background: "#f0faff", borderRadius: 10, padding: "12px 16px", borderLeft: `3px solid ${color}`, marginBottom: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: "bold", color, marginBottom: 5 }}>{S.narTitle}</div>
-        <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.68 }}>{S.narBody}</div>
+        <div style={{ fontSize: 14, fontWeight: "bold", color, marginBottom: 5 }}>{S.narTitle}</div>
+        <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.68 }}>{S.narBody}</div>
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <button onClick={reset} style={{ padding: "6px 14px", borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 11, fontFamily: "monospace", cursor: "pointer" }}>↺ Reset</button>
-        <button onClick={advance} disabled={step === steps.length - 1} style={{ padding: "6px 18px", borderRadius: 8, background: step === steps.length - 1 ? "#f1f5f9" : color + "1a", border: `1px solid ${step === steps.length - 1 ? "#e2e8f0" : color}`, color: step === steps.length - 1 ? "#e2e8f0" : color, fontSize: 11, fontFamily: "monospace", cursor: step === steps.length - 1 ? "not-allowed" : "pointer", fontWeight: "bold" }}>Next step →</button>
-        <span style={{ marginLeft: "auto", fontSize: 10, fontFamily: "monospace", color: "#283141" }}>Step {step + 1} / {steps.length}</span>
+        <button onClick={reset} style={{ padding: "6px 14px", borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0", color: "#64748b", fontSize: 13, fontFamily: "monospace", cursor: "pointer" }}>↺ Reset</button>
+        <button onClick={advance} disabled={step === steps.length - 1} style={{ padding: "6px 18px", borderRadius: 8, background: step === steps.length - 1 ? "#f1f5f9" : color + "1a", border: `1px solid ${step === steps.length - 1 ? "#e2e8f0" : color}`, color: step === steps.length - 1 ? "#e2e8f0" : color, fontSize: 13, fontFamily: "monospace", cursor: step === steps.length - 1 ? "not-allowed" : "pointer", fontWeight: "bold" }}>Next step →</button>
+        <span style={{ marginLeft: "auto", fontSize: 12, fontFamily: "monospace", color: "#283141" }}>Step {step + 1} / {steps.length}</span>
       </div>
     </div>
   );
@@ -4150,9 +4151,9 @@ function RmqNode({ icon, label, sub, role, active, dimmed }) {
       transform: active ? "translateY(-2px)" : "none",
       opacity: dimmed ? 0.3 : 1,
     }}>
-      <div style={{ fontSize: 20 }}>{icon}</div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: active ? "#f1f5f9" : c.text, marginTop: 4, lineHeight: 1.3 }}>{label}</div>
-      {sub && <div style={{ fontSize: 10, color: c.text, opacity: 0.7, marginTop: 2, fontFamily: "monospace" }}>{sub}</div>}
+      <div style={{ fontSize: 22 }}>{icon}</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: active ? "#f1f5f9" : c.text, marginTop: 4, lineHeight: 1.3 }}>{label}</div>
+      {sub && <div style={{ fontSize: 12, color: c.text, opacity: 0.7, marginTop: 2, fontFamily: "monospace" }}>{sub}</div>}
     </div>
   );
 }
@@ -4169,7 +4170,7 @@ function RmqArrow({ label, active, color = "#334155", dashed }) {
         }} />
         <div style={{ width: 0, height: 0, borderTop: "4px solid transparent", borderBottom: "4px solid transparent", borderLeft: `6px solid ${active ? color : "#94a3b8"}` }} />
       </div>
-      {label && <div style={{ fontSize: 9, color: active ? color : "#94a3b8", fontFamily: "monospace", marginTop: 3, maxWidth: 60, textAlign: "center", lineHeight: 1.3 }}>{label}</div>}
+      {label && <div style={{ fontSize: 11, color: active ? color : "#94a3b8", fontFamily: "monospace", marginTop: 3, maxWidth: 60, textAlign: "center", lineHeight: 1.3 }}>{label}</div>}
     </div>
   );
 }
@@ -4179,15 +4180,15 @@ function RmqMsgBox({ props }) {
   return (
     <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", overflow: "hidden" }}>
       <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: 13 }}>📨</span>
-        <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", letterSpacing: 0.8, textTransform: "uppercase" }}>Message Properties</span>
+        <span style={{ fontSize: 15 }}>📨</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", letterSpacing: 0.8, textTransform: "uppercase" }}>Message Properties</span>
       </div>
       <div style={{ padding: "10px 14px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
         {props.map(([k, v, badge]) => (
-          <div key={k} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontFamily: "monospace", fontSize: 11 }}>
+          <div key={k} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontFamily: "monospace", fontSize: 13 }}>
             <span style={{ color: "#64748b", minWidth: 100, flexShrink: 0 }}>{k}:</span>
             <span style={{ color: "#94a3b8", wordBreak: "break-all" }}>{v}</span>
-            {badge && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, fontWeight: 700, background: (colors[badge] || "#334155") + "22", color: colors[badge] || "#94a3b8", flexShrink: 0 }}>{badge.toUpperCase()}</span>}
+            {badge && <span style={{ fontSize: 11, padding: "1px 6px", borderRadius: 4, fontWeight: 700, background: (colors[badge] || "#334155") + "22", color: colors[badge] || "#94a3b8", flexShrink: 0 }}>{badge.toUpperCase()}</span>}
           </div>
         ))}
       </div>
@@ -4199,10 +4200,10 @@ function RmqCodeBox({ title, code }) {
   return (
     <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", overflow: "hidden" }}>
       <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: 13 }}>🐍</span>
-        <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", letterSpacing: 0.8, textTransform: "uppercase" }}>{title || "Python / pika"}</span>
+        <span style={{ fontSize: 15 }}>🐍</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", letterSpacing: 0.8, textTransform: "uppercase" }}>{title || "Python / pika"}</span>
       </div>
-      <pre style={{ margin: 0, padding: "12px 14px", fontSize: 11, fontFamily: "monospace", color: "#64748b", whiteSpace: "pre-wrap", lineHeight: 1.6, overflowX: "auto" }}>{code}</pre>
+      <pre style={{ margin: 0, padding: "12px 14px", fontSize: 13, fontFamily: "monospace", color: "#64748b", whiteSpace: "pre-wrap", lineHeight: 1.6, overflowX: "auto" }}>{code}</pre>
     </div>
   );
 }
@@ -4227,17 +4228,17 @@ function RmqScenarioShell({ title, steps }) {
       {/* Header */}
       <div style={{ padding: "16px 20px 14px", borderBottom: "1px solid #ffffff", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
         <div>
-          <div style={{ fontSize: 11, color: "#f97316", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Production Scenario</div>
-          <div style={{ fontSize: 17, fontWeight: 800, color: "#0f172a" }}>{title}</div>
+          <div style={{ fontSize: 13, color: "#f97316", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Production Scenario</div>
+          <div style={{ fontSize: 19, fontWeight: 800, color: "#0f172a" }}>{title}</div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button onClick={() => setStep(i => Math.max(0, i - 1))} disabled={step === 0}
-            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === 0 ? "#e2e8f0" : "#64748b", cursor: step === 0 ? "not-allowed" : "pointer" }}>← Prev</button>
+            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === 0 ? "#e2e8f0" : "#64748b", cursor: step === 0 ? "not-allowed" : "pointer" }}>← Prev</button>
           <button onClick={() => setPlaying(p => !p)}
-            style={{ padding: "6px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: playing ? "#ef444420" : "#f9731620", border: `1px solid ${playing ? "#ef4444" : "#f97316"}`, color: playing ? "#f87171" : "#fb923c", cursor: "pointer" }}>
+            style={{ padding: "6px 16px", borderRadius: 8, fontSize: 14, fontWeight: 700, background: playing ? "#ef444420" : "#f9731620", border: `1px solid ${playing ? "#ef4444" : "#f97316"}`, color: playing ? "#f87171" : "#fb923c", cursor: "pointer" }}>
             {playing ? "⏸ Pause" : "▶ Play"}</button>
           <button onClick={() => setStep(i => Math.min(steps.length - 1, i + 1))} disabled={step === steps.length - 1}
-            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === steps.length - 1 ? "#e2e8f0" : "#64748b", cursor: step === steps.length - 1 ? "not-allowed" : "pointer" }}>Next →</button>
+            style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, fontWeight: 600, background: "#ffffff", border: "1px solid #d1d9e6", color: step === steps.length - 1 ? "#e2e8f0" : "#64748b", cursor: step === steps.length - 1 ? "not-allowed" : "pointer" }}>Next →</button>
         </div>
       </div>
 
@@ -4245,7 +4246,7 @@ function RmqScenarioShell({ title, steps }) {
       <div style={{ display: "flex", gap: 6, padding: "10px 20px", borderBottom: "1px solid #e2e8f0", flexWrap: "wrap" }}>
         {steps.map((st, i) => (
           <button key={i} onClick={() => setStep(i)} style={{
-            display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 7, fontSize: 11, fontWeight: i === step ? 700 : 400, border: `1px solid ${i === step ? "#f97316" : "#e8edf4"}`,
+            display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", borderRadius: 7, fontSize: 13, fontWeight: i === step ? 700 : 400, border: `1px solid ${i === step ? "#f97316" : "#e8edf4"}`,
             background: i === step ? "#f9731618" : "transparent", color: i === step ? "#fb923c" : "#94a3b8", cursor: "pointer"
           }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: i < step ? "#22c55e" : i === step ? "#f97316" : "#94a3b8" }} />
@@ -4259,10 +4260,10 @@ function RmqScenarioShell({ title, steps }) {
 
         {/* Narration */}
         <div style={{ borderRadius: 12, padding: "14px 16px", background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.2)" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#f97316", marginBottom: 6 }}>{s.narTitle}</div>
-          <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>{s.narBody}</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#f97316", marginBottom: 6 }}>{s.narTitle}</div>
+          <div style={{ fontSize: 15, color: "#64748b", lineHeight: 1.7 }}>{s.narBody}</div>
           {s.status && (
-            <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 6, background: (s.status.ok ? "#22c55e" : "#ef4444") + "18", border: `1px solid ${(s.status.ok ? "#22c55e" : "#ef4444")}30`, fontSize: 11, fontWeight: 700, color: s.status.ok ? "#4ade80" : "#f87171" }}>
+            <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 6, background: (s.status.ok ? "#22c55e" : "#ef4444") + "18", border: `1px solid ${(s.status.ok ? "#22c55e" : "#ef4444")}30`, fontSize: 13, fontWeight: 700, color: s.status.ok ? "#4ade80" : "#f87171" }}>
               {s.status.ok ? "✓" : "✗"} {s.status.msg}
             </div>
           )}
@@ -4270,7 +4271,7 @@ function RmqScenarioShell({ title, steps }) {
 
         {/* Message flow */}
         <div style={{ borderRadius: 12, border: "1px solid #e8edf4", background: "#f8fafc", padding: "16px 12px", overflowX: "auto" }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Message Flow</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Message Flow</div>
           <div style={{ display: "flex", alignItems: "center", gap: 0, minWidth: "max-content" }}>
             {s.flow.map((item, i) => (
               <Fragment key={i}>
@@ -5056,14 +5057,14 @@ function RabbitMQProductionLab() {
   return (
     <div style={{ marginTop: 40 }}>
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "#f97316", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>Production Grade</div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", letterSpacing: -0.4, marginBottom: 4 }}>RabbitMQ in Production</div>
-        <div style={{ fontSize: 13, color: "#64748b" }}>Real-world architectures with step-by-step message flow, AMQP properties, and Python code for each scenario.</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#f97316", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>Production Grade</div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", letterSpacing: -0.4, marginBottom: 4 }}>RabbitMQ in Production</div>
+        <div style={{ fontSize: 15, color: "#64748b" }}>Real-world architectures with step-by-step message flow, AMQP properties, and Python code for each scenario.</div>
       </div>
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {tabs.map((t, i) => (
           <button key={i} onClick={() => setTab(i)} style={{
-            padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: i === tab ? 700 : 500, cursor: "pointer",
+            padding: "8px 18px", borderRadius: 10, fontSize: 15, fontWeight: i === tab ? 700 : 500, cursor: "pointer",
             background: i === tab ? "#f9731620" : "#ffffff",
             border: `1px solid ${i === tab ? "#f97316" : "#e8edf4"}`,
             color: i === tab ? "#f97316" : "#64748b",
@@ -6026,8 +6027,8 @@ function IstioProductionLab() {
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #0f172a" }}>
         <div style={{ width: 3, height: 32, background: "linear-gradient(180deg,#0ea5e9,#34d399)", borderRadius: 2 }} />
         <div>
-          <div style={{ fontSize: 14, fontWeight: "bold", color: "#0f172a", fontFamily: "monospace" }}>🏭 Production Scenarios</div>
-          <div style={{ fontSize: 10, color: "#64748b", fontFamily: "monospace" }}>End-to-end animated walkthroughs — how Istio works in real production systems</div>
+          <div style={{ fontSize: 16, fontWeight: "bold", color: "#0f172a", fontFamily: "monospace" }}>🏭 Production Scenarios</div>
+          <div style={{ fontSize: 12, color: "#64748b", fontFamily: "monospace" }}>End-to-end animated walkthroughs — how Istio works in real production systems</div>
         </div>
       </div>
 
@@ -6038,7 +6039,7 @@ function IstioProductionLab() {
             key={s.id}
             onClick={() => setActive(i)}
             style={{
-              padding: "8px 16px", borderRadius: 10, fontSize: 11, fontFamily: "monospace", cursor: "pointer",
+              padding: "8px 16px", borderRadius: 10, fontSize: 13, fontFamily: "monospace", cursor: "pointer",
               background: active === i ? s.color + "18" : "#0a0f1a",
               border: `1.5px solid ${active === i ? s.color : "#94a3b8"}`,
               color: active === i ? s.color : "#64748b",
@@ -6047,7 +6048,7 @@ function IstioProductionLab() {
             }}
           >
             {s.icon} {s.title}
-            <span style={{ marginLeft: 6, fontSize: 9, opacity: 0.7 }}>{s.tags.join(" · ")}</span>
+            <span style={{ marginLeft: 6, fontSize: 11, opacity: 0.7 }}>{s.tags.join(" · ")}</span>
           </button>
         ))}
       </div>
@@ -6245,11 +6246,11 @@ function PlatformNav({ onHome, courseColor, courseName }) {
           width: 34, height: 34, borderRadius: 10,
           background: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 17, boxShadow: "0 2px 12px #6366f150",
+          fontSize: 19, boxShadow: "0 2px 12px #6366f150",
         }}>⚡</div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", letterSpacing: -0.4, lineHeight: 1 }}>DevMesh</div>
-          <div style={{ fontSize: 9, color: "#94a3b8", letterSpacing: 1, textTransform: "uppercase", lineHeight: 1, marginTop: 2 }}>Learn</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", letterSpacing: -0.4, lineHeight: 1 }}>DevMesh</div>
+          <div style={{ fontSize: 11, color: "#94a3b8", letterSpacing: 1, textTransform: "uppercase", lineHeight: 1, marginTop: 2 }}>Learn</div>
         </div>
       </div>
 
@@ -6257,21 +6258,21 @@ function PlatformNav({ onHome, courseColor, courseName }) {
       {courseName ? (
         <>
           <div style={{ width: 1, height: 20, background: "#e8edf4", flexShrink: 0 }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, minWidth: 0 }}>
             <span
               onClick={onHome}
               style={{ color: "#64748b", cursor: "pointer", whiteSpace: "nowrap", transition: "color 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.color = "#94a3b8"}
               onMouseLeave={e => e.currentTarget.style.color = "#475569"}
             >Courses</span>
-            <span style={{ color: "#94a3b8", fontSize: 16, lineHeight: 1 }}>›</span>
+            <span style={{ color: "#94a3b8", fontSize: 18, lineHeight: 1 }}>›</span>
             <span style={{ color: courseColor, fontWeight: 700, whiteSpace: "nowrap" }}>{courseName}</span>
           </div>
         </>
       ) : (
         <div style={{ display: "flex", gap: 24, marginLeft: 8 }}>
           {["Courses", "Community", "Docs"].map(item => (
-            <span key={item} style={{ fontSize: 13, color: "#64748b", cursor: "pointer", transition: "color 0.15s" }}
+            <span key={item} style={{ fontSize: 15, color: "#64748b", cursor: "pointer", transition: "color 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.color = "#94a3b8"}
               onMouseLeave={e => e.currentTarget.style.color = "#475569"}
             >{item}</span>
@@ -6284,7 +6285,7 @@ function PlatformNav({ onHome, courseColor, courseName }) {
         <div style={{
           height: 30, padding: "0 14px", borderRadius: 8,
           background: "transparent", border: "1px solid #d1d9e6",
-          display: "flex", alignItems: "center", fontSize: 12, color: "#64748b",
+          display: "flex", alignItems: "center", fontSize: 14, color: "#64748b",
           cursor: "pointer", transition: "all 0.15s",
         }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#475569"; }}
@@ -6294,7 +6295,7 @@ function PlatformNav({ onHome, courseColor, courseName }) {
           width: 32, height: 32, borderRadius: "50%",
           background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 700, color: "#fff", cursor: "pointer",
+          fontSize: 14, fontWeight: 700, color: "#fff", cursor: "pointer",
           boxShadow: "0 2px 8px #7c3aed40",
         }}>R</div>
       </div>
@@ -6332,7 +6333,7 @@ function HomePage({ onNavigate }) {
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "5px 16px 5px 10px", borderRadius: 99,
             background: "#ffffff", border: "1px solid #d1d9e6",
-            marginBottom: 28, fontSize: 12, color: "#64748b",
+            marginBottom: 28, fontSize: 14, color: "#64748b",
           }}>
             <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e80" }} />
             Interactive learning platform · No signup required
@@ -6346,7 +6347,7 @@ function HomePage({ onNavigate }) {
             <span style={{ background: "linear-gradient(90deg, #38bdf8, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Service Mesh</span>
           </h1>
 
-          <p style={{ fontSize: 17, color: "#64748b", lineHeight: 1.75, maxWidth: 540, margin: "0 auto 44px" }}>
+          <p style={{ fontSize: 19, color: "#64748b", lineHeight: 1.75, maxWidth: 540, margin: "0 auto 44px" }}>
             Step-through animated visualizations with runnable code examples and real-world analogies. Learn how distributed systems work, one interaction at a time.
           </p>
 
@@ -6357,7 +6358,7 @@ function HomePage({ onNavigate }) {
               style={{
                 padding: "12px 28px", borderRadius: 10, border: "none",
                 background: "linear-gradient(135deg, #6366f1, #3b82f6)",
-                color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer",
                 boxShadow: "0 4px 20px #6366f140",
                 transition: "all 0.2s",
               }}
@@ -6369,7 +6370,7 @@ function HomePage({ onNavigate }) {
               style={{
                 padding: "12px 28px", borderRadius: 10,
                 background: "transparent", border: "1px solid #d1d9e6",
-                color: "#64748b", fontSize: 14, fontWeight: 600, cursor: "pointer",
+                color: "#64748b", fontSize: 16, fontWeight: 600, cursor: "pointer",
                 transition: "all 0.2s",
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#1e293b"; }}
@@ -6393,9 +6394,9 @@ function HomePage({ onNavigate }) {
                 padding: "18px 28px", textAlign: "center",
                 borderRight: i < arr.length - 1 ? "1px solid #e8edf4" : "none",
               }}>
-                <div style={{ fontSize: 18, marginBottom: 6 }}>{icon}</div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>{val}</div>
-                <div style={{ fontSize: 11, color: "#64748b", marginTop: 4, letterSpacing: 0.3 }}>{lbl}</div>
+                <div style={{ fontSize: 20, marginBottom: 6 }}>{icon}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>{val}</div>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 4, letterSpacing: 0.3 }}>{lbl}</div>
               </div>
             ))}
           </div>
@@ -6405,9 +6406,9 @@ function HomePage({ onNavigate }) {
       {/* Courses section */}
       <div id="courses-section" style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 24px 80px" }}>
         <div style={{ marginBottom: 40 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>What you'll learn</div>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", margin: "0 0 10px", letterSpacing: -0.5 }}>Browse Courses</h2>
-          <p style={{ fontSize: 14, color: "#64748b", margin: 0, maxWidth: 480 }}>Pick a technology and start learning through interactive step-by-step visualizations</p>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>What you'll learn</div>
+          <h2 style={{ fontSize: 30, fontWeight: 800, color: "#0f172a", margin: "0 0 10px", letterSpacing: -0.5 }}>Browse Courses</h2>
+          <p style={{ fontSize: 16, color: "#64748b", margin: 0, maxWidth: 480 }}>Pick a technology and start learning through interactive step-by-step visualizations</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 24 }}>
           {HOME_CARDS.map((card, i) => (
@@ -6426,10 +6427,10 @@ function HomePage({ onNavigate }) {
             { icon: "📈", title: "Track Progress", desc: "Pick up exactly where you left off in any course" },
           ].map(f => (
             <div key={f.title} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-              <div style={{ fontSize: 24, flexShrink: 0, marginTop: 2 }}>{f.icon}</div>
+              <div style={{ fontSize: 26, flexShrink: 0, marginTop: 2 }}>{f.icon}</div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#94a3b8", marginBottom: 4 }}>{f.title}</div>
-                <div style={{ fontSize: 12.5, color: "#64748b", lineHeight: 1.6 }}>{f.desc}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#94a3b8", marginBottom: 4 }}>{f.title}</div>
+                <div style={{ fontSize: 14.5, color: "#64748b", lineHeight: 1.6 }}>{f.desc}</div>
               </div>
             </div>
           ))}
@@ -6438,7 +6439,7 @@ function HomePage({ onNavigate }) {
 
       {/* Footer */}
       <div style={{ padding: "28px 24px", textAlign: "center" }}>
-        <div style={{ fontSize: 12, color: "#94a3b8" }}>
+        <div style={{ fontSize: 14, color: "#94a3b8" }}>
           RabbitMQ pika 1.3 · Kafka confluent-kafka · AWS SQS boto3 · Istio 1.20+
         </div>
       </div>
@@ -6505,7 +6506,7 @@ function TechCard({ card, onNavigate, index = 0 }) {
             {/* Course number — top left */}
             <div style={{
               position: "absolute", top: 12, left: 12,
-              fontSize: 11, fontWeight: 800, letterSpacing: 0.5,
+              fontSize: 13, fontWeight: 800, letterSpacing: 0.5,
               color: card.color,
               background: "rgba(255,255,255,0.88)", backdropFilter: "blur(8px)",
               padding: "3px 9px", borderRadius: 6,
@@ -6514,7 +6515,7 @@ function TechCard({ card, onNavigate, index = 0 }) {
             {/* Level badge — top right */}
             <div style={{
               position: "absolute", top: 12, right: 12,
-              padding: "3px 10px", borderRadius: 6, fontSize: 10, fontWeight: 700,
+              padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 700,
               background: "rgba(255,255,255,0.88)", backdropFilter: "blur(8px)",
               color: levelColor[level], border: `1px solid ${levelColor[level]}30`,
               letterSpacing: 0.3,
@@ -6522,7 +6523,7 @@ function TechCard({ card, onNavigate, index = 0 }) {
             {/* Lessons count — bottom left */}
             <div style={{
               position: "absolute", bottom: 12, left: 12,
-              padding: "3px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600,
+              padding: "3px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600,
               background: "rgba(255,255,255,0.88)", backdropFilter: "blur(8px)",
               color: "#64748b",
             }}>📖 {card.lessonCount} lessons</div>
@@ -6533,33 +6534,33 @@ function TechCard({ card, onNavigate, index = 0 }) {
       {/* Content */}
       <div style={{ padding: "18px 18px 20px" }}>
         <div style={{
-          fontSize: 10, color: card.color, fontWeight: 700,
+          fontSize: 12, color: card.color, fontWeight: 700,
           letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6,
         }}>{card.subtitle}</div>
 
-        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", lineHeight: 1.3, letterSpacing: -0.2 }}>{card.name}</h3>
+        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", lineHeight: 1.3, letterSpacing: -0.2 }}>{card.name}</h3>
 
         <p style={{
-          fontSize: 12.5, color: "#64748b", lineHeight: 1.65, margin: "0 0 14px",
+          fontSize: 14.5, color: "#64748b", lineHeight: 1.65, margin: "0 0 14px",
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
         }}>{card.description}</p>
 
         {/* Star rating */}
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 16 }}>
-          <span style={{ fontSize: 14, fontWeight: 800, color: "#fbbf24" }}>{rating.stars}</span>
+          <span style={{ fontSize: 16, fontWeight: 800, color: "#fbbf24" }}>{rating.stars}</span>
           <div style={{ display: "flex", gap: 1 }}>
             {[1, 2, 3, 4, 5].map(s => (
-              <span key={s} style={{ fontSize: 11, color: s <= Math.floor(rating.stars) ? "#fbbf24" : "#94a3b8" }}>★</span>
+              <span key={s} style={{ fontSize: 13, color: s <= Math.floor(rating.stars) ? "#fbbf24" : "#94a3b8" }}>★</span>
             ))}
           </div>
-          <span style={{ fontSize: 11, color: "#94a3b8" }}>({rating.count} ratings)</span>
+          <span style={{ fontSize: 13, color: "#94a3b8" }}>({rating.count} ratings)</span>
         </div>
 
         {/* Footer */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: `1px solid #e8edf4` }}>
-          <span style={{ fontSize: 11, color: "#94a3b8" }}>⏱ {durations[card.key]}</span>
+          <span style={{ fontSize: 13, color: "#94a3b8" }}>⏱ {durations[card.key]}</span>
           <div style={{
-            padding: "6px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+            padding: "6px 16px", borderRadius: 8, fontSize: 14, fontWeight: 700,
             background: hovered ? card.color : card.color + "18",
             color: hovered ? "#fff" : card.color,
             border: `1px solid ${hovered ? "transparent" : card.color + "30"}`,
@@ -6631,16 +6632,16 @@ function TechPage({ group, onHome }) {
                     );
                   })()}
                   <div>
-                    <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Course {card?.num}</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>{card?.name}</div>
-                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{card?.subtitle}</div>
+                    <div style={{ fontSize: 13, color: "#94a3b8", fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Course {card?.num}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>{card?.name}</div>
+                    <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>{card?.subtitle}</div>
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <span style={{ fontSize: 11, color: "#64748b" }}>Course progress</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color }}>
+                  <span style={{ fontSize: 13, color: "#64748b" }}>Course progress</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color }}>
                     {safeIdx + 1}/{groupLessons.length} lessons
                   </span>
                 </div>
@@ -6651,13 +6652,13 @@ function TechPage({ group, onHome }) {
                     transition: "width 0.4s ease", borderRadius: 99,
                   }} />
                 </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 6 }}>{progress}% complete</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 6 }}>{progress}% complete</div>
               </div>
 
               {/* Lesson list */}
               <div style={{ padding: "10px 0 20px" }}>
                 <div style={{
-                  padding: "8px 20px 6px", fontSize: 10, fontWeight: 700,
+                  padding: "8px 20px 6px", fontSize: 12, fontWeight: 700,
                   color: "#94a3b8", letterSpacing: 1.2, textTransform: "uppercase",
                 }}>Course Content</div>
 
@@ -6681,7 +6682,7 @@ function TechPage({ group, onHome }) {
                       display: "flex", alignItems: "center", justifyContent: "center",
                       background: i < safeIdx ? color : i === safeIdx ? color + "22" : "#94a3b8",
                       border: `1.5px solid ${i <= safeIdx ? color : "#e8edf4"}`,
-                      fontSize: 10, fontWeight: 800,
+                      fontSize: 12, fontWeight: 800,
                       color: i < safeIdx ? "#fff" : i === safeIdx ? color : "#94a3b8",
                     }}>
                       {i < safeIdx ? "✓" : l.num}
@@ -6689,13 +6690,13 @@ function TechPage({ group, onHome }) {
 
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
-                        fontSize: 12.5, fontWeight: i === safeIdx ? 700 : 400,
+                        fontSize: 14.5, fontWeight: i === safeIdx ? 700 : 400,
                         lineHeight: 1.4,
                         color: i === safeIdx ? "#f1f5f9" : i < safeIdx ? "#475569" : "#64748b",
                       }}>
                         {l.title.split("–")[1]?.trim() || l.title}
                       </div>
-                      <div style={{ fontSize: 10.5, color: "#94a3b8", marginTop: 2, lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 12.5, color: "#94a3b8", marginTop: 2, lineHeight: 1.4 }}>
                         {(l.subtitle || "").slice(0, 48)}{(l.subtitle || "").length > 48 ? "…" : ""}
                       </div>
                     </div>
@@ -6716,7 +6717,7 @@ function TechPage({ group, onHome }) {
             borderLeft: "none", borderRadius: "0 8px 8px 0",
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", flexShrink: 0, zIndex: 10,
-            color: "#94a3b8", fontSize: 10, transition: "all 0.15s",
+            color: "#94a3b8", fontSize: 12, transition: "all 0.15s",
           }}
           onMouseEnter={e => { e.currentTarget.style.background = "#e8edf4"; e.currentTarget.style.color = color; }}
           onMouseLeave={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.color = "#334155"; }}
@@ -6737,16 +6738,16 @@ function TechPage({ group, onHome }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                   <span style={{
                     padding: "3px 12px", borderRadius: 6,
-                    background: color + "18", color, fontSize: 11, fontWeight: 700,
+                    background: color + "18", color, fontSize: 13, fontWeight: 700,
                     border: `1px solid ${color}28`, letterSpacing: 0.3,
                   }}>Lesson {lesson.num}</span>
-                  <span style={{ fontSize: 11, color: "#94a3b8" }}>·</span>
-                  <span style={{ fontSize: 11, color: "#94a3b8" }}>{card?.name}</span>
+                  <span style={{ fontSize: 13, color: "#94a3b8" }}>·</span>
+                  <span style={{ fontSize: 13, color: "#94a3b8" }}>{card?.name}</span>
                 </div>
-                <h1 style={{ fontSize: 22, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", letterSpacing: -0.4, lineHeight: 1.25 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", letterSpacing: -0.4, lineHeight: 1.25 }}>
                   {lesson.title}
                 </h1>
-                <p style={{ fontSize: 13.5, color: "#64748b", margin: 0, lineHeight: 1.6 }}>{lesson.subtitle}</p>
+                <p style={{ fontSize: 15.5, color: "#64748b", margin: 0, lineHeight: 1.6 }}>{lesson.subtitle}</p>
               </div>
 
               {/* Prev / Next controls */}
@@ -6755,7 +6756,7 @@ function TechPage({ group, onHome }) {
                   onClick={() => setActiveIdx(i => Math.max(0, i - 1))}
                   disabled={safeIdx === 0}
                   style={{
-                    padding: "8px 16px", borderRadius: 9, fontSize: 13, fontWeight: 600,
+                    padding: "8px 16px", borderRadius: 9, fontSize: 15, fontWeight: 600,
                     background: "#e8edf4",
                     border: `1px solid ${safeIdx === 0 ? "#ffffff" : "#d1d9e6"}`,
                     color: safeIdx === 0 ? "#e2e8f0" : "#64748b",
@@ -6769,7 +6770,7 @@ function TechPage({ group, onHome }) {
                   onClick={() => setActiveIdx(i => Math.min(groupLessons.length - 1, i + 1))}
                   disabled={safeIdx === groupLessons.length - 1}
                   style={{
-                    padding: "8px 20px", borderRadius: 9, fontSize: 13, fontWeight: 700,
+                    padding: "8px 20px", borderRadius: 9, fontSize: 15, fontWeight: 700,
                     background: safeIdx < groupLessons.length - 1 ? color : "#ffffff",
                     border: `1px solid ${safeIdx < groupLessons.length - 1 ? "transparent" : "#ffffff"}`,
                     color: safeIdx < groupLessons.length - 1 ? "#fff" : "#94a3b8",
