@@ -270,6 +270,113 @@ function ConceptPanel({ lesson, color }) {
   );
 }
 
+// ─── CodeBlock: copyable syntax-highlighted code snippet ─────────────────────
+function CodeBlock({ code, lang = "python", color = "#166534" }) {
+  const [copied, setCopied] = React.useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  const lines = code.split("\n");
+  return (
+    <div style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px solid #d1fae5", background: "#f0fdf4", marginTop: 6 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "5px 12px", background: "#dcfce7", borderBottom: "1px solid #bbf7d0" }}>
+        <span style={{ fontSize: 11, fontFamily: "monospace", color: "#166534", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 }}>{lang}</span>
+        <button onClick={copy} style={{ fontSize: 11, padding: "2px 10px", borderRadius: 6, border: "1px solid #86efac", background: copied ? "#22c55e" : "#ffffff", color: copied ? "#fff" : "#166534", cursor: "pointer", fontWeight: 600, transition: "all 0.2s", fontFamily: "monospace" }}>
+          {copied ? "✓ Copied!" : "Copy"}
+        </button>
+      </div>
+      <pre style={{ margin: 0, padding: "12px 14px", overflowX: "auto", fontFamily: "monospace", fontSize: 13, lineHeight: 1.75, color }}>
+        {lines.map((ln, i) => (
+          <div key={i} style={{ display: "flex", gap: 12 }}>
+            <span style={{ color: "#86efac", userSelect: "none", minWidth: 18, textAlign: "right", flexShrink: 0 }}>{i + 1}</span>
+            <span>{ln}</span>
+          </div>
+        ))}
+      </pre>
+    </div>
+  );
+}
+
+// ─── QuizBlock: multiple-choice quiz engine ───────────────────────────────────
+function QuizBlock({ questions, color = "#6366f1" }) {
+  const [qIdx, setQIdx] = React.useState(0);
+  const [selected, setSelected] = React.useState(null);
+  const [confirmed, setConfirmed] = React.useState(false);
+  const [score, setScore] = React.useState(0);
+  const [finished, setFinished] = React.useState(false);
+  const q = questions[qIdx];
+  const confirm = () => {
+    if (selected === null) return;
+    setConfirmed(true);
+    if (selected === q.correct) setScore(s => s + 1);
+  };
+  const next = () => {
+    if (qIdx + 1 >= questions.length) { setFinished(true); return; }
+    setQIdx(i => i + 1);
+    setSelected(null);
+    setConfirmed(false);
+  };
+  const reset = () => { setQIdx(0); setSelected(null); setConfirmed(false); setScore(0); setFinished(false); };
+
+  if (finished) {
+    const pct = Math.round((score / questions.length) * 100);
+    const grade = pct >= 80 ? { icon: "🏆", msg: "Excellent! You have mastered this topic.", bg: "#f0fdf4", border: "#86efac", txt: "#166534" }
+      : pct >= 60 ? { icon: "👍", msg: "Good effort! Review the tricky spots.", bg: "#fffbeb", border: "#fcd34d", txt: "#92400e" }
+      : { icon: "📖", msg: "Worth revisiting the lesson before moving on.", bg: "#fef2f2", border: "#fca5a5", txt: "#991b1b" };
+    return (
+      <div style={{ borderRadius: 14, padding: "24px 20px", background: grade.bg, border: `1px solid ${grade.border}`, textAlign: "center" }}>
+        <div style={{ fontSize: 40, marginBottom: 10 }}>{grade.icon}</div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: grade.txt, marginBottom: 6 }}>{score}/{questions.length} correct ({pct}%)</div>
+        <div style={{ fontSize: 14, color: grade.txt, marginBottom: 18, lineHeight: 1.6 }}>{grade.msg}</div>
+        <button onClick={reset} style={{ padding: "8px 22px", borderRadius: 8, border: `1px solid ${color}`, background: color, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Try Again</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ borderRadius: 14, border: "1px solid #e2e8f0", background: "#ffffff", overflow: "hidden" }}>
+      <div style={{ padding: "12px 18px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc" }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>{"❓ Knowledge Check  · Q"}{qIdx + 1}/{questions.length}</span>
+        <span style={{ fontSize: 13, color: color, fontWeight: 700 }}>Score: {score}</span>
+      </div>
+      <div style={{ padding: "18px 18px 10px" }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", lineHeight: 1.55, marginBottom: 16 }}>{q.question}</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+          {q.options.map((opt, i) => {
+            let bg = "#f8fafc", border = "#e2e8f0", txtC = "#334155";
+            if (confirmed) {
+              if (i === q.correct) { bg = "#f0fdf4"; border = "#86efac"; txtC = "#166534"; }
+              else if (i === selected) { bg = "#fef2f2"; border = "#fca5a5"; txtC = "#991b1b"; }
+            } else if (i === selected) { bg = color + "12"; border = color + "80"; txtC = "#1e293b"; }
+            return (
+              <button key={i} onClick={() => !confirmed && setSelected(i)}
+                style={{ textAlign: "left", padding: "10px 14px", borderRadius: 9, border: `1.5px solid ${border}`, background: bg, color: txtC, fontSize: 14, cursor: confirmed ? "default" : "pointer", fontFamily: "inherit", lineHeight: 1.5, transition: "all 0.15s" }}>
+                <span style={{ fontWeight: 700, marginRight: 8 }}>{["A","B","C","D"][i]}.</span>{opt}
+                {confirmed && i === q.correct && <span style={{ float: "right" }}>{"✅"}</span>}
+                {confirmed && i === selected && i !== q.correct && <span style={{ float: "right" }}>{"❌"}</span>}
+              </button>
+            );
+          })}
+        </div>
+        {confirmed && q.explanation && (
+          <div style={{ marginTop: 14, padding: "10px 14px", borderRadius: 9, background: "#fffbeb", border: "1px solid #fcd34d", fontSize: 13, color: "#78350f", lineHeight: 1.6 }}>
+            {"💡 "}<b>Explanation:</b> {q.explanation}
+          </div>
+        )}
+      </div>
+      <div style={{ padding: "12px 18px", borderTop: "1px solid #e2e8f0", display: "flex", gap: 10, justifyContent: "flex-end" }}>
+        {!confirmed
+          ? <button onClick={confirm} disabled={selected === null} style={{ padding: "8px 20px", borderRadius: 8, border: `1px solid ${selected === null ? "#e2e8f0" : color}`, background: selected === null ? "#f1f5f9" : color, color: selected === null ? "#94a3b8" : "#fff", fontWeight: 700, fontSize: 14, cursor: selected === null ? "not-allowed" : "pointer" }}>Check Answer</button>
+          : <button onClick={next} style={{ padding: "8px 20px", borderRadius: 8, border: `1px solid ${color}`, background: color, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>{qIdx + 1 >= questions.length ? "See Results →" : "Next →"}</button>
+        }
+      </div>
+    </div>
+  );
+}
+
 // ─── Lesson metadata ──────────────────────────────────────────────────────────
 const LESSONS_META = [
   {
@@ -422,12 +529,24 @@ const LESSONS_META = [
     id: "rmq-cluster", num: "13", title: "RabbitMQ – Clustering & Fault Tolerance",
     subtitle: "Join multiple RabbitMQ nodes into a cluster for high availability, load distribution, and zero-downtime deploys.",
     color: "#10b981", group: "rabbitmq",
+    // NOTE: "14" quiz lesson inserted below
     analogy: { icon: "🏙️", scenario: "City with Multiple Power Stations", text: "A city powered by a single power station goes dark if it fails. Cities with multiple interconnected stations automatically re-route power when one goes down — citizens barely notice. A RabbitMQ cluster does the same for your message streams." },
     terms: [
       { icon: "🔗", term: "Erlang Cookie", def: "Secret shared token used to authenticate nodes joining a cluster. All nodes must have the same cookie in /var/lib/rabbitmq/.erlang.cookie." },
       { icon: "🌐", term: "rabbitmqctl join_cluster", def: "Command to add a node to an existing cluster: rabbitmqctl join_cluster rabbit@node1. Queues and exchanges are shared across all nodes." },
       { icon: "🔀", term: "Network Partition", def: "When nodes lose contact, RabbitMQ must decide whether to pause one side or allow split-brain. Controlled by cluster_partition_handling (pause_minority is safest)." },
       { icon: "🔄", term: "Rolling Upgrade", def: "Upgrade nodes one at a time with no downtime. Remove node → upgrade → rejoin. Quorum queues maintain availability through rolling upgrades automatically." },
+    ],
+  },
+  {
+    id: "rmq-quiz", num: "14", title: "RabbitMQ – Knowledge Check",
+    subtitle: "Test your understanding of exchanges, durability, quorum queues, DLX, flow control, and more.",
+    color: "#f97316", group: "rabbitmq",
+    analogy: { icon: "🧠", scenario: "The Practice Exam", text: "A skilled engineer doesn't just read documentation — they quiz themselves until the concepts stick. This knowledge check reveals gaps before they become production incidents." },
+    terms: [
+      { icon: "📝", term: "7 Questions", def: "Covering exchanges, ACKs, durability, quorum queues, DLX, flow control, and topic routing." },
+      { icon: "🎯", term: "Instant Feedback", def: "Each answer is explained immediately so you understand the why, not just the what." },
+      { icon: "🏆", term: "80% Target", def: "Score 80% or higher to feel confident moving to a new course." },
     ],
   },
   // ── KAFKA ──────────────────────────────────────────────────────────────────
@@ -579,12 +698,35 @@ const LESSONS_META = [
     id: "kafka-production", num: "13", title: "Kafka – Production Project: Real-time Analytics",
     subtitle: "Build an end-to-end e-commerce analytics pipeline: multiple producers, Schema Registry, Streams, and sinks.",
     color: "#22c55e", group: "kafka",
+    // NOTE: "14" and "15" inserted below
     analogy: { icon: "🛒", scenario: "E-commerce Data Pipeline", text: "Orders, clicks, and inventory changes stream in. Real-time analytics compute revenue trends. Elasticsearch shows dashboards. S3 archives everything. One coordinated system with no bottlenecks." },
     terms: [
       { icon: "📤", term: "Producers", def: "3 services: orders-producer, clicks-producer, inventory-producer. Each sends to its own topic with idempotent + acks=all." },
       { icon: "📋", term: "Avro Schemas", def: "OrderEvent, ClickEvent, InventoryEvent. Registered in Schema Registry. All producers/consumers use same schemas." },
       { icon: "🏭", term: "Kafka Streams", def: "Topology: orders → aggregate by category with 1-min tumbling window → real-time revenue dashboard." },
       { icon: "📊", term: "Sinks", def: "Elasticsearch for dashboards (via Kafka Connect sink), S3 for data lake (via Kafka Connect S3 sink)." },
+    ],
+  },
+  {
+    id: "kafka-metrics-sim", num: "14", title: "Kafka – Live Metrics Simulator",
+    subtitle: "Tune producer rate, consumer count, and kill brokers — watch throughput, lag, and partition load react in real time.",
+    color: "#6366f1", group: "kafka",
+    analogy: { icon: "🎛️", scenario: "Flight Simulator", text: "A pilot trains in a simulator before flying a real aircraft. You would not learn what happens to consumer lag at 2000 msg/s by reading a chart. This simulator makes the consequences of configuration choices viscerally real." },
+    terms: [
+      { icon: "📈", term: "Consumer Lag", def: "The gap between the latest offset on a partition and the consumer's committed offset. High lag = consumer falling behind producers." },
+      { icon: "🔥", term: "Partition Heatmap", def: "Visual representation of load distribution across partitions. Uneven heat reveals hot partitions caused by skewed keys." },
+      { icon: "🖥️", term: "Broker Failure", def: "When a broker goes down, Kafka elects new partition leaders from ISR. With replication.factor=3 no data is lost, but there is brief leader election latency." },
+    ],
+  },
+  {
+    id: "kafka-quiz", num: "15", title: "Kafka – Knowledge Check",
+    subtitle: "Test your understanding of partitions, consumer groups, replication, Kafka Streams, Schema Registry, and log compaction.",
+    color: "#6366f1", group: "kafka",
+    analogy: { icon: "🧠", scenario: "The Practice Exam", text: "Kafka has many subtle behaviors around partition assignment, acks, and offset management. Quiz yourself to make sure the mental models are solid before moving to production." },
+    terms: [
+      { icon: "📝", term: "7 Questions", def: "Covering partitioning, consumer groups, acks=all, consumer lag, KTable semantics, Schema Registry, and log compaction." },
+      { icon: "🎯", term: "Instant Feedback", def: "Each answer explained so you learn from mistakes immediately." },
+      { icon: "🏆", term: "80% Target", def: "Aim for 80%+ before building production pipelines." },
     ],
   },
   // ── SQS ────────────────────────────────────────────────────────────────────
@@ -936,6 +1078,28 @@ const LESSONS_META = [
       { icon: "🚀", term: "Proxy-Wasm SDK", def: "Wasm filters are written in Rust, Go, C++, or AssemblyScript using the proxy-wasm ABI. They implement hooks: on_http_request_headers, on_http_response_body, etc." },
       { icon: "⚡", term: "Phase Execution", def: "AUTHN phase runs before mTLS. AUTHZ phase runs after mTLS, before AuthorizationPolicy. STATS phase runs last — good for custom metrics emission." },
       { icon: "🛡️", term: "Sandbox Safety", def: "Wasm runs in a VM inside Envoy. A panicking plugin is caught by the sandbox — Envoy continues serving. Config errors are reported to Istiod without crashing the sidecar." },
+    ],
+  },
+  {
+    id: "istio-traffic-sim", num: "20", title: "Istio – Traffic Simulator",
+    subtitle: "Control VirtualService weights with a slider, inject faults, and watch the circuit breaker trip — all in real time.",
+    color: "#0ea5e9", group: "istio",
+    analogy: { icon: "🎮", scenario: "Control Tower Simulator", text: "Air traffic controllers train in simulators before directing real planes. The Istio traffic simulator lets you crash test your mental model of canary deployments, fault injection, and circuit breaking without a real cluster." },
+    terms: [
+      { icon: "⚖️", term: "VirtualService Weights", def: "Distribute traffic between subsets (e.g. v1 80%, v2 20%). Envoy enforces the split on every request without DNS changes." },
+      { icon: "💥", term: "Fault Injection", def: "Envoy can inject latency (delay) or error responses (abort) on a percentage of requests — perfect for chaos testing your downstream error handling." },
+      { icon: "🔴", term: "Circuit Breaker", def: "Outlier detection ejects unhealthy hosts. When error rate exceeds threshold, the circuit opens and returns 503 immediately, preventing cascade failures." },
+    ],
+  },
+  {
+    id: "istio-quiz", num: "21", title: "Istio – Knowledge Check",
+    subtitle: "Test your understanding of sidecars, routing, mTLS, circuit breaking, traffic mirroring, and ServiceEntry.",
+    color: "#0ea5e9", group: "istio",
+    analogy: { icon: "🧠", scenario: "The Practice Exam", text: "Istio has many interconnected concepts. Quiz yourself to make sure you can confidently explain traffic routing, the control plane, and zero-trust security before configuring production clusters." },
+    terms: [
+      { icon: "📝", term: "7 Questions", def: "Covering sidecar injection, VirtualService, mTLS, Istiod, circuit breaking, traffic mirroring, and ServiceEntry." },
+      { icon: "🎯", term: "Instant Feedback", def: "Explanations reveal the nuance behind each concept." },
+      { icon: "🏆", term: "80% Target", def: "Score 80%+ before configuring real cluster traffic management." },
     ],
   },
 ];
@@ -6061,6 +6225,371 @@ function IstioProductionLab() {
   );
 }
 
+// ─── NEW: Kafka Live Metrics Simulator ───────────────────────────────────────
+function KafkaMetricsSimulator({ meta }) {
+  const [running, setRunning] = React.useState(false);
+  const [producerRate, setProducerRate] = React.useState(500);
+  const [consumerCount, setConsumerCount] = React.useState(3);
+  const [msgs, setMsgs] = React.useState(0);
+  const [lag, setLag] = React.useState(0);
+  const [throughput, setThroughput] = React.useState(0);
+  const [partitionLoad, setPartitionLoad] = React.useState([0, 0, 0, 0, 0, 0]);
+  const [brokerHealth, setBrokerHealth] = React.useState([true, true, true]);
+  const [tick, setTick] = React.useState(0);
+
+  const consumerRate = consumerCount * 180;
+
+  React.useEffect(() => {
+    if (!running) return;
+    const id = setInterval(() => {
+      setTick(t => t + 1);
+      const delta = producerRate - consumerRate;
+      setMsgs(m => Math.max(0, m + Math.floor(producerRate / 10)));
+      setLag(l => Math.max(0, l + Math.floor(delta / 10)));
+      setThroughput(Math.floor(producerRate + (Math.random() - 0.5) * 40));
+      setPartitionLoad(() => {
+        const base = producerRate / 6;
+        return Array.from({ length: 6 }, (_, i) => Math.min(100, Math.floor(base / 10 + (Math.random() * 20) + (i * 3 % 15))));
+      });
+    }, 300);
+    return () => clearInterval(id);
+  }, [running, producerRate, consumerRate]);
+
+  const lagStatus = lag > 2000 ? "critical" : lag > 500 ? "warning" : "ok";
+  const lagColor = lagStatus === "critical" ? "#ef4444" : lagStatus === "warning" ? "#f59e0b" : "#22c55e";
+
+  const killBroker = (i) => setBrokerHealth(h => h.map((v, j) => j === i ? false : v));
+  const healAll = () => { setBrokerHealth([true, true, true]); setLag(0); };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* Header */}
+      <div style={{ borderRadius: 10, background: "#f8fafc", border: "1px solid #e2e8f0", padding: "14px 16px" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#1e293b", marginBottom: 4 }}>⚡ Kafka Live Metrics Dashboard</div>
+        <div style={{ fontSize: 13, color: "#64748b" }}>Simulate a real Kafka cluster — tune producer rate, consumer count, kill brokers and watch the metrics react.</div>
+      </div>
+
+      {/* Controls */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>Producer Rate</div>
+          <input type="range" min={100} max={2000} step={100} value={producerRate}
+            onChange={e => setProducerRate(Number(e.target.value))}
+            style={{ width: "100%", accentColor: meta.color }} />
+          <div style={{ fontSize: 18, fontWeight: 800, color: meta.color, marginTop: 6 }}>{producerRate.toLocaleString()} msg/s</div>
+        </div>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>Consumer Count</div>
+          <input type="range" min={1} max={6} step={1} value={consumerCount}
+            onChange={e => setConsumerCount(Number(e.target.value))}
+            style={{ width: "100%", accentColor: meta.color }} />
+          <div style={{ fontSize: 18, fontWeight: 800, color: meta.color, marginTop: 6 }}>{consumerCount} consumers · {consumerRate.toLocaleString()} msg/s total</div>
+        </div>
+      </div>
+
+      {/* Live Metrics */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+        {[
+          { label: "Messages Produced", val: msgs.toLocaleString(), unit: "total", color: meta.color },
+          { label: "Throughput", val: throughput.toLocaleString(), unit: "msg/s", color: "#22c55e" },
+          { label: "Consumer Lag", val: lag.toLocaleString(), unit: "msgs behind", color: lagColor },
+        ].map(m => (
+          <div key={m.label} style={{ borderRadius: 10, padding: "14px 14px", background: "#ffffff", border: `1px solid ${m.color}30`, textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>{m.label}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: m.color, fontFamily: "monospace" }}>{m.val}</div>
+            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{m.unit}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Partition Heatmap */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", marginBottom: 12 }}>📊 Partition Load Heatmap (6 partitions)</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+          {partitionLoad.map((load, i) => {
+            const h = Math.max(8, (load / 100) * 64);
+            const c = load > 80 ? "#ef4444" : load > 60 ? "#f59e0b" : meta.color;
+            return (
+              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <div style={{ fontSize: 10, color: c, fontWeight: 700 }}>{load}%</div>
+                <div style={{ width: "100%", height: h, background: c + "cc", borderRadius: "4px 4px 0 0", transition: "height 0.3s, background 0.3s" }} />
+                <div style={{ fontSize: 10, color: "#94a3b8", fontFamily: "monospace" }}>P{i}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Broker Health */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", marginBottom: 12 }}>🖥️ Broker Health · Click to simulate failure</div>
+        <div style={{ display: "flex", gap: 12 }}>
+          {brokerHealth.map((alive, i) => (
+            <button key={i} onClick={() => killBroker(i)}
+              style={{ flex: 1, padding: "12px 8px", borderRadius: 10, border: `1.5px solid ${alive ? "#86efac" : "#fca5a5"}`, background: alive ? "#f0fdf4" : "#fef2f2", cursor: "pointer" }}>
+              <div style={{ fontSize: 18 }}>{alive ? "🟢" : "🔴"}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: alive ? "#166534" : "#991b1b", marginTop: 4 }}>Broker {i}</div>
+              <div style={{ fontSize: 11, color: alive ? "#166534" : "#ef4444" }}>{alive ? "healthy" : "DOWN"}</div>
+            </button>
+          ))}
+        </div>
+        {!brokerHealth.every(Boolean) && (
+          <div style={{ marginTop: 10, padding: "10px 14px", borderRadius: 8, background: "#fef2f2", border: "1px solid #fca5a5", fontSize: 13, color: "#991b1b" }}>
+            ⚠️ Broker failure detected! Kafka is electing new leaders for affected partitions. In production: replication.factor=3 ensures no data loss.
+            <button onClick={healAll} style={{ marginLeft: 12, padding: "3px 12px", borderRadius: 6, border: "1px solid #ef4444", background: "#fff", color: "#ef4444", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Restore All</button>
+          </div>
+        )}
+      </div>
+
+      {/* Start/Stop */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <button onClick={() => setRunning(r => !r)}
+          style={{ padding: "11px 32px", borderRadius: 10, border: "none", background: running ? "#ef4444" : meta.color, color: "#fff", fontWeight: 800, fontSize: 15, cursor: "pointer", boxShadow: `0 4px 18px ${running ? "#ef444440" : meta.color + "50"}`, transition: "all 0.2s" }}>
+          {running ? "⏹ Stop Simulation" : "▶ Start Simulation"}
+        </button>
+      </div>
+
+      {/* Insight */}
+      <div style={{ borderRadius: 10, padding: "12px 16px", background: "#fffbeb", border: "1px solid #fcd34d", fontSize: 13, color: "#78350f", lineHeight: 1.65 }}>
+        <b>💡 Production insight:</b> When producerRate {">"} consumerRate, consumer lag grows exponentially. Fix: add more consumers (up to partition count), scale partitions, or enable consumer auto-scaling via KEDA. Lag is monitored via the <b>__consumer_offsets</b> internal topic.
+      </div>
+    </div>
+  );
+}
+
+// ─── NEW: Istio Traffic Simulator ────────────────────────────────────────────
+function IstioTrafficSimulator({ meta }) {
+  const [v1Weight, setV1Weight] = React.useState(80);
+  const [faultEnabled, setFaultEnabled] = React.useState(false);
+  const [faultType, setFaultType] = React.useState("delay");
+  const [faultPct, setFaultPct] = React.useState(20);
+  const [circuitOpen, setCircuitOpen] = React.useState(false);
+  const [requests, setRequests] = React.useState([]);
+  const [stats, setStats] = React.useState({ total: 0, v1: 0, v2: 0, errors: 0, delayed: 0 });
+  const [running, setRunning] = React.useState(false);
+
+  const v2Weight = 100 - v1Weight;
+
+  React.useEffect(() => {
+    if (!running) return;
+    const id = setInterval(() => {
+      const id2 = Date.now();
+      const goV2 = Math.random() * 100 < v2Weight;
+      const version = goV2 ? "v2" : "v1";
+      let status = "200";
+      let delayed = false;
+      if (faultEnabled && !circuitOpen) {
+        if (faultType === "abort" && Math.random() * 100 < faultPct) status = "500";
+        else if (faultType === "delay" && Math.random() * 100 < faultPct) delayed = true;
+      }
+      if (circuitOpen) status = "503";
+      const req = { id: id2, version, status, delayed, x: Math.random() * 80 + 10 };
+      setRequests(r => [...r.slice(-20), req]);
+      setStats(s => ({
+        total: s.total + 1,
+        v1: s.v1 + (version === "v1" ? 1 : 0),
+        v2: s.v2 + (version === "v2" ? 1 : 0),
+        errors: s.errors + (status !== "200" ? 1 : 0),
+        delayed: s.delayed + (delayed ? 1 : 0),
+      }));
+      // Auto-trip circuit breaker at >40% error rate
+      setStats(s => {
+        if (s.total > 10 && s.errors / s.total > 0.4 && !circuitOpen) setCircuitOpen(true);
+        return s;
+      });
+    }, 400);
+    return () => clearInterval(id);
+  }, [running, v1Weight, v2Weight, faultEnabled, faultType, faultPct, circuitOpen]);
+
+  const errorRate = stats.total > 0 ? Math.round((stats.errors / stats.total) * 100) : 0;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ borderRadius: 10, background: "#f8fafc", border: "1px solid #e2e8f0", padding: "14px 16px" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#1e293b", marginBottom: 4 }}>🔷 Istio Traffic Simulator</div>
+        <div style={{ fontSize: 13, color: "#64748b" }}>Configure VirtualService weights, fault injection, and observe circuit breaker behavior in real time.</div>
+      </div>
+
+      {/* Traffic Split Control */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", marginBottom: 12 }}>⚖️ VirtualService Traffic Split</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e", minWidth: 60 }}>v1 {v1Weight}%</span>
+          <input type="range" min={0} max={100} step={5} value={v1Weight}
+            onChange={e => setV1Weight(Number(e.target.value))}
+            style={{ flex: 1, accentColor: meta.color }} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#818cf8", minWidth: 60, textAlign: "right" }}>v2 {v2Weight}%</span>
+        </div>
+        <CodeBlock lang="yaml" color="#166534" code={`# VirtualService
+spec:
+  http:
+  - route:
+    - destination: {host: myapp, subset: v1}
+      weight: ${v1Weight}
+    - destination: {host: myapp, subset: v2}
+      weight: ${v2Weight}`} />
+      </div>
+
+      {/* Fault Injection */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>💥 Fault Injection</div>
+          <button onClick={() => setFaultEnabled(f => !f)}
+            style={{ padding: "4px 14px", borderRadius: 6, border: `1px solid ${faultEnabled ? "#ef4444" : "#e2e8f0"}`, background: faultEnabled ? "#fef2f2" : "#f8fafc", color: faultEnabled ? "#ef4444" : "#64748b", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+            {faultEnabled ? "Disable" : "Enable"}
+          </button>
+        </div>
+        {faultEnabled && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", gap: 10 }}>
+              {["delay", "abort"].map(t => (
+                <button key={t} onClick={() => setFaultType(t)}
+                  style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1.5px solid ${faultType === t ? "#ef4444" : "#e2e8f0"}`, background: faultType === t ? "#fef2f2" : "#f8fafc", color: faultType === t ? "#ef4444" : "#64748b", fontWeight: 700, fontSize: 13, cursor: "pointer", textTransform: "capitalize" }}>
+                  {t === "delay" ? "⏱ Delay (latency)" : "🚫 Abort (HTTP 500)"}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 13, color: "#64748b", minWidth: 90 }}>Percentage:</span>
+              <input type="range" min={5} max={100} step={5} value={faultPct}
+                onChange={e => setFaultPct(Number(e.target.value))}
+                style={{ flex: 1, accentColor: "#ef4444" }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", minWidth: 40 }}>{faultPct}%</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Circuit Breaker */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: circuitOpen ? "#fef2f2" : "#ffffff", border: `1px solid ${circuitOpen ? "#fca5a5" : "#e2e8f0"}`, transition: "all 0.4s" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: circuitOpen ? "#991b1b" : "#475569" }}>
+              {circuitOpen ? "🔴 Circuit Breaker: OPEN" : "🟢 Circuit Breaker: Closed"}
+            </div>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Trips automatically when error rate {">"} 40%. Returns 503 to callers.</div>
+          </div>
+          {circuitOpen && (
+            <button onClick={() => { setCircuitOpen(false); setStats(s => ({ ...s, errors: 0, total: Math.floor(s.total * 0.3) })); }}
+              style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid #22c55e", background: "#f0fdf4", color: "#166534", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+              Reset
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+        {[
+          { l: "Total Requests", v: stats.total, c: "#475569" },
+          { l: "→ v1", v: stats.v1, c: "#22c55e" },
+          { l: "→ v2", v: stats.v2, c: "#818cf8" },
+          { l: "Error Rate", v: `${errorRate}%`, c: errorRate > 30 ? "#ef4444" : "#475569" },
+        ].map(s => (
+          <div key={s.l} style={{ borderRadius: 10, padding: "12px 10px", background: "#ffffff", border: "1px solid #e2e8f0", textAlign: "center" }}>
+            <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>{s.l}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: s.c, fontFamily: "monospace" }}>{s.v}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Request stream visualization */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0", minHeight: 80, position: "relative", overflow: "hidden" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 8 }}>📡 Live Request Stream</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+          {requests.slice(-30).map(r => (
+            <div key={r.id} title={`${r.version} · HTTP ${r.status}${r.delayed ? " · delayed" : ""}`}
+              style={{ width: 16, height: 16, borderRadius: "50%",
+                background: r.status !== "200" ? "#ef4444" : r.version === "v1" ? "#22c55e" : "#818cf8",
+                opacity: r.delayed ? 0.5 : 1,
+                border: r.delayed ? "2px solid #f59e0b" : "none",
+                transition: "all 0.2s" }} />
+          ))}
+        </div>
+        <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 8 }}>
+          {"🟢 v1  🟣 v2  🔴 error  ⭕ delayed"}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <button onClick={() => { setRunning(r => !r); if (running) setRequests([]); }}
+          style={{ padding: "11px 32px", borderRadius: 10, border: "none", background: running ? "#ef4444" : meta.color, color: "#fff", fontWeight: 800, fontSize: 15, cursor: "pointer", transition: "all 0.2s" }}>
+          {running ? "⏹ Stop" : "▶ Start Traffic"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── NEW: RabbitMQ Knowledge Check ───────────────────────────────────────────
+const RMQ_QUIZ_QUESTIONS = [
+  { question: "Which exchange type routes messages to ALL bound queues regardless of routing key?", options: ["Direct", "Topic", "Fanout", "Headers"], correct: 2, explanation: "Fanout exchanges broadcast every message to all bound queues. Routing keys are ignored." },
+  { question: "What happens to an unacknowledged message if a consumer crashes before sending an ACK?", options: ["It is lost permanently", "RabbitMQ re-delivers it to another consumer", "It moves to the DLX immediately", "The channel closes and the message is discarded"], correct: 1, explanation: "Without an ACK, RabbitMQ considers the message unprocessed and re-delivers it to any available consumer in the queue." },
+  { question: "You need a queue that survives a RabbitMQ broker restart. Which declaration is correct?", options: ["channel.queue_declare(queue='q', persistent=True)", "channel.queue_declare(queue='q', durable=True)", "channel.queue_declare(queue='q', durable=True, delivery_mode=2)", "channel.basic_publish(..., durable=True)"], correct: 1, explanation: "durable=True on queue_declare makes the queue itself survive restarts. For messages to survive too, delivery_mode=2 is also needed." },
+  { question: "A Quorum Queue requires how many nodes to agree before a message is confirmed?", options: ["1 (leader only)", "Majority ((n/2)+1)", "All nodes", "At least 2"], correct: 1, explanation: "Quorum queues use the Raft consensus algorithm — a majority of replicas must confirm a write before the producer receives an acknowledgement." },
+  { question: "What does a Dead Letter Exchange (DLX) do?", options: ["Drops rejected messages permanently", "Stores messages that failed to be delivered in a backup queue", "Automatically retries failed messages every 5 seconds", "Logs all rejected messages to disk"], correct: 1, explanation: "A DLX is an exchange configured on a queue. Rejected, expired (TTL), or overflow messages are republished there, allowing a separate consumer to handle failures." },
+  { question: "With flow control active, what does RabbitMQ do to producers?", options: ["Closes their TCP connection", "Sends a NACK for every message", "Blocks them using TCP backpressure until memory/disk recovers", "Moves them to a slow-lane queue"], correct: 2, explanation: "RabbitMQ uses TCP backpressure to block the producer's socket — no data loss, but the producer stalls until memory/disk levels recover." },
+  { question: "Topic exchange routing key 'orders.#' will match which of these?", options: ["Only 'orders'", "'orders.eu' and 'orders.eu.retail'", "'orders.eu' only", "Any key containing the word 'orders'"], correct: 1, explanation: "# matches zero or more dot-separated words. So 'orders.#' matches 'orders.eu', 'orders.eu.retail', 'orders.us.express', etc." },
+];
+
+function RabbitMQQuizLesson({ meta }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fff7ed", border: "1px solid #fed7aa" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#c2410c", marginBottom: 4 }}>🐰 RabbitMQ · End-of-Course Knowledge Check</div>
+        <div style={{ fontSize: 13, color: "#78350f", lineHeight: 1.6 }}>7 questions covering exchanges, durability, quorum queues, DLX, and flow control. Aim for 80%+ to move on confidently.</div>
+      </div>
+      <QuizBlock questions={RMQ_QUIZ_QUESTIONS} color={meta.color} />
+    </div>
+  );
+}
+
+// ─── NEW: Kafka Knowledge Check ───────────────────────────────────────────────
+const KAFKA_QUIZ_QUESTIONS = [
+  { question: "What determines which partition a message lands in when a key is provided?", options: ["Random assignment by the broker", "Round-robin across all partitions", "murmur2 hash of the key modulo partition count", "The producer's partition.assignment.strategy"], correct: 2, explanation: "Kafka's default partitioner applies murmur2 hash to the key and takes modulo the number of partitions. Same key always lands on the same partition." },
+  { question: "With 4 partitions and 6 consumers in the same consumer group, what happens?", options: ["All 6 consumers share work equally", "2 consumers sit idle", "Kafka creates 2 extra partitions automatically", "Messages are duplicated to extra consumers"], correct: 1, explanation: "Kafka assigns at most one consumer per partition in a group. With 6 consumers and 4 partitions, 2 consumers have no partitions assigned and sit idle." },
+  { question: "What does acks=all mean for a Kafka producer?", options: ["Message is written to leader only", "Message is written to disk on leader and acknowledged", "All in-sync replicas (ISR) must acknowledge before the producer gets a response", "All brokers in the cluster must acknowledge"], correct: 2, explanation: "acks=all (or acks=-1) means the leader waits for all ISR replicas to confirm the write. Combined with min.insync.replicas, this is the strongest durability guarantee." },
+  { question: "What is consumer lag?", options: ["Network latency between producer and broker", "The difference between the latest offset and the consumer's committed offset", "Time delay in rebalancing after a consumer joins", "The number of unprocessed messages on the producer side"], correct: 1, explanation: "Consumer lag = latest_offset - consumer_committed_offset. High lag means the consumer is falling behind the producer and may need scaling." },
+  { question: "Kafka Streams KTable semantics mean:", options: ["Append-only log of all events", "A changelog where the latest value per key wins (like a hash map)", "FIFO queue processing", "Windowed aggregations only"], correct: 1, explanation: "A KTable is an abstraction over a compacted topic. It represents the latest state for each key — like a continuously-updated database table." },
+  { question: "What is the purpose of Schema Registry?", options: ["Store Kafka consumer group offsets", "Enforce schema compatibility and store Avro/Protobuf schemas centrally", "Replicate topics across data centers", "Store Kafka broker configuration"], correct: 1, explanation: "Schema Registry centralizes schema management. Producers register schemas; consumers fetch them. It enforces compatibility rules (backward, forward, full) to prevent breaking changes." },
+  { question: "Log compaction retains:", options: ["All messages indefinitely", "Only messages from the last 7 days", "The latest message per unique key, plus all messages without a key", "Only messages in the active segment"], correct: 2, explanation: "Compaction keeps the most recent value for each key. Messages with null keys (tombstones count as deletes) are handled separately. This gives you a compact changelog of final states." },
+];
+
+function KafkaQuizLesson({ meta }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#eef2ff", border: "1px solid #c7d2fe" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#4338ca", marginBottom: 4 }}>⚡ Kafka · End-of-Course Knowledge Check</div>
+        <div style={{ fontSize: 13, color: "#3730a3", lineHeight: 1.6 }}>7 questions covering partitions, consumer groups, replication, Kafka Streams, Schema Registry, and log compaction. Aim for 80%+.</div>
+      </div>
+      <QuizBlock questions={KAFKA_QUIZ_QUESTIONS} color={meta.color} />
+    </div>
+  );
+}
+
+// ─── NEW: Istio Knowledge Check ───────────────────────────────────────────────
+const ISTIO_QUIZ_QUESTIONS = [
+  { question: "What intercepts all network traffic in an Istio-injected pod?", options: ["Istiod control plane", "iptables rules redirecting to the Envoy sidecar", "The Kubernetes kube-proxy", "A Kubernetes NetworkPolicy"], correct: 1, explanation: "iptables rules (managed by the istio-init container) redirect inbound and outbound traffic to Envoy's ports (15001/15006) transparently — the app is unaware." },
+  { question: "A canary deployment routes 5% of traffic to v2. What Istio resource configures the weights?", options: ["DestinationRule", "VirtualService", "Gateway", "AuthorizationPolicy"], correct: 1, explanation: "VirtualService defines routing rules including weight-based traffic splitting. DestinationRule defines the subsets (v1/v2) but VirtualService applies the weights." },
+  { question: "mTLS in STRICT mode means:", options: ["Only clients with a valid JWT can connect", "All traffic in the mesh must use mutual TLS — plaintext connections are rejected", "Envoy encrypts data at rest inside pods", "Only egress traffic is encrypted"], correct: 1, explanation: "STRICT mTLS requires both sides to present certificates. Plaintext connections to mTLS-enforced workloads are rejected. This provides pod-to-pod zero-trust encryption." },
+  { question: "What is the role of Istiod?", options: ["Handle all data-plane request routing", "Serve as the Kubernetes ingress controller", "Act as the control plane: push xDS config, manage certs, validate resources", "Store Prometheus metrics"], correct: 2, explanation: "Istiod (formerly Pilot + Citadel + Galley) pushes xDS configuration to all Envoy sidecars, manages certificate issuance via its CA, and validates Istio CRDs." },
+  { question: "A circuit breaker in Istio outlier detection ejects a host when:", options: ["The host sends more than 1000 req/s", "The host returns consecutive 5xx errors above a threshold", "CPU on the host exceeds 80%", "The host's response time exceeds 1 second"], correct: 1, explanation: "Outlier detection monitors for consecutive gateway errors (5xx) or connection failures. When a host crosses the threshold, it is temporarily ejected from the load balancing pool." },
+  { question: "Traffic mirroring (shadowing) sends:", options: ["100% of traffic to v2, keeping v1 as fallback", "A copy of live traffic to a shadow service while live traffic still goes to primary", "Alternate requests between v1 and v2", "Traffic to a staging environment only"], correct: 1, explanation: "Mirroring duplicates each request to a shadow cluster/version. Responses from the shadow are ignored. This lets you test v2 with real production traffic at zero risk." },
+  { question: "An Istio ServiceEntry is used to:", options: ["Define internal service versions and subsets", "Register external services (outside the mesh) so Envoy can manage and observe their traffic", "Configure JWT issuer validation", "Set resource limits on sidecar memory usage"], correct: 1, explanation: "ServiceEntry brings external services (e.g. external APIs, legacy systems) into the mesh registry. This lets Envoy apply policies, circuit breaking, and mTLS to external calls." },
+];
+
+function IstioQuizLesson({ meta }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#e0f2fe", border: "1px solid #bae6fd" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#0369a1", marginBottom: 4 }}>🔷 Istio · End-of-Course Knowledge Check</div>
+        <div style={{ fontSize: 13, color: "#075985", lineHeight: 1.6 }}>7 questions covering sidecars, routing, mTLS, circuit breaking, traffic mirroring, and ServiceEntry. Aim for 80%+.</div>
+      </div>
+      <QuizBlock questions={ISTIO_QUIZ_QUESTIONS} color={meta.color} />
+    </div>
+  );
+}
+
 // ─── Component map ────────────────────────────────────────────────────────────
 const LESSON_COMPONENTS = {
   "hello":               HelloWorldLesson,
@@ -6118,6 +6647,12 @@ const LESSON_COMPONENTS = {
   "istio-lb":            IstioLbLesson,
   "istio-ambient":       IstioAmbientLesson,
   "istio-wasm":          IstioWasmLesson,
+  // ── New interactive lessons ────────────────────────────────────────────────
+  "rmq-quiz":            RabbitMQQuizLesson,
+  "kafka-metrics-sim":   KafkaMetricsSimulator,
+  "kafka-quiz":          KafkaQuizLesson,
+  "istio-traffic-sim":   IstioTrafficSimulator,
+  "istio-quiz":          IstioQuizLesson,
 };
 
 const GROUP_LABELS = { rabbitmq: "🐰 RabbitMQ", kafka: "⚡ Kafka", sqs: "☁️ AWS SQS", istio: "🔷 Istio" };
@@ -6226,6 +6761,137 @@ const LOGO_COMPONENTS = {
   sqs:      SQSLogo,
   istio:    IstioLogo,
 };
+
+// ─── Decision Wizard ─────────────────────────────────────────────────────────
+const DW_QUESTIONS = [
+  { q: "What is your primary use case?", opts: [
+    { t: "Task queues / background jobs", s: { rabbitmq: 3, kafka: 1, sqs: 3 } },
+    { t: "Real-time streaming & analytics", s: { rabbitmq: 0, kafka: 4, sqs: 0 } },
+    { t: "Microservice event bus", s: { rabbitmq: 3, kafka: 3, sqs: 2 } },
+    { t: "Managed cloud queue (AWS-native)", s: { rabbitmq: 0, kafka: 1, sqs: 4 } },
+  ]},
+  { q: "What scale do you expect?", opts: [
+    { t: "Thousands of messages/day", s: { rabbitmq: 3, kafka: 1, sqs: 3 } },
+    { t: "Millions of messages/day", s: { rabbitmq: 2, kafka: 3, sqs: 2 } },
+    { t: "Billions of messages/day", s: { rabbitmq: 0, kafka: 4, sqs: 1 } },
+  ]},
+  { q: "Do you need strict message ordering?", opts: [
+    { t: "Yes, globally ordered", s: { rabbitmq: 1, kafka: 3, sqs: 1 } },
+    { t: "Per-key / per-partition ordering is fine", s: { rabbitmq: 1, kafka: 4, sqs: 2 } },
+    { t: "No — best-effort is OK", s: { rabbitmq: 3, kafka: 1, sqs: 3 } },
+  ]},
+  { q: "Do you need to replay past messages?", opts: [
+    { t: "Yes — replay weeks of history", s: { rabbitmq: 0, kafka: 4, sqs: 0 } },
+    { t: "Sometimes — requeue/redrive is enough", s: { rabbitmq: 3, kafka: 1, sqs: 3 } },
+    { t: "No — fire-and-forget is fine", s: { rabbitmq: 3, kafka: 1, sqs: 3 } },
+  ]},
+  { q: "Where is your infrastructure?", opts: [
+    { t: "AWS cloud, prefer managed services", s: { rabbitmq: 1, kafka: 2, sqs: 4 } },
+    { t: "On-premise or multi-cloud", s: { rabbitmq: 3, kafka: 4, sqs: 0 } },
+    { t: "Kubernetes (any cloud)", s: { rabbitmq: 2, kafka: 3, sqs: 1 } },
+  ]},
+];
+
+const DW_RESULTS = {
+  rabbitmq: { name: "RabbitMQ", icon: "🐰", color: "#f97316", key: "rabbitmq", why: "Best for task queues, pub/sub, and complex routing with low-to-medium scale. Rich protocol support (AMQP), mature ecosystem, easy to self-host." },
+  kafka: { name: "Apache Kafka", icon: "⚡", color: "#6366f1", key: "kafka", why: "Best for high-throughput event streaming, real-time analytics, and replay-capable event log. Handles billions of messages with built-in partitioning and replication." },
+  sqs: { name: "AWS SQS", icon: "☁️", color: "#f59e0b", key: "sqs", why: "Best for AWS-native workloads needing a fully managed, serverless queue. Zero ops, integrates natively with Lambda, SNS, and other AWS services." },
+};
+
+function DecisionWizard({ onNavigate }) {
+  const [step, setStep] = React.useState(0);
+  const [scores, setScores] = React.useState({ rabbitmq: 0, kafka: 0, sqs: 0 });
+  const [done, setDone] = React.useState(false);
+  const [selected, setSelected] = React.useState(null);
+
+  const pick = (opt) => {
+    const next = { rabbitmq: scores.rabbitmq + opt.s.rabbitmq, kafka: scores.kafka + opt.s.kafka, sqs: scores.sqs + opt.s.sqs };
+    setScores(next);
+    setSelected(null);
+    if (step + 1 >= DW_QUESTIONS.length) setDone(true);
+    else setStep(s => s + 1);
+  };
+  const reset = () => { setStep(0); setScores({ rabbitmq: 0, kafka: 0, sqs: 0 }); setDone(false); setSelected(null); };
+
+  const winner = done ? Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0] : null;
+  const result = winner ? DW_RESULTS[winner] : null;
+  const totalMax = DW_QUESTIONS.length * 4;
+
+  return (
+    <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#6366f1", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>Interactive Tool</div>
+        <h2 style={{ fontSize: 26, fontWeight: 800, color: "#0f172a", margin: "0 0 10px", letterSpacing: -0.5 }}>Which Technology Should You Use?</h2>
+        <p style={{ fontSize: 15, color: "#64748b", margin: 0 }}>Answer 5 questions to get a personalised recommendation.</p>
+      </div>
+
+      {!done ? (
+        <div style={{ borderRadius: 16, background: "#ffffff", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+          {/* Progress */}
+          <div style={{ height: 4, background: "#e8edf4" }}>
+            <div style={{ height: "100%", width: `${((step) / DW_QUESTIONS.length) * 100}%`, background: "linear-gradient(90deg, #6366f1, #3b82f6)", transition: "width 0.4s ease" }} />
+          </div>
+          <div style={{ padding: "24px 24px 20px" }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>Question {step + 1} of {DW_QUESTIONS.length}</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#1e293b", lineHeight: 1.4, marginBottom: 20 }}>{DW_QUESTIONS[step].q}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {DW_QUESTIONS[step].opts.map((opt, i) => (
+                <button key={i} onClick={() => { setSelected(i); setTimeout(() => pick(opt), 200); }}
+                  style={{ textAlign: "left", padding: "14px 18px", borderRadius: 10, border: `1.5px solid ${selected === i ? "#6366f1" : "#e2e8f0"}`, background: selected === i ? "#eef2ff" : "#f8fafc", color: selected === i ? "#4338ca" : "#334155", fontSize: 15, cursor: "pointer", fontFamily: "inherit", fontWeight: selected === i ? 700 : 500, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ width: 26, height: 26, borderRadius: "50%", border: `1.5px solid ${selected === i ? "#6366f1" : "#d1d5db"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: selected === i ? "#6366f1" : "#94a3b8", flexShrink: 0 }}>{["A","B","C","D"][i]}</span>
+                  {opt.t}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ borderRadius: 16, background: "#ffffff", border: `2px solid ${result.color}40`, overflow: "hidden", boxShadow: `0 4px 32px ${result.color}20` }}>
+          <div style={{ padding: "24px 24px 0", background: `linear-gradient(135deg, ${result.color}12, #ffffff)` }}>
+            <div style={{ fontSize: 12, color: result.color, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Our Recommendation</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 14, background: result.color + "20", border: `1.5px solid ${result.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30 }}>{result.icon}</div>
+              <div>
+                <div style={{ fontSize: 26, fontWeight: 800, color: "#0f172a" }}>{result.name}</div>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Best match based on your answers</div>
+              </div>
+            </div>
+            <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7, margin: "0 0 20px", paddingBottom: 20, borderBottom: "1px solid #e2e8f0" }}>{result.why}</p>
+          </div>
+          {/* Score breakdown */}
+          <div style={{ padding: "18px 24px 20px" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 14, textTransform: "uppercase", letterSpacing: 0.5 }}>Score Breakdown</div>
+            {Object.entries(scores).sort((a, b) => b[1] - a[1]).map(([tech, score]) => {
+              const r = DW_RESULTS[tech];
+              const pct = Math.round((score / totalMax) * 100);
+              return (
+                <div key={tech} style={{ marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: "#334155" }}>{r.icon} {r.name}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: r.color }}>{pct}%</span>
+                  </div>
+                  <div style={{ height: 8, background: "#f1f5f9", borderRadius: 99, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${pct}%`, background: r.color, borderRadius: 99, transition: "width 0.6s ease" }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ padding: "0 24px 24px", display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button onClick={() => onNavigate(result.key)}
+              style={{ flex: 1, padding: "12px 20px", borderRadius: 10, border: "none", background: result.color, color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+              Start {result.name} Course →
+            </button>
+            <button onClick={reset}
+              style={{ padding: "12px 20px", borderRadius: 10, border: "1px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+              Retake
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Platform Navbar ──────────────────────────────────────────────────────────
 function PlatformNav({ onHome, courseColor, courseName }) {
@@ -6401,6 +7067,11 @@ function HomePage({ onNavigate }) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Decision Wizard Section */}
+      <div style={{ background: "linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)", borderTop: "1px solid #e2e8f0", borderBottom: "1px solid #e2e8f0", padding: "56px 24px" }}>
+        <DecisionWizard onNavigate={onNavigate} />
       </div>
 
       {/* Courses section */}
