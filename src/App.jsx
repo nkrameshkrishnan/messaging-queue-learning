@@ -850,6 +850,52 @@ const LESSONS_META = [
       { icon: "🆘", term: "DLQ Monitoring", def: "CloudWatch alarms on ApproximateNumberOfMessagesVisible in DLQs. PagerDuty alert on failures." },
     ],
   },
+  {
+    id: "sqs-visibility-sim", num: "11", title: "AWS SQS – Visibility Timeout Simulator",
+    subtitle: "Watch how visibility timeout hides messages, triggers redelivery, and eventually routes to the DLQ.",
+    color: "#f59e0b", group: "sqs",
+    analogy: { icon: "⏱️", scenario: "Vanishing Baggage Claim", text: "A bag (message) comes out on the belt (queue). You grab it (ReceiveMessage) and it disappears from the belt for 30 seconds. If you don't check it in (DeleteMessage) in time, it reappears. After 3 reappearances the airline moves it to lost-and-found (DLQ)." },
+    terms: [
+      { icon: "⏱️", term: "Visibility Timeout", def: "Period (default 30s) a message is hidden after being received. Consumer must call DeleteMessage before timeout or message reappears." },
+      { icon: "🔁", term: "Redelivery", def: "If timeout expires without deletion, SQS makes the message visible again. Another consumer (or the same) may pick it up." },
+      { icon: "🔢", term: "ReceiveCount", def: "Tracks how many times a message has been received. When it exceeds maxReceiveCount, SQS routes it to the DLQ." },
+      { icon: "💀", term: "Dead-Letter Queue", def: "Holds messages that failed processing maxReceiveCount times. Enables inspection and replay without blocking the main queue." },
+    ],
+  },
+  {
+    id: "sqs-cost-calc", num: "12", title: "AWS SQS – Cost Calculator",
+    subtitle: "See how batching and long polling slash your monthly SQS bill dramatically.",
+    color: "#10b981", group: "sqs",
+    analogy: { icon: "💰", scenario: "Taxi vs Bus", text: "Standard polling is like calling a taxi every 20 seconds even if no one needs a ride — expensive and wasteful. Long polling is like a bus that waits up to 20 seconds for passengers (messages) before leaving. Batching is carpooling — 10 passengers in one trip costs the same as one." },
+    terms: [
+      { icon: "💵", term: "Request Pricing", def: "$0.40 per million requests. First 1 million/month always free. A request = one API call regardless of message count in batch." },
+      { icon: "📦", term: "Batch Size (1–10)", def: "Up to 10 messages per ReceiveMessage/SendMessageBatch call. Reduces API calls and cost by up to 10×." },
+      { icon: "⏳", term: "Long Polling", def: "WaitTimeSeconds 1–20. SQS waits up to 20s for a message before returning empty. Reduces empty receive calls ~90%." },
+      { icon: "🗄️", term: "Extended Client (S3)", def: "Messages >256 KB stored in S3; pointer in SQS. S3 cost: $0.023/GB storage + $0.005/1K PUT + $0.0004/1K GET." },
+    ],
+  },
+  {
+    id: "sqs-filter-playground", num: "13", title: "AWS SQS – Filter Policy Playground",
+    subtitle: "Build SNS filter policies interactively and see which test messages pass through to your SQS subscription.",
+    color: "#8b5cf6", group: "sqs",
+    analogy: { icon: "🔍", scenario: "Email Inbox Rules", text: "You subscribe to a mailing list (SNS topic) but only want emails about 'payments' from 'VIP' senders. You set inbox rules (filter policy) so only matching messages land in your inbox (SQS queue). Everything else is silently dropped — your queue stays clean." },
+    terms: [
+      { icon: "🏷️", term: "Message Attribute", def: "Key-value metadata attached to SNS messages: event_type='payment', priority='high'. Filter policy matches on these." },
+      { icon: "📋", term: "Filter Policy", def: "JSON on the SNS subscription. If all conditions match the message attributes, SNS delivers to the subscriber; otherwise drops it." },
+      { icon: "🔢", term: "Numeric Match", def: "Filter on number ranges: {\"amount\": [{\"numeric\": [\">=\", 100, \"<\", 1000]}]}. Supports =, !=, <, <=, >, >=, between." },
+      { icon: "✅", term: "String Match", def: "Exact values: {\"event_type\": [\"payment\", \"refund\"]}. Also supports prefix, suffix, and anything-but patterns." },
+    ],
+  },
+  {
+    id: "sqs-quiz", num: "14", title: "AWS SQS – Knowledge Check",
+    subtitle: "Test your SQS mastery: visibility timeout, FIFO, long polling, DLQ, and cost optimisation.",
+    color: "#ef4444", group: "sqs",
+    analogy: { icon: "🏆", scenario: "Queue Engineer Certification", text: "You've studied visibility timeouts, polling strategies, filter policies, dead-letter queues, and cost math. Now prove you can troubleshoot a production queue under pressure." },
+    terms: [
+      { icon: "📝", term: "Quiz Format", def: "7 scenario-based questions covering core SQS concepts with immediate feedback and detailed explanations." },
+      { icon: "🏆", term: "Scoring", def: "≥80%: Queue Expert. ≥60%: Solid Foundation. <60%: Review recommended. Retry as many times as you like." },
+    ],
+  },
   // ── Istio ──────────────────────────────────────────────────────────────────
   {
     id: "istio-arch", num: "01", title: "Istio – Architecture & Sidecar",
@@ -6590,6 +6636,446 @@ function IstioQuizLesson({ meta }) {
   );
 }
 
+// ─── NEW: SQS Visibility Timeout Simulator ───────────────────────────────────
+function SQSVisibilitySimulator({ meta }) {
+  const [running, setRunning] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [phase, setPhase] = useState("idle"); // idle | received | processing | deleted | crashed | redelivered
+  const [crashMode, setCrashMode] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [attempt, setAttempt] = useState(1);
+  const TIMEOUT = 30;
+
+  useEffect(() => {
+    if (!running) return;
+    if (phase === "idle") {
+      setPhase("received");
+      setTimeLeft(TIMEOUT);
+      setHistory(h => [...h, { t: Date.now(), msg: `Attempt #${attempt}: Consumer received message. Visibility timeout started (${TIMEOUT}s).`, c: "#6366f1" }]);
+      return;
+    }
+    if (phase !== "processing" && phase !== "received") return;
+    if (timeLeft <= 0) {
+      if (crashMode) {
+        setPhase("crashed");
+        setRunning(false);
+        setHistory(h => [...h, { t: Date.now(), msg: "⚠️ Timeout! Consumer did not ACK or DELETE. Message becomes VISIBLE again.", c: "#ef4444" }]);
+      } else {
+        setPhase("deleted");
+        setRunning(false);
+        setHistory(h => [...h, { t: Date.now(), msg: "✅ Message deleted successfully before timeout.", c: "#22c55e" }]);
+      }
+      return;
+    }
+    const id = setTimeout(() => {
+      setTimeLeft(t => t - 1);
+      if (timeLeft === 20) {
+        setPhase("processing");
+        setHistory(h => [...h, { t: Date.now(), msg: "Consumer started processing…", c: "#f59e0b" }]);
+      }
+      if (!crashMode && timeLeft === 8) {
+        setPhase("deleted");
+        setRunning(false);
+        setHistory(h => [...h, { t: Date.now(), msg: "✅ Consumer called DeleteMessage. Message permanently removed.", c: "#22c55e" }]);
+      }
+    }, 1000);
+    return () => clearTimeout(id);
+  }, [running, phase, timeLeft, crashMode, attempt]);
+
+  const reset = (nextAttempt = 1) => {
+    setRunning(false); setPhase("idle"); setTimeLeft(TIMEOUT);
+    setAttempt(nextAttempt); if (nextAttempt === 1) setHistory([]);
+  };
+
+  const simulateCrashRecovery = () => {
+    setPhase("redelivered");
+    setHistory(h => [...h, { t: Date.now(), msg: `Attempt #${attempt + 1}: SQS re-delivers message to another consumer. maxReceiveCount now ${attempt + 1}.`, c: "#6366f1" }]);
+    setAttempt(a => a + 1);
+    reset(attempt + 1);
+    setTimeout(() => setRunning(true), 300);
+  };
+
+  const pct = Math.round(((TIMEOUT - timeLeft) / TIMEOUT) * 100);
+  const barColor = timeLeft > 15 ? "#22c55e" : timeLeft > 8 ? "#f59e0b" : "#ef4444";
+  const phaseInfo = {
+    idle:        { icon: "📦", label: "Waiting in Queue",      color: "#64748b" },
+    received:    { icon: "👁️",  label: "Received (Invisible)", color: "#6366f1" },
+    processing:  { icon: "⚙️",  label: "Being Processed",      color: "#f59e0b" },
+    deleted:     { icon: "✅",  label: "Deleted — Done!",       color: "#22c55e" },
+    crashed:     { icon: "💥",  label: "Consumer Crashed!",     color: "#ef4444" },
+    redelivered: { icon: "🔄",  label: "Re-delivered",         color: "#6366f1" },
+  }[phase];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ borderRadius: 10, background: "#fffbeb", border: "1px solid #fcd34d", padding: "14px 16px" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#92400e", marginBottom: 4 }}>⏱️ SQS Visibility Timeout Simulator</div>
+        <div style={{ fontSize: 13, color: "#78350f" }}>Watch the 30-second window live. Toggle "Consumer Crashes" to see message redelivery in action.</div>
+      </div>
+
+      {/* Mode toggle */}
+      <div style={{ display: "flex", gap: 10 }}>
+        {[false, true].map(c => (
+          <button key={String(c)} onClick={() => { setCrashMode(c); reset(); }}
+            style={{ flex: 1, padding: "10px", borderRadius: 10, border: `1.5px solid ${crashMode === c ? (c ? "#ef4444" : "#22c55e") : "#e2e8f0"}`, background: crashMode === c ? (c ? "#fef2f2" : "#f0fdf4") : "#f8fafc", color: crashMode === c ? (c ? "#ef4444" : "#22c55e") : "#64748b", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>
+            {c ? "💥 Consumer Crashes" : "✅ Happy Path"}
+          </button>
+        ))}
+      </div>
+
+      {/* Message state */}
+      <div style={{ borderRadius: 12, padding: "20px", background: "#ffffff", border: `2px solid ${phaseInfo.color}40`, textAlign: "center" }}>
+        <div style={{ fontSize: 40, marginBottom: 8 }}>{phaseInfo.icon}</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: phaseInfo.color }}>{phaseInfo.label}</div>
+        <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>Attempt #{attempt}</div>
+      </div>
+
+      {/* Visibility timeout bar */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>Visibility Timeout Window</span>
+          <span style={{ fontSize: 16, fontWeight: 800, color: barColor, fontFamily: "monospace" }}>{timeLeft}s remaining</span>
+        </div>
+        <div style={{ height: 16, background: "#f1f5f9", borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${barColor}88, ${barColor})`, transition: "width 0.9s linear, background 0.5s", borderRadius: 99 }} />
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>Received</span>
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>Timeout</span>
+        </div>
+      </div>
+
+      {/* Event log */}
+      {history.length > 0 && (
+        <div style={{ borderRadius: 10, padding: "12px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", maxHeight: 160, overflowY: "auto" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 8 }}>📋 Event Log</div>
+          {history.map((h, i) => (
+            <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6, alignItems: "flex-start" }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: h.c, flexShrink: 0, marginTop: 4 }} />
+              <div style={{ fontSize: 12, color: "#475569", lineHeight: 1.5 }}>{h.msg}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Crash recovery prompt */}
+      {phase === "crashed" && (
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fef2f2", border: "1px solid #fca5a5" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#991b1b", marginBottom: 8 }}>Message is now VISIBLE again in the queue.</div>
+          <div style={{ fontSize: 13, color: "#7f1d1d", marginBottom: 12 }}>
+            SQS will redeliver to the next available consumer. After {4 - attempt} more failures it goes to the DLQ (maxReceiveCount=3).
+          </div>
+          {attempt < 4 ? (
+            <button onClick={simulateCrashRecovery}
+              style={{ padding: "8px 20px", borderRadius: 8, border: "none", background: "#ef4444", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+              Redeliver to Next Consumer →
+            </button>
+          ) : (
+            <div style={{ padding: "10px 14px", borderRadius: 8, background: "#7f1d1d", color: "#fca5a5", fontWeight: 700, fontSize: 14 }}>
+              ☠️ maxReceiveCount exceeded — message moves to DLQ!
+            </div>
+          )}
+        </div>
+      )}
+
+      {phase === "deleted" && (
+        <div style={{ borderRadius: 10, padding: "12px 14px", background: "#f0fdf4", border: "1px solid #86efac", fontSize: 13, color: "#166534", fontWeight: 600 }}>
+          ✅ Perfect! Message deleted before timeout. No redelivery. Zero duplicates. This is the happy path.
+        </div>
+      )}
+
+      {/* Controls */}
+      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+        {(phase === "idle" || phase === "deleted") && (
+          <button onClick={() => { if (phase === "deleted") reset(); setTimeout(() => setRunning(true), 50); }}
+            style={{ padding: "11px 32px", borderRadius: 10, border: "none", background: meta.color, color: "#fff", fontWeight: 800, fontSize: 15, cursor: "pointer" }}>
+            {phase === "deleted" ? "▶ Run Again" : "▶ Start Simulation"}
+          </button>
+        )}
+        {(phase === "received" || phase === "processing") && (
+          <button onClick={() => { setRunning(false); reset(); }}
+            style={{ padding: "11px 32px", borderRadius: 10, border: "none", background: "#94a3b8", color: "#fff", fontWeight: 800, fontSize: 15, cursor: "pointer" }}>
+            ⏹ Reset
+          </button>
+        )}
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "12px 16px", background: "#fffbeb", border: "1px solid #fcd34d", fontSize: 13, color: "#78350f", lineHeight: 1.65 }}>
+        <b>💡 Production tip:</b> Set VisibilityTimeout to 6× your average processing time. Use ChangeMessageVisibility to extend on-the-fly if processing takes longer than expected. Never let the timeout expire — it causes duplicate processing.
+      </div>
+    </div>
+  );
+}
+
+// ─── NEW: SQS Cost Calculator ─────────────────────────────────────────────────
+function SQSCostCalculator({ meta }) {
+  const [msgPerDay, setMsgPerDay] = useState(1000000);   // 1M/day default
+  const [batchSize, setBatchSize] = useState(1);
+  const [useLong, setUseLong] = useState(false);
+  const [useExtended, setUseExtended] = useState(false);
+  const [msgSizeKB, setMsgSizeKB] = useState(10);
+
+  // SQS pricing: first 1M free/mo, then $0.40 per million requests
+  // S3 pricing for extended client: $0.023/GB, $0.005 per 1k PUT requests
+  const msgsPerMonth = msgPerDay * 30;
+  // Each receive = 1 API call per batch (batchSize messages)
+  const sendCalls = msgsPerMonth;
+  const receiveCalls = Math.ceil(msgsPerMonth / batchSize);
+  const deleteCalls = msgsPerMonth;
+  const totalCalls = sendCalls + receiveCalls + deleteCalls;
+  const billableCalls = Math.max(0, totalCalls - 1_000_000); // first 1M free
+  // Long polling reduces receive calls by ~90%
+  const adjustedCalls = useLong ? (sendCalls + Math.ceil(receiveCalls * 0.1) + deleteCalls) : totalCalls;
+  const adjustedBillable = Math.max(0, adjustedCalls - 1_000_000);
+  const sqsCost = (adjustedBillable / 1_000_000) * 0.40;
+
+  // S3 Extended Client cost (only if enabled and msg > 256KB)
+  let s3Cost = 0;
+  if (useExtended && msgSizeKB > 256) {
+    const totalGB = (msgsPerMonth * msgSizeKB) / (1024 * 1024);
+    const s3Storage = totalGB * 0.023;
+    const s3Puts = (msgsPerMonth / 1000) * 0.005;
+    s3Cost = s3Storage + s3Puts;
+  }
+
+  const total = sqsCost + s3Cost;
+  const savingsVsBaseline = Math.max(0, ((adjustedBillable - Math.max(0, (sendCalls + receiveCalls + deleteCalls - 1_000_000))) / Math.max(1, adjustedBillable)) * 100);
+
+  const fmt = (n) => n < 0.01 ? "<$0.01" : `$${n.toFixed(2)}`;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ borderRadius: 10, background: "#fffbeb", border: "1px solid #fcd34d", padding: "14px 16px" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#92400e", marginBottom: 4 }}>💰 SQS Cost Calculator</div>
+        <div style={{ fontSize: 13, color: "#78350f" }}>Tune your workload and see how batching + long polling cut your AWS bill. Based on the official SQS pricing ($0.40 / 1M requests, first 1M free).</div>
+      </div>
+
+      {/* Inputs */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {[
+          { label: "Messages per Day", value: msgPerDay, min: 10000, max: 100000000, step: 100000, set: setMsgPerDay, fmt: v => `${(v/1000000).toFixed(1)}M` },
+          { label: "Batch Size (1–10)", value: batchSize, min: 1, max: 10, step: 1, set: setBatchSize, fmt: v => `${v} msg/call` },
+        ].map(({ label, value, min, max, step, set, fmt: f }) => (
+          <div key={label} style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</div>
+            <input type="range" min={min} max={max} step={step} value={value}
+              onChange={e => set(Number(e.target.value))} style={{ width: "100%", accentColor: meta.color }} />
+            <div style={{ fontSize: 18, fontWeight: 800, color: meta.color, marginTop: 6 }}>{f(value)}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Toggles */}
+      <div style={{ display: "flex", gap: 10 }}>
+        <button onClick={() => setUseLong(l => !l)}
+          style={{ flex: 1, padding: "10px", borderRadius: 10, border: `1.5px solid ${useLong ? "#06b6d4" : "#e2e8f0"}`, background: useLong ? "#ecfeff" : "#f8fafc", color: useLong ? "#0e7490" : "#64748b", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+          {useLong ? "✅" : "☐"} Long Polling (WaitTimeSeconds=20)
+        </button>
+        <button onClick={() => setUseExtended(e => !e)}
+          style={{ flex: 1, padding: "10px", borderRadius: 10, border: `1.5px solid ${useExtended ? "#a855f7" : "#e2e8f0"}`, background: useExtended ? "#faf5ff" : "#f8fafc", color: useExtended ? "#7e22ce" : "#64748b", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+          {useExtended ? "✅" : "☐"} SQS Extended Client (S3 for large msgs)
+        </button>
+      </div>
+
+      {useExtended && (
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#faf5ff", border: "1px solid #e9d5ff" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#7e22ce", marginBottom: 8, textTransform: "uppercase" }}>Message Size</div>
+          <input type="range" min={10} max={2048} step={10} value={msgSizeKB}
+            onChange={e => setMsgSizeKB(Number(e.target.value))} style={{ width: "100%", accentColor: "#a855f7" }} />
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#a855f7", marginTop: 6 }}>{msgSizeKB} KB {msgSizeKB > 256 ? "→ stored in S3" : "→ fits in SQS (≤256KB)"}</div>
+        </div>
+      )}
+
+      {/* Cost breakdown */}
+      <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #e2e8f0" }}>
+        <div style={{ padding: "14px 18px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: 0.5 }}>Monthly Cost Breakdown</div>
+        </div>
+        {[
+          { label: "Messages / month", val: `${(msgsPerMonth/1_000_000).toFixed(1)}M`, sub: null },
+          { label: "Total API calls", val: `${(adjustedCalls/1_000_000).toFixed(2)}M`, sub: useLong ? "↓ long polling reduces receive calls ~90%" : null },
+          { label: "Billable calls", val: `${(adjustedBillable/1_000_000).toFixed(2)}M`, sub: "first 1M/month free" },
+          { label: "SQS cost", val: fmt(sqsCost), sub: "$0.40 per million requests", big: true, color: meta.color },
+          useExtended && msgSizeKB > 256 ? { label: "S3 (extended client)", val: fmt(s3Cost), sub: "storage + PUT requests", big: false, color: "#a855f7" } : null,
+          { label: "Total monthly estimate", val: fmt(total), sub: null, big: true, color: total < 5 ? "#22c55e" : total < 50 ? "#f59e0b" : "#ef4444" },
+        ].filter(Boolean).map((row, i) => (
+          <div key={i} style={{ padding: "12px 18px", borderBottom: i < 4 ? "1px solid #e2e8f0" : "none", display: "flex", alignItems: "center", justifyContent: "space-between", background: row.big ? "#f0fdf4" : "#ffffff" }}>
+            <div>
+              <div style={{ fontSize: row.big ? 15 : 13, fontWeight: row.big ? 700 : 500, color: "#334155" }}>{row.label}</div>
+              {row.sub && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{row.sub}</div>}
+            </div>
+            <div style={{ fontSize: row.big ? 20 : 15, fontWeight: 800, color: row.color || "#475569", fontFamily: "monospace" }}>{row.val}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Optimization tip */}
+      <div style={{ borderRadius: 10, padding: "12px 16px", background: "#ecfeff", border: "1px solid #a5f3fc", fontSize: 13, color: "#0e7490", lineHeight: 1.65 }}>
+        <b>💡 Quick wins:</b> Enable long polling (saves ~60% on receive calls) + batch size=10 (10× fewer receive calls) = up to <b>90% cost reduction</b> with zero code complexity.
+        {batchSize < 10 && !useLong && <span style={{ display: "block", marginTop: 6, fontWeight: 700 }}>⬆️ Try enabling both above to see the savings.</span>}
+      </div>
+    </div>
+  );
+}
+
+// ─── NEW: SQS Filter Playground ──────────────────────────────────────────────
+function SQSFilterPlayground({ meta }) {
+  const [filterType, setFilterType] = useState("event_type");
+  const [filterValues, setFilterValues] = useState(["order"]);
+  const [numericOp, setNumericOp] = useState(">");
+  const [numericVal, setNumericVal] = useState(100);
+  const [testInput, setTestInput] = useState({ event_type: "order", priority: "high", amount: 150 });
+  const [showResult, setShowResult] = useState(false);
+
+  const MESSAGES = [
+    { id: 1, attrs: { event_type: "order", priority: "high", amount: 250 }, label: "Order #1001 — $250" },
+    { id: 2, attrs: { event_type: "payment", priority: "high", amount: 80 }, label: "Payment #P202 — $80" },
+    { id: 3, attrs: { event_type: "order", priority: "low", amount: 15 }, label: "Order #1002 — $15" },
+    { id: 4, attrs: { event_type: "refund", priority: "high", amount: 500 }, label: "Refund #R301 — $500" },
+    { id: 5, attrs: { event_type: "order", priority: "high", amount: 120 }, label: "Order #1003 — $120" },
+  ];
+
+  const policyMatches = (msg) => {
+    if (filterType === "event_type") return filterValues.includes(msg.attrs.event_type);
+    if (filterType === "priority")   return filterValues.includes(msg.attrs.priority);
+    if (filterType === "amount") {
+      if (numericOp === ">")  return msg.attrs.amount > numericVal;
+      if (numericOp === ">=") return msg.attrs.amount >= numericVal;
+      if (numericOp === "<")  return msg.attrs.amount < numericVal;
+    }
+    return false;
+  };
+
+  const toggleValue = (v) => setFilterValues(fv => fv.includes(v) ? fv.filter(x => x !== v) : [...fv, v]);
+
+  const OPTIONS = {
+    event_type: ["order", "payment", "refund", "shipment"],
+    priority:   ["high", "medium", "low"],
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ borderRadius: 10, background: "#eff6ff", border: "1px solid #bfdbfe", padding: "14px 16px" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#1d4ed8", marginBottom: 4 }}>🔍 SNS Filter Policy Playground</div>
+        <div style={{ fontSize: 13, color: "#1e40af" }}>Build a filter policy and see which messages pass through to your SQS queue — and which get dropped server-side.</div>
+      </div>
+
+      {/* Filter type selector */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", marginBottom: 12 }}>Filter Attribute</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {["event_type", "priority", "amount"].map(t => (
+            <button key={t} onClick={() => { setFilterType(t); setFilterValues(["order"]); }}
+              style={{ padding: "7px 14px", borderRadius: 8, border: `1.5px solid ${filterType === t ? meta.color : "#e2e8f0"}`, background: filterType === t ? meta.color + "12" : "#f8fafc", color: filterType === t ? meta.color : "#64748b", fontWeight: filterType === t ? 700 : 500, fontSize: 13, cursor: "pointer" }}>
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Filter value config */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", marginBottom: 12 }}>
+          {filterType === "amount" ? "Condition" : "Allowed Values (check all that should PASS)"}
+        </div>
+        {filterType === "amount" ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {[">", ">=", "<"].map(op => (
+              <button key={op} onClick={() => setNumericOp(op)}
+                style={{ padding: "6px 14px", borderRadius: 8, border: `1.5px solid ${numericOp === op ? "#ef4444" : "#e2e8f0"}`, background: numericOp === op ? "#fef2f2" : "#f8fafc", color: numericOp === op ? "#ef4444" : "#64748b", fontWeight: 700, cursor: "pointer" }}>
+                {op}
+              </button>
+            ))}
+            <input type="number" value={numericVal} onChange={e => setNumericVal(Number(e.target.value))}
+              style={{ width: 90, padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 15, fontWeight: 700, color: "#334155", fontFamily: "monospace" }} />
+          </div>
+        ) : (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {OPTIONS[filterType].map(v => (
+              <button key={v} onClick={() => toggleValue(v)}
+                style={{ padding: "7px 14px", borderRadius: 8, border: `1.5px solid ${filterValues.includes(v) ? "#22c55e" : "#e2e8f0"}`, background: filterValues.includes(v) ? "#f0fdf4" : "#f8fafc", color: filterValues.includes(v) ? "#166534" : "#64748b", fontWeight: filterValues.includes(v) ? 700 : 500, fontSize: 13, cursor: "pointer" }}>
+                {filterValues.includes(v) ? "✅ " : ""}{v}
+              </button>
+            ))}
+          </div>
+        )}
+        {/* Policy preview */}
+        <CodeBlock lang="json" color="#166534" code={filterType === "amount"
+          ? `{\n  "${filterType}": [{"numeric": ["${numericOp}", ${numericVal}]}]\n}`
+          : `{\n  "${filterType}": ${JSON.stringify(filterValues)}\n}`}
+        />
+      </div>
+
+      {/* Live message results */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#ffffff", border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", marginBottom: 12 }}>📨 Incoming Messages (5 total)</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {MESSAGES.map(msg => {
+            const passes = policyMatches(msg);
+            return (
+              <div key={msg.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 9, border: `1.5px solid ${passes ? "#86efac" : "#fca5a5"}`, background: passes ? "#f0fdf4" : "#fef2f2", transition: "all 0.3s" }}>
+                <div style={{ fontSize: 18 }}>{passes ? "✅" : "❌"}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: passes ? "#166534" : "#991b1b" }}>{msg.label}</div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontFamily: "monospace", marginTop: 2 }}>
+                    {Object.entries(msg.attrs).map(([k, v]) => (
+                      <span key={k} style={{ marginRight: 10, color: k === filterType ? (passes ? "#166534" : "#ef4444") : "#94a3b8", fontWeight: k === filterType ? 700 : 400 }}>
+                        {k}={String(v)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: passes ? "#166534" : "#991b1b", flexShrink: 0 }}>
+                  {passes ? "→ Queue" : "Dropped"}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {/* Summary */}
+        <div style={{ marginTop: 12, display: "flex", gap: 12 }}>
+          {[
+            { label: "Delivered to queue", val: MESSAGES.filter(policyMatches).length, color: "#22c55e" },
+            { label: "Filtered out (free!)", val: MESSAGES.filter(m => !policyMatches(m)).length, color: "#ef4444" },
+          ].map(s => (
+            <div key={s.label} style={{ flex: 1, borderRadius: 8, padding: "10px 14px", background: "#f8fafc", border: `1px solid ${s.color}30`, textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.val}</div>
+              <div style={{ fontSize: 12, color: "#64748b" }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "12px 16px", background: "#fffbeb", border: "1px solid #fcd34d", fontSize: 13, color: "#78350f", lineHeight: 1.65 }}>
+        <b>💡 Key insight:</b> SNS applies the filter policy <b>before</b> delivering to your SQS queue. Dropped messages incur <b>zero SQS cost</b> and zero Lambda invocations. Filter early — process only what matters.
+      </div>
+    </div>
+  );
+}
+
+// ─── NEW: SQS Knowledge Check ─────────────────────────────────────────────────
+const SQS_QUIZ_QUESTIONS = [
+  { question: "A consumer receives a message but crashes before calling DeleteMessage. What happens?", options: ["The message is permanently lost", "The message reappears in the queue after the VisibilityTimeout expires", "The message is immediately moved to the DLQ", "SQS sends a retry notification to the producer"], correct: 1, explanation: "SQS hides the message during VisibilityTimeout. If DeleteMessage is never called (consumer crash, timeout), the message becomes visible again and SQS redelivers it to any available consumer." },
+  { question: "What is the maximum batch size for SQS SendMessageBatch and ReceiveMessage?", options: ["5 messages", "10 messages", "100 messages", "Unlimited"], correct: 1, explanation: "SQS supports batch operations of up to 10 messages per call. This reduces API calls by 10× and is one of the easiest cost optimizations available." },
+  { question: "Long polling (WaitTimeSeconds=20) reduces costs because:", options: ["It compresses messages before sending", "It delays message delivery by 20 seconds", "It reduces the number of empty ReceiveMessage responses, cutting API call volume by ~90%", "It increases VisibilityTimeout automatically"], correct: 2, explanation: "Short polling returns immediately (often empty). Long polling waits up to 20 seconds for a message to arrive — drastically reducing the number of empty API calls which are still billed." },
+  { question: "What is the key difference between SQS Standard and FIFO queues?", options: ["FIFO is slower but free; Standard is fast but paid", "Standard guarantees ordering; FIFO does not", "FIFO guarantees ordering + exactly-once delivery; Standard has at-least-once and best-effort ordering", "FIFO can store up to 14 days; Standard only 4 days"], correct: 2, explanation: "Standard queues offer higher throughput but at-least-once delivery and best-effort ordering. FIFO queues guarantee strict ordering per MessageGroupId and exactly-once delivery (5-minute deduplication window)." },
+  { question: "When does SQS move a message to the Dead Letter Queue (DLQ)?", options: ["When processing takes longer than VisibilityTimeout", "When a message has been received more times than maxReceiveCount allows", "When the message body exceeds 256KB", "When no consumer has received the message within 24 hours"], correct: 1, explanation: "The RedrivePolicy's maxReceiveCount defines how many times SQS will attempt redelivery. After that count is exceeded, SQS automatically moves the message to the configured DLQ." },
+  { question: "SNS filter policies are applied:", options: ["By the SQS queue after receiving the message", "By the Lambda function before processing", "By SNS before delivering to the subscriber — dropped messages cost nothing", "By the producer before publishing"], correct: 2, explanation: "SNS evaluates filter policies server-side before fan-out. Messages that don't match the policy are dropped and never reach your SQS queue, saving both SQS API costs and Lambda invocations." },
+  { question: "The SQS Extended Client Library is needed when:", options: ["You have more than 10 concurrent consumers", "Your messages exceed the 256KB SQS payload limit", "You need FIFO ordering across regions", "You want to encrypt messages client-side"], correct: 1, explanation: "SQS has a hard 256KB message body limit. The Extended Client Library transparently stores the payload in S3, puts a reference in the SQS message, and retrieves it on receive — all automatically." },
+];
+
+function SQSQuizLesson({ meta }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fffbeb", border: "1px solid #fcd34d" }}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: "#92400e", marginBottom: 4 }}>☁️ AWS SQS · End-of-Course Knowledge Check</div>
+        <div style={{ fontSize: 13, color: "#78350f", lineHeight: 1.6 }}>7 questions covering visibility timeout, batching, polling strategies, Standard vs FIFO, DLQ, SNS filtering, and the Extended Client. Aim for 80%+.</div>
+      </div>
+      <QuizBlock questions={SQS_QUIZ_QUESTIONS} color={meta.color} />
+    </div>
+  );
+}
+
 // ─── Component map ────────────────────────────────────────────────────────────
 const LESSON_COMPONENTS = {
   "hello":               HelloWorldLesson,
@@ -6628,6 +7114,10 @@ const LESSON_COMPONENTS = {
   "sqs-filtering":       SQSFilteringLesson,
   "sqs-security":        SQSSecurityLesson,
   "sqs-production":      SQSProductionLesson,
+  "sqs-visibility-sim":  SQSVisibilitySimulator,
+  "sqs-cost-calc":       SQSCostCalculator,
+  "sqs-filter-playground": SQSFilterPlayground,
+  "sqs-quiz":            SQSQuizLesson,
   "istio-arch":          IstioArchLesson,
   "istio-routing":       IstioRoutingLesson,
   "istio-canary":        IstioCanaryLesson,
