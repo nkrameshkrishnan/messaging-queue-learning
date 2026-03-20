@@ -1,4 +1,4 @@
-import { useState, useCallback, Fragment } from "react";
+import { useState, useCallback, useEffect, Fragment } from "react";
 
 // ─── Keyframe animations ──────────────────────────────────────────────────────
 const ANIM_CSS = `
@@ -272,7 +272,7 @@ function ConceptPanel({ lesson, color }) {
 
 // ─── CodeBlock: copyable syntax-highlighted code snippet ─────────────────────
 function CodeBlock({ code, lang = "python", color = "#166534" }) {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
   const copy = () => {
     navigator.clipboard.writeText(code).then(() => {
       setCopied(true);
@@ -302,11 +302,11 @@ function CodeBlock({ code, lang = "python", color = "#166534" }) {
 
 // ─── QuizBlock: multiple-choice quiz engine ───────────────────────────────────
 function QuizBlock({ questions, color = "#6366f1" }) {
-  const [qIdx, setQIdx] = React.useState(0);
-  const [selected, setSelected] = React.useState(null);
-  const [confirmed, setConfirmed] = React.useState(false);
-  const [score, setScore] = React.useState(0);
-  const [finished, setFinished] = React.useState(false);
+  const [qIdx, setQIdx] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
   const q = questions[qIdx];
   const confirm = () => {
     if (selected === null) return;
@@ -6227,19 +6227,19 @@ function IstioProductionLab() {
 
 // ─── NEW: Kafka Live Metrics Simulator ───────────────────────────────────────
 function KafkaMetricsSimulator({ meta }) {
-  const [running, setRunning] = React.useState(false);
-  const [producerRate, setProducerRate] = React.useState(500);
-  const [consumerCount, setConsumerCount] = React.useState(3);
-  const [msgs, setMsgs] = React.useState(0);
-  const [lag, setLag] = React.useState(0);
-  const [throughput, setThroughput] = React.useState(0);
-  const [partitionLoad, setPartitionLoad] = React.useState([0, 0, 0, 0, 0, 0]);
-  const [brokerHealth, setBrokerHealth] = React.useState([true, true, true]);
-  const [tick, setTick] = React.useState(0);
+  const [running, setRunning] = useState(false);
+  const [producerRate, setProducerRate] = useState(500);
+  const [consumerCount, setConsumerCount] = useState(3);
+  const [msgs, setMsgs] = useState(0);
+  const [lag, setLag] = useState(0);
+  const [throughput, setThroughput] = useState(0);
+  const [partitionLoad, setPartitionLoad] = useState([0, 0, 0, 0, 0, 0]);
+  const [brokerHealth, setBrokerHealth] = useState([true, true, true]);
+  const [tick, setTick] = useState(0);
 
   const consumerRate = consumerCount * 180;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!running) return;
     const id = setInterval(() => {
       setTick(t => t + 1);
@@ -6359,18 +6359,18 @@ function KafkaMetricsSimulator({ meta }) {
 
 // ─── NEW: Istio Traffic Simulator ────────────────────────────────────────────
 function IstioTrafficSimulator({ meta }) {
-  const [v1Weight, setV1Weight] = React.useState(80);
-  const [faultEnabled, setFaultEnabled] = React.useState(false);
-  const [faultType, setFaultType] = React.useState("delay");
-  const [faultPct, setFaultPct] = React.useState(20);
-  const [circuitOpen, setCircuitOpen] = React.useState(false);
-  const [requests, setRequests] = React.useState([]);
-  const [stats, setStats] = React.useState({ total: 0, v1: 0, v2: 0, errors: 0, delayed: 0 });
-  const [running, setRunning] = React.useState(false);
+  const [v1Weight, setV1Weight] = useState(80);
+  const [faultEnabled, setFaultEnabled] = useState(false);
+  const [faultType, setFaultType] = useState("delay");
+  const [faultPct, setFaultPct] = useState(20);
+  const [circuitOpen, setCircuitOpen] = useState(false);
+  const [requests, setRequests] = useState([]);
+  const [stats, setStats] = useState({ total: 0, v1: 0, v2: 0, errors: 0, delayed: 0 });
+  const [running, setRunning] = useState(false);
 
   const v2Weight = 100 - v1Weight;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!running) return;
     const id = setInterval(() => {
       const id2 = Date.now();
@@ -6799,10 +6799,10 @@ const DW_RESULTS = {
 };
 
 function DecisionWizard({ onNavigate }) {
-  const [step, setStep] = React.useState(0);
-  const [scores, setScores] = React.useState({ rabbitmq: 0, kafka: 0, sqs: 0 });
-  const [done, setDone] = React.useState(false);
-  const [selected, setSelected] = React.useState(null);
+  const [step, setStep] = useState(0);
+  const [scores, setScores] = useState({ rabbitmq: 0, kafka: 0, sqs: 0 });
+  const [done, setDone] = useState(false);
+  const [selected, setSelected] = useState(null);
 
   const pick = (opt) => {
     const next = { rabbitmq: scores.rabbitmq + opt.s.rabbitmq, kafka: scores.kafka + opt.s.kafka, sqs: scores.sqs + opt.s.sqs };
