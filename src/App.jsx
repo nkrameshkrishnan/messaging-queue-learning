@@ -7157,8 +7157,8 @@ const HOME_CARDS = [
     color: "#f97316",
     bg: "#fff7f0",
     description: "From fundamentals to production-grade architecture. Covers exchanges, routing, streams, plus real-world scenarios: e-commerce pipelines, financial event sourcing, and HA cluster design.",
-    features: ["Exchanges, Routing & Pub/Sub", "Publisher Confirms & Quorum Queues", "DLX, Flow Control & Clustering", "Production: E-commerce, Fintech & HA Cluster"],
-    lessonCount: 13,
+    features: ["Exchanges, Routing & Pub/Sub", "Publisher Confirms & Quorum Queues", "DLX, Flow Control & Clustering", "Production: E-commerce, Fintech & HA Cluster", "Knowledge Check Quiz"],
+    lessonCount: 14,
     stack: "Python · pika 1.3 · rstream",
   },
   {
@@ -7168,8 +7168,8 @@ const HOME_CARDS = [
     color: "#6366f1",
     bg: "#f0f0ff",
     description: "Master distributed event streaming: from hello-world to production pipelines. Topics, partitions, consumer groups, producer optimization, Schema Registry, Kafka Streams, Connect integration, security (TLS/SASL), and real-time analytics.",
-    features: ["Hello & First Message", "Producer Batching & Acks", "Schema Registry & Avro", "Kafka Streams Topology", "Kafka Connect Integration", "Security & ACLs", "Production: Real-time Analytics"],
-    lessonCount: 13,
+    features: ["Hello & First Message", "Producer Batching & Acks", "Schema Registry & Avro", "Kafka Streams Topology", "Kafka Connect Integration", "Security & ACLs", "Production: Real-time Analytics", "Live Metrics Simulator", "Knowledge Check Quiz"],
+    lessonCount: 15,
     stack: "Python · confluent-kafka",
   },
   {
@@ -7179,8 +7179,8 @@ const HOME_CARDS = [
     color: "#f59e0b",
     bg: "#fffbf0",
     description: "From hello-world to production order pipelines. Standard vs FIFO, polling, batching, Dead Letter Queues, Lambda triggers, SNS fan-out, message attributes & filtering, encryption & IAM security.",
-    features: ["Hello & First Message", "Long Polling & Batching", "FIFO & Deduplication", "Dead Letter Queues", "Lambda Event Triggers", "SNS Fan-out", "Message Attributes & Filtering", "Security & Monitoring"],
-    lessonCount: 10,
+    features: ["Hello & First Message", "Long Polling & Batching", "FIFO & Deduplication", "Dead Letter Queues", "Lambda Event Triggers", "SNS Fan-out", "Security & Monitoring", "Visibility Timeout Simulator", "Cost Calculator", "Filter Policy Playground", "Knowledge Check Quiz"],
+    lessonCount: 14,
     stack: "Python · boto3",
   },
   {
@@ -7190,8 +7190,8 @@ const HOME_CARDS = [
     color: "#0ea5e9",
     bg: "#f0faff",
     description: "Learn service mesh patterns: sidecar architecture, intelligent traffic management, mutual TLS security, and zero-code observability.",
-    features: ["Sidecar Injection & Architecture", "Canary, Fault Injection & Circuit Breaker", "Ingress Gateway & TLS", "mTLS, AuthzPolicy & Kiali"],
-    lessonCount: 19,
+    features: ["Sidecar Injection & Architecture", "Canary, Fault Injection & Circuit Breaker", "Ingress Gateway & TLS", "mTLS, AuthzPolicy & Kiali", "Live Traffic Simulator", "Knowledge Check Quiz"],
+    lessonCount: 21,
     stack: "Kubernetes · Istio · YAML",
   },
 ];
