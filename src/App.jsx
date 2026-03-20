@@ -380,6 +380,18 @@ function QuizBlock({ questions, color = "#6366f1" }) {
 // ─── Lesson metadata ──────────────────────────────────────────────────────────
 const LESSONS_META = [
   {
+    id: "rmq-intro", num: "00", title: "RabbitMQ – What is RabbitMQ?",
+    subtitle: "Understand the problem RabbitMQ solves, core concepts, and when to use it — before writing a single line of code.",
+    color: "#f97316", group: "rabbitmq",
+    analogy: { icon: "🏤", scenario: "The Smart Post Office", text: "Before sending letters you need to understand what the post office does. It accepts letters (messages), sorts them by address (routing), holds them safely until the recipient is ready (queue), and delivers them reliably. That's RabbitMQ — a smart, programmable post office for software." },
+    terms: [
+      { icon: "🔀", term: "Message Broker", def: "Middleware that receives messages from producers and routes them to consumers. Decouples senders from receivers." },
+      { icon: "📋", term: "AMQP Protocol", def: "Advanced Message Queuing Protocol. The open standard RabbitMQ speaks. Defines exchanges, queues, bindings, and delivery guarantees." },
+      { icon: "⚡", term: "Why Async?", def: "Synchronous calls (REST) fail if the receiver is down. Async queuing buffers the work — the sender succeeds even if the receiver is temporarily unavailable." },
+      { icon: "🔌", term: "pika (Python client)", def: "The official Python client for RabbitMQ. Simple API: connect → channel → declare queue → publish/consume." },
+    ],
+  },
+  {
     id: "hello", num: "01", title: "RabbitMQ – Hello World",
     subtitle: "The simplest possible message: one producer, one queue, one consumer.",
     color: "#3b82f6",
@@ -550,6 +562,18 @@ const LESSONS_META = [
     ],
   },
   // ── KAFKA ──────────────────────────────────────────────────────────────────
+  {
+    id: "kafka-intro", num: "00", title: "Kafka – What is Apache Kafka?",
+    subtitle: "The distributed event log explained — why Netflix, LinkedIn and Uber bet their data pipelines on it.",
+    color: "#6366f1", group: "kafka",
+    analogy: { icon: "📜", scenario: "The Infinite Bulletin Board", text: "Imagine a bulletin board where anyone can pin notes and they're never removed. Every reader has their own bookmark — they can read at their own pace and even go back in time. That's Kafka. Unlike a queue (notes disappear after being read), Kafka keeps everything, enabling replay, multiple consumers, and time travel." },
+    terms: [
+      { icon: "📁", term: "Event Log", def: "Kafka stores events in an immutable, append-only log. Unlike queues, events are kept even after being read — enabling replay and multiple independent consumers." },
+      { icon: "⚡", term: "Why Kafka?", def: "Traditional message queues cap out at tens of thousands of messages/second. Kafka handles millions per second via partitioned, parallel writes across brokers." },
+      { icon: "🔄", term: "Event Replay", def: "Consumers can rewind to any point in time. A new analytics service built today can process all historical events from day one. Impossible with traditional queues." },
+      { icon: "🌍", term: "confluent-kafka (Python)", def: "The official Python client from Confluent. High-performance, full-featured: producer batching, consumer groups, Schema Registry, admin API." },
+    ],
+  },
   {
   id: "kafka-hello", num: "01", title: "Kafka – Hello Kafka — First Message",
     subtitle: "Send your first message: producer, broker, consumer. The essential Kafka workflow.",
@@ -731,6 +755,18 @@ const LESSONS_META = [
   },
   // ── SQS ────────────────────────────────────────────────────────────────────
   {
+    id: "sqs-intro", num: "00", title: "AWS SQS – What is AWS SQS?",
+    subtitle: "Fully managed queuing explained — zero servers, AWS-native integrations, and pay-per-use pricing.",
+    color: "#f59e0b", group: "sqs",
+    analogy: { icon: "🛋️", scenario: "The Fully Staffed Post Office", text: "Imagine a post office where AWS handles hiring staff, maintaining the building, scaling for peak season, and guaranteeing messages are never lost — you just drop in letters and pick them up. No building to manage. No staff to hire. That's SQS: a post office as a service." },
+    terms: [
+      { icon: "🛋️", term: "Managed Service", def: "AWS runs all the infrastructure. No servers to provision, no clusters to patch, no on-call for queue failures. SQS handles scaling, replication, and durability automatically." },
+      { icon: "💰", term: "Pricing Model", def: "$0.40 per million requests. First 1 million/month free. This makes SQS dramatically cheaper than running a self-hosted broker for most workloads." },
+      { icon: "⚡", term: "Lambda Integration", def: "SQS can trigger Lambda functions automatically when messages arrive. No polling code needed — AWS handles the event source mapping." },
+      { icon: "🔧", term: "boto3 (Python SDK)", def: "AWS's official Python SDK. All SQS operations: create queue, send message, receive message, delete message. Uses your AWS credentials automatically." },
+    ],
+  },
+  {
     id: "sqs-hello", num: "01", title: "AWS SQS – Hello SQS — First Queue",
     subtitle: "Send and receive your first message: fully managed, no server to run.",
     color: "#f59e0b", group: "sqs",
@@ -898,6 +934,18 @@ const LESSONS_META = [
   },
   // ── Istio ──────────────────────────────────────────────────────────────────
   {
+    id: "istio-intro", num: "00", title: "Istio – What is a Service Mesh?",
+    subtitle: "The problem Istio solves, how sidecar proxies work, and what you'll be able to do by the end of this course.",
+    color: "#0ea5e9", group: "istio",
+    analogy: { icon: "🛂", scenario: "The Airport Security Layer", text: "Imagine if every terminal at an airport had its own security — 50 different processes, inconsistent rules, no shared records. A service mesh is like building one universal security layer that every gate passes through automatically. Passengers (services) don't change; the infrastructure around them changes." },
+    terms: [
+      { icon: "🔷", term: "Service Mesh", def: "A dedicated infrastructure layer for service-to-service communication. Handles security, observability, and traffic control without changing application code." },
+      { icon: "🛡️", term: "Sidecar Pattern", def: "A proxy container (Envoy) injected alongside every app container. It intercepts all inbound/outbound traffic, enabling zero-code observability and security." },
+      { icon: "📋", term: "Prerequisites", def: "Basic Kubernetes knowledge (Pod, Deployment, Service), kubectl installed, a running cluster (minikube/k3s), and comfort with YAML and terminal commands." },
+      { icon: "🎯", term: "What you'll build", def: "A microservices cluster with automatic mTLS, canary deployments, fault injection, circuit breaking, and a live observability dashboard — using only YAML and kubectl." },
+    ],
+  },
+  {
     id: "istio-arch", num: "01", title: "Istio – Architecture & Sidecar",
     subtitle: "Istio adds an Envoy sidecar proxy to every pod, forming a data plane. Istiod is the control plane managing config, certs, and service discovery.",
     color: "#0ea5e9", group: "istio",
@@ -910,7 +958,19 @@ const LESSONS_META = [
     ],
   },
   {
-    id: "istio-routing", num: "02", title: "Istio – Traffic Routing",
+    id: "istio-install", num: "02", title: "Istio – Installation & Profiles",
+    subtitle: "Install Istio on your cluster. Choose the right profile (demo, default, production) and understand IstioOperator for customisation.",
+    color: "#0284c7", group: "istio",
+    analogy: { icon: "🏗️", scenario: "Building Blueprints", text: "Like choosing a house blueprint — minimal is a studio apartment (just the structure), default is a family home, demo adds every feature for inspection, and production is a hardened custom build. The IstioOperator CRD is your architect's instruction sheet — change any room without rebuilding from scratch." },
+    terms: [
+      { icon: "📋", term: "Installation Profiles", def: "demo: all components, for learning. default: control plane + ingress gateway, for most clusters. minimal: control plane only. production: hardened, resource-tuned." },
+      { icon: "⚙️", term: "IstioOperator", def: "A CRD that declaratively configures Istio installation — resource limits, replica counts, component toggles, mesh-wide settings. Apply with istioctl install -f operator.yaml." },
+      { icon: "🔄", term: "Canary Upgrade", def: "Run two Istio control planes side-by-side (old + new tag). Migrate namespaces one at a time by updating the istio.io/rev label. Zero-downtime upgrade path." },
+      { icon: "🏷️", term: "Revision Labels", def: "istio.io/rev=stable on a namespace pins it to a specific Istio revision. Enables gradual upgrades and rollback without cluster-wide disruption." },
+    ],
+  },
+  {
+    id: "istio-routing", num: "03", title: "Istio – Traffic Routing",
     subtitle: "VirtualService defines how requests are routed to services. DestinationRule configures policies for destination subsets — load balancing, pools, and TLS.",
     color: "#14b8a6", group: "istio",
     analogy: { icon: "🚦", scenario: "Smart GPS + Road Policy", text: "A VirtualService is the GPS app — it decides which road (v1 or v2) a car takes based on header, URI, or weight. A DestinationRule is the road policy — it sets speed limits (connection pools), retry policies, and which lanes (subsets) exist. Together they give fine-grained traffic control." },
@@ -1006,18 +1066,6 @@ const LESSONS_META = [
     ],
   },
   // ── Istio – ICA-Complete & Expert Lessons ──────────────────────────────────
-  {
-    id: "istio-install", num: "10", title: "Istio – Installation & Profiles",
-    subtitle: "Istio ships four profiles: minimal, default, demo, and production. IstioOperator lets you customize every control plane component declaratively.",
-    color: "#0284c7", group: "istio",
-    analogy: { icon: "🏗️", scenario: "Building Blueprints", text: "Like choosing a house blueprint — minimal is a studio apartment (just the structure), default is a family home, demo adds every feature for inspection, and production is a hardened custom build. The IstioOperator CRD is your architect's instruction sheet — change any room without rebuilding from scratch." },
-    terms: [
-      { icon: "📋", term: "Installation Profiles", def: "demo: all components, for learning. default: control plane + ingress gateway, for most clusters. minimal: control plane only. production: hardened, resource-tuned." },
-      { icon: "⚙️", term: "IstioOperator", def: "A CRD that declaratively configures Istio installation — resource limits, replica counts, component toggles, mesh-wide settings. Apply with istioctl install -f operator.yaml." },
-      { icon: "🔄", term: "Canary Upgrade", def: "Run two Istio control planes side-by-side (old + new tag). Migrate namespaces one at a time by updating the istio.io/rev label. Zero-downtime upgrade path." },
-      { icon: "🏷️", term: "Revision Labels", def: "istio.io/rev=stable on a namespace pins it to a specific Istio revision. Enables gradual upgrades and rollback without cluster-wide disruption." },
-    ],
-  },
   {
     id: "istio-service-entry", num: "11", title: "Istio – ServiceEntry",
     subtitle: "ServiceEntry registers external services (outside the mesh) into Istio's internal registry, enabling VirtualService routing, mTLS, and traffic policies for egress traffic.",
@@ -7076,8 +7124,351 @@ function SQSQuizLesson({ meta }) {
   );
 }
 
+// ─── Intro Lesson components ──────────────────────────────────────────────────
+
+function IntroCard({ icon, title, text, color }) {
+  return (
+    <div style={{ borderRadius: 10, padding: "14px 16px", background: "#f8fafc", border: `1px solid ${color}25`, display: "flex", gap: 12, alignItems: "flex-start" }}>
+      <div style={{ fontSize: 24, lineHeight: 1, flexShrink: 0, marginTop: 2 }}>{icon}</div>
+      <div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", marginBottom: 4 }}>{title}</div>
+        <div style={{ fontSize: 13.5, color: "#475569", lineHeight: 1.65 }}>{text}</div>
+      </div>
+    </div>
+  );
+}
+
+function VsRow({ name, icon, tag, color, best }) {
+  const active = tag === name;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 8, background: active ? color + "12" : "#f8fafc", border: `1px solid ${active ? color + "40" : "#e2e8f0"}` }}>
+      <span style={{ fontSize: 20 }}>{icon}</span>
+      <div style={{ flex: 1 }}>
+        <span style={{ fontSize: 13.5, fontWeight: 700, color: active ? color : "#1e293b" }}>{name}</span>
+        {active && <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, padding: "1px 7px", borderRadius: 4, background: color, color: "#fff" }}>This course</span>}
+        <div style={{ fontSize: 12.5, color: "#64748b", marginTop: 2 }}>{best}</div>
+      </div>
+    </div>
+  );
+}
+
+function RMQIntroLesson({ meta }) {
+  const C = meta.color;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Hero */}
+      <div style={{ borderRadius: 14, padding: "24px 24px 20px", background: `linear-gradient(135deg, ${C}15, ${C}05)`, border: `1px solid ${C}30` }}>
+        <div style={{ fontSize: 40, marginBottom: 10 }}>🐇</div>
+        <h2 style={{ fontSize: 26, fontWeight: 900, color: "#0f172a", margin: "0 0 8px", letterSpacing: -0.5 }}>What is RabbitMQ?</h2>
+        <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.75, margin: 0 }}>
+          RabbitMQ is a <b style={{ color: "#0f172a" }}>message broker</b> — a post office for software. Instead of Service A calling Service B directly (tight coupling), A drops a message into a queue and B picks it up when ready. RabbitMQ holds the messages safely in between.
+        </p>
+      </div>
+
+      {/* Why it exists */}
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>🤔 Why does it exist?</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <IntroCard icon="💥" title="Services crash. Queues don't." text="If your payment service is down, orders still pile up safely in the queue. When it restarts, it processes all pending orders — nothing is lost." color={C} />
+          <IntroCard icon="⚡" title="Handle traffic spikes without scaling instantly" text="Black Friday hits: 10,000 orders/second arrive. Instead of crashing, they queue up. Workers process them at a steady rate. The user gets '✅ Order received!' immediately." color={C} />
+          <IntroCard icon="🔌" title="Decouple services — teams move independently" text="The order team doesn't need to know about the email team's API. They publish 'order.placed' and walk away. Email, analytics, inventory all subscribe and react independently." color={C} />
+        </div>
+      </div>
+
+      {/* Mental models */}
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>🧠 Four concepts you need (everything else builds on these)</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { icon: "📤", term: "Producer", def: "The app that sends messages. Like dropping a letter in a post box." },
+            { icon: "📮", term: "Queue", def: "The buffer that holds messages until a consumer is ready. The post box itself." },
+            { icon: "🔀", term: "Exchange", def: "The sorting office that routes messages to queues based on rules (routing key, fanout, topic)." },
+            { icon: "📥", term: "Consumer", def: "The app that receives and processes messages. The postman who empties the box." },
+          ].map(c => (
+            <div key={c.term} style={{ borderRadius: 10, padding: "12px 14px", background: "#ffffff", border: `1px solid #e2e8f0` }}>
+              <div style={{ fontSize: 22, marginBottom: 6 }}>{c.icon}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: C, marginBottom: 3 }}>{c.term}</div>
+              <div style={{ fontSize: 12.5, color: "#64748b", lineHeight: 1.55 }}>{c.def}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* When to use / not use */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#15803d", marginBottom: 8 }}>✅ Use RabbitMQ when…</div>
+          {["Task queues (image processing, email sending)", "Complex routing (direct, topic, fanout, headers)", "RPC patterns (request → reply)", "You need message priorities or TTL", "On-premise or self-hosted infra"].map(t => <div key={t} style={{ fontSize: 12.5, color: "#166534", marginBottom: 4 }}>• {t}</div>)}
+        </div>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fff1f2", border: "1px solid #fecdd3" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#be123c", marginBottom: 8 }}>❌ Consider alternatives when…</div>
+          {["Need to replay old messages (→ Kafka)", "Processing millions of events/sec (→ Kafka)", "Fully managed, zero-ops on AWS (→ SQS)", "Need a service mesh (→ Istio)", "Simple pub/sub on AWS (→ SNS)"].map(t => <div key={t} style={{ fontSize: 12.5, color: "#9f1239", marginBottom: 4 }}>• {t}</div>)}
+        </div>
+      </div>
+
+      {/* Who uses it */}
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fffbeb", border: "1px solid #fcd34d" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#92400e", marginBottom: 8 }}>🏢 Real companies using RabbitMQ in production</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {["Instagram", "Reddit", "NASA", "VMware", "Zalando", "WeWork", "Runtastic"].map(c => (
+            <span key={c} style={{ padding: "4px 12px", borderRadius: 20, background: "#fef3c7", color: "#92400e", fontSize: 13, fontWeight: 600 }}>{c}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* vs comparison */}
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>⚖️ RabbitMQ vs alternatives at a glance</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <VsRow name="RabbitMQ" icon="🐇" tag="RabbitMQ" color={C} best="Smart routing, task queues, RPC, low latency, complex exchange patterns" />
+          <VsRow name="Apache Kafka" icon="⚡" tag="RabbitMQ" color={C} best="Massive throughput, event replay, audit logs, stream processing" />
+          <VsRow name="AWS SQS" icon="☁️" tag="RabbitMQ" color={C} best="Zero-ops managed queue, AWS-native, serverless, pay-per-use" />
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: `${C}10`, border: `1px solid ${C}30`, fontSize: 14, color: "#475569", lineHeight: 1.7 }}>
+        <b style={{ color: C }}>👉 Ready?</b> The next lesson sends your first message in under 10 lines of Python. No infrastructure knowledge needed — just follow along.
+      </div>
+    </div>
+  );
+}
+
+function KafkaIntroLesson({ meta }) {
+  const C = meta.color;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ borderRadius: 14, padding: "24px 24px 20px", background: `linear-gradient(135deg, ${C}15, ${C}05)`, border: `1px solid ${C}30` }}>
+        <div style={{ fontSize: 40, marginBottom: 10 }}>⚡</div>
+        <h2 style={{ fontSize: 26, fontWeight: 900, color: "#0f172a", margin: "0 0 8px", letterSpacing: -0.5 }}>What is Apache Kafka?</h2>
+        <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.75, margin: 0 }}>
+          Kafka is a <b style={{ color: "#0f172a" }}>distributed event log</b>. Unlike a queue (where a message disappears after being read), Kafka keeps every event written to it — permanently — and lets any number of consumers replay events independently. It's the backbone of real-time data pipelines at Netflix, LinkedIn, Uber, and Airbnb.
+        </p>
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>🤔 The big idea: a queue deletes, Kafka keeps</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <IntroCard icon="📜" title="An append-only log, not a queue" text="Imagine a public bulletin board where anyone can pin a note and the notes are never removed. Every reader has their own bookmark. That's Kafka. A traditional queue is like a pile of sticky notes — once someone picks one up, it's gone." color={C} />
+          <IntroCard icon="🔄" title="Replay any event from any point in time" text="Your analytics service crashed last Tuesday. In a queue, those events are gone. In Kafka, they're still there — rewind to Tuesday and replay. This makes Kafka ideal for audit logs, ML training datasets, and debugging production issues." color={C} />
+          <IntroCard icon="⚡" title="Millions of events per second" text="Kafka handles 1–2 million messages/second on commodity hardware through partitioning. LinkedIn processes 7 trillion messages/day with Kafka. A traditional message broker tops out much earlier." color={C} />
+        </div>
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>🧠 Five concepts that unlock everything</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { icon: "📁", term: "Topic", def: "A named log of events. 'user-clicks', 'order-placed'. Like a folder of messages." },
+            { icon: "📊", term: "Partition", def: "Each topic is split into N partitions for parallelism. Events with the same key always land in the same partition (ordering)." },
+            { icon: "🏭", term: "Producer", def: "App that writes events. Can choose which partition or let Kafka decide via round-robin or key hash." },
+            { icon: "👥", term: "Consumer Group", def: "N consumers sharing partitions. Each partition is read by exactly one consumer in the group at a time." },
+            { icon: "🔖", term: "Offset", def: "The position of each message in a partition. Consumers commit their offset to track progress — no separate state needed." },
+            { icon: "🖥️", term: "Broker", def: "A Kafka server. A cluster has 3+ brokers. Each partition has one leader broker and N replica brokers for durability." },
+          ].map(c => (
+            <div key={c.term} style={{ borderRadius: 10, padding: "12px 14px", background: "#ffffff", border: `1px solid #e2e8f0` }}>
+              <div style={{ fontSize: 22, marginBottom: 6 }}>{c.icon}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: C, marginBottom: 3 }}>{c.term}</div>
+              <div style={{ fontSize: 12.5, color: "#64748b", lineHeight: 1.55 }}>{c.def}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#15803d", marginBottom: 8 }}>✅ Use Kafka when…</div>
+          {["Processing 100K+ events per second", "Need to replay events (analytics, ML, debug)", "Multiple independent consumers of same data", "Event sourcing or audit trails", "Building real-time data pipelines"].map(t => <div key={t} style={{ fontSize: 12.5, color: "#166534", marginBottom: 4 }}>• {t}</div>)}
+        </div>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fff1f2", border: "1px solid #fecdd3" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#be123c", marginBottom: 8 }}>❌ Consider alternatives when…</div>
+          {["Need complex routing patterns (→ RabbitMQ)", "Building RPC request/reply (→ RabbitMQ)", "AWS-native, zero-ops (→ SQS)", "Low message volume, simple tasks (→ SQS)", "Team has no Kafka operations experience"].map(t => <div key={t} style={{ fontSize: 12.5, color: "#9f1239", marginBottom: 4 }}>• {t}</div>)}
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fffbeb", border: "1px solid #fcd34d" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#92400e", marginBottom: 8 }}>🏢 Companies running Kafka at massive scale</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {["Netflix (1T events/day)", "LinkedIn (7T msgs/day)", "Uber (1T+ trips)", "Airbnb", "Spotify", "Twitter/X", "Goldman Sachs", "Cloudflare"].map(c => (
+            <span key={c} style={{ padding: "4px 12px", borderRadius: 20, background: "#fef3c7", color: "#92400e", fontSize: 13, fontWeight: 600 }}>{c}</span>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>⚖️ Kafka vs alternatives at a glance</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <VsRow name="Apache Kafka" icon="⚡" tag="Apache Kafka" color={C} best="Massive scale, event replay, stream processing, audit logs" />
+          <VsRow name="RabbitMQ" icon="🐇" tag="Apache Kafka" color={C} best="Smart routing, task queues, RPC, lower volume, complex exchanges" />
+          <VsRow name="AWS SQS" icon="☁️" tag="Apache Kafka" color={C} best="Zero-ops managed queue, AWS-native, simple async decoupling" />
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: `${C}10`, border: `1px solid ${C}30`, fontSize: 14, color: "#475569", lineHeight: 1.7 }}>
+        <b style={{ color: C }}>👉 Ready?</b> The next lesson sends your first Kafka event in Python. You'll have a producer and consumer running locally within 5 minutes.
+      </div>
+    </div>
+  );
+}
+
+function SQSIntroLesson({ meta }) {
+  const C = meta.color;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ borderRadius: 14, padding: "24px 24px 20px", background: `linear-gradient(135deg, ${C}15, ${C}05)`, border: `1px solid ${C}30` }}>
+        <div style={{ fontSize: 40, marginBottom: 10 }}>☁️</div>
+        <h2 style={{ fontSize: 26, fontWeight: 900, color: "#0f172a", margin: "0 0 8px", letterSpacing: -0.5 }}>What is AWS SQS?</h2>
+        <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.75, margin: 0 }}>
+          Amazon SQS (Simple Queue Service) is a <b style={{ color: "#0f172a" }}>fully managed message queue</b>. AWS handles all the servers, scaling, replication, and maintenance — you just call an API to send and receive messages. No installation. No configuration. Pay only for what you use.
+        </p>
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>🤔 Why choose managed over self-hosted?</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <IntroCard icon="🛋️" title="Zero infrastructure — AWS handles everything" text="No servers to provision. No clusters to manage. No on-call pages for queue failures. SQS scales from 1 message/day to millions/second automatically — the same API either way." color={C} />
+          <IntroCard icon="💰" title="Cost: $0 to start, ~$0.40 per million messages" text="First million messages every month are free. After that, $0.40 per million. Compare that to running a RabbitMQ cluster: EC2 instances, EBS volumes, monitoring, backups — all on you. For most teams, SQS is cheaper and simpler." color={C} />
+          <IntroCard icon="🔗" title="Native AWS integration — Lambda, SNS, S3 in one line" text="Trigger a Lambda function automatically when a message arrives. Fan out with SNS. Store large payloads in S3. All natively integrated. The AWS ecosystem amplifies SQS's simplicity enormously." color={C} />
+        </div>
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>🧠 Key concepts (simpler than you think)</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { icon: "📋", term: "Standard Queue", def: "Nearly unlimited throughput. Messages delivered at least once, usually in order. Best for most use cases." },
+            { icon: "🔢", term: "FIFO Queue", def: "Strict ordering + exactly-once delivery. Slower (3000 msg/s) but no duplicates. Use for financial transactions." },
+            { icon: "⏱️", term: "Visibility Timeout", def: "After a consumer receives a message, it's hidden for N seconds. If not deleted in time, it reappears (automatic retry)." },
+            { icon: "💀", term: "Dead Letter Queue", def: "After N failed processing attempts, messages are moved here for inspection. Prevents poison pills from blocking the queue." },
+          ].map(c => (
+            <div key={c.term} style={{ borderRadius: 10, padding: "12px 14px", background: "#ffffff", border: `1px solid #e2e8f0` }}>
+              <div style={{ fontSize: 22, marginBottom: 6 }}>{c.icon}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: C, marginBottom: 3 }}>{c.term}</div>
+              <div style={{ fontSize: 12.5, color: "#64748b", lineHeight: 1.55 }}>{c.def}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#15803d", marginBottom: 8 }}>✅ Use SQS when…</div>
+          {["You're already on AWS", "Zero-ops is a priority", "Async decoupling between microservices", "Lambda-driven event processing", "Variable/spiky traffic (serverless scales with you)"].map(t => <div key={t} style={{ fontSize: 12.5, color: "#166534", marginBottom: 4 }}>• {t}</div>)}
+        </div>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fff1f2", border: "1px solid #fecdd3" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#be123c", marginBottom: 8 }}>❌ Consider alternatives when…</div>
+          {["Need to replay old messages (→ Kafka)", "Millions of events/sec throughput (→ Kafka)", "Complex routing patterns (→ RabbitMQ)", "Not on AWS / cloud-agnostic (→ RabbitMQ)", "Need pub/sub fan-out (→ SNS + SQS combo)"].map(t => <div key={t} style={{ fontSize: 12.5, color: "#9f1239", marginBottom: 4 }}>• {t}</div>)}
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fffbeb", border: "1px solid #fcd34d" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#92400e", marginBottom: 8 }}>🏢 Who relies on SQS at scale</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {["Amazon itself", "NASA JPL", "Pinterest", "Lyft", "Finra", "Samsung", "Capital One"].map(c => (
+            <span key={c} style={{ padding: "4px 12px", borderRadius: 20, background: "#fef3c7", color: "#92400e", fontSize: 13, fontWeight: 600 }}>{c}</span>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>⚖️ SQS vs alternatives at a glance</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <VsRow name="AWS SQS" icon="☁️" tag="AWS SQS" color={C} best="Zero-ops, AWS-native, Lambda triggers, pay-per-use, automatic scaling" />
+          <VsRow name="RabbitMQ" icon="🐇" tag="AWS SQS" color={C} best="Self-hosted, complex routing, RPC, on-premise, AMQP protocol" />
+          <VsRow name="Apache Kafka" icon="⚡" tag="AWS SQS" color={C} best="Event replay, massive throughput, stream processing, audit logs" />
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: `${C}10`, border: `1px solid ${C}30`, fontSize: 14, color: "#475569", lineHeight: 1.7 }}>
+        <b style={{ color: C }}>👉 Ready?</b> The next lesson sends your first SQS message with boto3 in 10 lines of Python. You'll need an AWS account (free tier covers everything in this course).
+      </div>
+    </div>
+  );
+}
+
+function IstioIntroLesson({ meta }) {
+  const C = meta.color;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ borderRadius: 14, padding: "24px 24px 20px", background: `linear-gradient(135deg, ${C}15, ${C}05)`, border: `1px solid ${C}30` }}>
+        <div style={{ fontSize: 40, marginBottom: 10 }}>🔷</div>
+        <h2 style={{ fontSize: 26, fontWeight: 900, color: "#0f172a", margin: "0 0 8px", letterSpacing: -0.5 }}>What is Istio?</h2>
+        <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.75, margin: 0 }}>
+          Istio is a <b style={{ color: "#0f172a" }}>service mesh</b> — a dedicated infrastructure layer for controlling how microservices talk to each other. It handles security (mTLS), observability (metrics/traces), and traffic management (canary deployments, retries, circuit breakers) without changing a single line of your application code.
+        </p>
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>🤔 The problem Istio solves</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <IntroCard icon="😰" title="The microservices tax: you solve the same problems 50 times" text="Each team implements retry logic, timeout handling, TLS certificates, metrics collection, and distributed tracing — in their own language, their own way. It's duplicated effort and inconsistent behaviour across 50 services." color={C} />
+          <IntroCard icon="🔷" title="Istio: solve it once, apply it everywhere" text="Istio injects a tiny proxy (Envoy) beside every pod. That proxy intercepts all traffic and handles retries, TLS, circuit breaking, and metrics automatically — for every service at once, with zero code changes." color={C} />
+          <IntroCard icon="🎛️" title="Operations gains superpowers" text="With Istio, ops can shift 10% of traffic to a new version without a code deploy. They can inject artificial latency to test resilience. They can see a live traffic map showing every service call, error rate, and latency. None of this requires touching application code." color={C} />
+        </div>
+      </div>
+
+      <div>
+        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#0f172a", margin: "0 0 12px" }}>🧠 Four pillars of Istio</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { icon: "🚦", term: "Traffic Management", def: "Route by header, weight (canary), URI. Retry failed calls. Circuit-break overloaded services. All via YAML, no code." },
+            { icon: "🔒", term: "Security (mTLS)", def: "Every service-to-service call is automatically encrypted and authenticated. No certificates to manage manually." },
+            { icon: "📊", term: "Observability", def: "Automatic metrics (Prometheus), distributed traces (Jaeger/Zipkin), and a live traffic graph (Kiali) — zero instrumentation in app code." },
+            { icon: "🔌", term: "Extensibility (WASM)", def: "Custom filters (auth, rate-limit, transform) written in WebAssembly and injected at the proxy level. No sidecars to rebuild." },
+          ].map(c => (
+            <div key={c.term} style={{ borderRadius: 10, padding: "12px 14px", background: "#ffffff", border: `1px solid #e2e8f0` }}>
+              <div style={{ fontSize: 22, marginBottom: 6 }}>{c.icon}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: C, marginBottom: 3 }}>{c.term}</div>
+              <div style={{ fontSize: 12.5, color: "#64748b", lineHeight: 1.55 }}>{c.def}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#f0f9ff", border: "1px solid #bae6fd" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#0369a1", marginBottom: 8 }}>📋 Prerequisites for this course</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {[
+            "Basic Kubernetes: what a Pod, Deployment, and Service are",
+            "kubectl installed and a cluster available (minikube / k3s / Docker Desktop)",
+            "Basic YAML: you can read and edit indentation",
+            "Comfortable running terminal commands",
+          ].map((p, i) => <div key={i} style={{ fontSize: 13, color: "#0369a1" }}>{"✓ " + p}</div>)}
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#15803d", marginBottom: 8 }}>✅ Use Istio when…</div>
+          {["You run Kubernetes with 5+ microservices", "Need mutual TLS between all services", "Canary deployments and traffic splitting", "Need distributed tracing without code changes", "Managing complex cross-team service boundaries"].map(t => <div key={t} style={{ fontSize: 12.5, color: "#166534", marginBottom: 4 }}>• {t}</div>)}
+        </div>
+        <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fff1f2", border: "1px solid #fecdd3" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#be123c", marginBottom: 8 }}>❌ Consider alternatives when…</div>
+          {["Running only 1-2 services (overkill)", "Not on Kubernetes", "Team has no K8s experience yet", "Resource-constrained (Istio adds ~100MB RAM/pod)", "Simple use case fits Linkerd or Consul better"].map(t => <div key={t} style={{ fontSize: 12.5, color: "#9f1239", marginBottom: 4 }}>• {t}</div>)}
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: "#fffbeb", border: "1px solid #fcd34d" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#92400e", marginBottom: 8 }}>🏢 Companies running Istio in production</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {["Google", "Salesforce", "IBM", "Red Hat", "Airbnb", "Auto Trader", "T-Mobile"].map(c => (
+            <span key={c} style={{ padding: "4px 12px", borderRadius: 20, background: "#fef3c7", color: "#92400e", fontSize: 13, fontWeight: 600 }}>{c}</span>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ borderRadius: 10, padding: "14px 16px", background: `${C}10`, border: `1px solid ${C}30`, fontSize: 14, color: "#475569", lineHeight: 1.7 }}>
+        <b style={{ color: C }}>👉 Ready?</b> Next up: the Istio architecture — how Envoy sidecars and Istiod work together. Then you'll install Istio on your cluster and everything will click into place.
+      </div>
+    </div>
+  );
+}
+
 // ─── Component map ────────────────────────────────────────────────────────────
 const LESSON_COMPONENTS = {
+  "rmq-intro":           RMQIntroLesson,
+  "kafka-intro":         KafkaIntroLesson,
+  "sqs-intro":           SQSIntroLesson,
+  "istio-intro":         IstioIntroLesson,
   "hello":               HelloWorldLesson,
   "work":                WorkQueuesLesson,
   "pubsub":              PubSubLesson,
@@ -7148,6 +7539,49 @@ const LESSON_COMPONENTS = {
 const GROUP_LABELS = { rabbitmq: "🐰 RabbitMQ", kafka: "⚡ Kafka", sqs: "☁️ AWS SQS", istio: "🔷 Istio" };
 const GROUP_COLORS = { rabbitmq: "#f97316", kafka: "#6366f1", sqs: "#f59e0b", istio: "#0ea5e9" };
 
+// ─── Lesson difficulty levels ─────────────────────────────────────────────────
+const LESSON_LEVELS = {
+  // ── RabbitMQ ──────────────────────────────────────────────────────────────
+  "rmq-intro": "beginner",  "hello": "beginner",   "work": "beginner",
+  "pubsub": "beginner",     "routing": "beginner",
+  "topics": "intermediate", "rpc": "intermediate",  "stream-hello": "intermediate",
+  "stream-offset": "intermediate", "rmq-dlx": "intermediate",
+  "rmq-confirms": "advanced", "rmq-quorum": "advanced", "rmq-flow": "advanced",
+  "rmq-cluster": "advanced",  "rmq-quiz": "advanced",
+  // ── Kafka ─────────────────────────────────────────────────────────────────
+  "kafka-intro": "beginner",      "kafka-hello": "beginner",
+  "kafka-partitions": "beginner", "kafka-groups": "beginner",   "kafka-offsets": "beginner",
+  "kafka-replication": "intermediate", "kafka-producer": "intermediate",
+  "kafka-schema": "intermediate", "kafka-streams-api": "intermediate",
+  "kafka-connect": "intermediate",
+  "kafka-transactions": "advanced", "kafka-compaction": "advanced",
+  "kafka-security": "advanced",   "kafka-production": "advanced",
+  "kafka-metrics-sim": "advanced", "kafka-quiz": "advanced",
+  // ── AWS SQS ───────────────────────────────────────────────────────────────
+  "sqs-intro": "beginner",    "sqs-hello": "beginner",   "sqs-standard": "beginner",
+  "sqs-polling": "beginner",  "sqs-fifo": "beginner",    "sqs-dlq": "beginner",
+  "sqs-lambda": "intermediate", "sqs-fanout": "intermediate",
+  "sqs-filtering": "intermediate", "sqs-security": "intermediate",
+  "sqs-production": "intermediate",
+  "sqs-visibility-sim": "advanced", "sqs-cost-calc": "advanced",
+  "sqs-filter-playground": "advanced", "sqs-quiz": "advanced",
+  // ── Istio ─────────────────────────────────────────────────────────────────
+  "istio-intro": "beginner",   "istio-arch": "beginner",
+  "istio-install": "beginner", "istio-routing": "beginner",
+  "istio-canary": "intermediate",  "istio-fault": "intermediate",
+  "istio-circuit": "intermediate", "istio-gateway": "intermediate",
+  "istio-mtls": "intermediate",    "istio-authz": "intermediate",
+  "istio-observe": "intermediate", "istio-service-entry": "intermediate",
+  "istio-egress": "intermediate",  "istio-jwt": "intermediate",
+  "istio-troubleshoot": "intermediate",
+  "istio-mirror": "advanced",  "istio-sidecar": "advanced",
+  "istio-lb": "advanced",      "istio-ambient": "advanced",
+  "istio-wasm": "advanced",    "istio-traffic-sim": "advanced",
+  "istio-quiz": "advanced",
+};
+const LEVEL_COLOR  = { beginner: "#22c55e", intermediate: "#f59e0b", advanced: "#ef4444" };
+const LEVEL_LABEL  = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
+
 // ─── Home page data ───────────────────────────────────────────────────────────
 const HOME_CARDS = [
   {
@@ -7157,8 +7591,8 @@ const HOME_CARDS = [
     color: "#f97316",
     bg: "#fff7f0",
     description: "From fundamentals to production-grade architecture. Covers exchanges, routing, streams, plus real-world scenarios: e-commerce pipelines, financial event sourcing, and HA cluster design.",
-    features: ["Exchanges, Routing & Pub/Sub", "Publisher Confirms & Quorum Queues", "DLX, Flow Control & Clustering", "Production: E-commerce, Fintech & HA Cluster", "Knowledge Check Quiz"],
-    lessonCount: 14,
+    features: ["What is RabbitMQ?", "Exchanges, Routing & Pub/Sub", "Publisher Confirms & Quorum Queues", "DLX, Flow Control & Clustering", "Production: E-commerce, Fintech & HA Cluster", "Knowledge Check Quiz"],
+    lessonCount: 15,
     stack: "Python · pika 1.3 · rstream",
   },
   {
@@ -7168,8 +7602,8 @@ const HOME_CARDS = [
     color: "#6366f1",
     bg: "#f0f0ff",
     description: "Master distributed event streaming: from hello-world to production pipelines. Topics, partitions, consumer groups, producer optimization, Schema Registry, Kafka Streams, Connect integration, security (TLS/SASL), and real-time analytics.",
-    features: ["Hello & First Message", "Producer Batching & Acks", "Schema Registry & Avro", "Kafka Streams Topology", "Kafka Connect Integration", "Security & ACLs", "Production: Real-time Analytics", "Live Metrics Simulator", "Knowledge Check Quiz"],
-    lessonCount: 15,
+    features: ["What is Kafka?", "Producer Batching & Acks", "Schema Registry & Avro", "Kafka Streams Topology", "Kafka Connect Integration", "Security & ACLs", "Production: Real-time Analytics", "Live Metrics Simulator", "Knowledge Check Quiz"],
+    lessonCount: 16,
     stack: "Python · confluent-kafka",
   },
   {
@@ -7179,8 +7613,8 @@ const HOME_CARDS = [
     color: "#f59e0b",
     bg: "#fffbf0",
     description: "From hello-world to production order pipelines. Standard vs FIFO, polling, batching, Dead Letter Queues, Lambda triggers, SNS fan-out, message attributes & filtering, encryption & IAM security.",
-    features: ["Hello & First Message", "Long Polling & Batching", "FIFO & Deduplication", "Dead Letter Queues", "Lambda Event Triggers", "SNS Fan-out", "Security & Monitoring", "Visibility Timeout Simulator", "Cost Calculator", "Filter Policy Playground", "Knowledge Check Quiz"],
-    lessonCount: 14,
+    features: ["What is SQS?", "Long Polling & Batching", "FIFO & Deduplication", "Dead Letter Queues", "Lambda Event Triggers", "SNS Fan-out", "Security & Monitoring", "Visibility Timeout Simulator", "Cost Calculator", "Filter Policy Playground", "Knowledge Check Quiz"],
+    lessonCount: 15,
     stack: "Python · boto3",
   },
   {
@@ -7190,8 +7624,8 @@ const HOME_CARDS = [
     color: "#0ea5e9",
     bg: "#f0faff",
     description: "Learn service mesh patterns: sidecar architecture, intelligent traffic management, mutual TLS security, and zero-code observability.",
-    features: ["Sidecar Injection & Architecture", "Canary, Fault Injection & Circuit Breaker", "Ingress Gateway & TLS", "mTLS, AuthzPolicy & Kiali", "Live Traffic Simulator", "Knowledge Check Quiz"],
-    lessonCount: 21,
+    features: ["What is a Service Mesh?", "Install & Profiles", "Sidecar Injection & Architecture", "Canary, Fault Injection & Circuit Breaker", "Ingress Gateway & TLS", "mTLS, AuthzPolicy & Kiali", "Live Traffic Simulator", "Knowledge Check Quiz"],
+    lessonCount: 22,
     stack: "Kubernetes · Istio · YAML",
   },
 ];
@@ -7514,7 +7948,7 @@ function HomePage({ onNavigate }) {
           }}>
             {[
               { val: "4", lbl: "Courses", icon: "📚" },
-              { val: "25+", lbl: "Lessons", icon: "🎯" },
+              { val: "68", lbl: "Lessons", icon: "🎯" },
               { val: "100%", lbl: "Free", icon: "🎁" },
               { val: "Live", lbl: "Visualizers", icon: "⚡" },
             ].map(({ val, lbl, icon }, i, arr) => (
@@ -7784,46 +8218,66 @@ function TechPage({ group, onHome }) {
                   color: "#475569", letterSpacing: 1.2, textTransform: "uppercase",
                 }}>Course Content</div>
 
-                {groupLessons.map((l, i) => (
-                  <div
-                    key={l.id}
-                    onClick={() => setActiveIdx(i)}
-                    style={{
-                      display: "flex", alignItems: "flex-start", gap: 12,
-                      padding: "10px 20px", cursor: "pointer",
-                      background: i === safeIdx ? `${color}14` : "transparent",
-                      borderLeft: `3px solid ${i === safeIdx ? color : "transparent"}`,
-                      transition: "all 0.15s",
-                    }}
-                    onMouseEnter={e => { if (i !== safeIdx) e.currentTarget.style.background = "#ffffff"; }}
-                    onMouseLeave={e => { if (i !== safeIdx) e.currentTarget.style.background = "transparent"; }}
-                  >
-                    {/* Step indicator */}
-                    <div style={{
-                      width: 24, height: 24, borderRadius: "50%", flexShrink: 0, marginTop: 1,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      background: i < safeIdx ? color : i === safeIdx ? color + "22" : "#94a3b8",
-                      border: `1.5px solid ${i <= safeIdx ? color : "#e8edf4"}`,
-                      fontSize: 12, fontWeight: 800,
-                      color: i < safeIdx ? "#fff" : i === safeIdx ? color : "#94a3b8",
-                    }}>
-                      {i < safeIdx ? "✓" : l.num}
-                    </div>
+                {groupLessons.map((l, i) => {
+                  const lv = LESSON_LEVELS[l.id] || "beginner";
+                  const prevLv = i > 0 ? (LESSON_LEVELS[groupLessons[i-1].id] || "beginner") : null;
+                  const showHeader = prevLv !== lv;
+                  return (
+                    <Fragment key={l.id}>
+                      {showHeader && (
+                        <div style={{
+                          padding: "10px 20px 6px",
+                          fontSize: 11, fontWeight: 800, letterSpacing: 1.1,
+                          textTransform: "uppercase",
+                          color: LEVEL_COLOR[lv],
+                          borderTop: i > 0 ? "1px solid #f1f5f9" : "none",
+                          marginTop: i > 0 ? 4 : 0,
+                          display: "flex", alignItems: "center", gap: 6,
+                        }}>
+                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: LEVEL_COLOR[lv], display: "inline-block", flexShrink: 0 }} />
+                          {LEVEL_LABEL[lv]}
+                        </div>
+                      )}
+                      <div
+                        onClick={() => setActiveIdx(i)}
+                        style={{
+                          display: "flex", alignItems: "flex-start", gap: 12,
+                          padding: "10px 20px", cursor: "pointer",
+                          background: i === safeIdx ? `${color}14` : "transparent",
+                          borderLeft: `3px solid ${i === safeIdx ? color : "transparent"}`,
+                          transition: "all 0.15s",
+                        }}
+                        onMouseEnter={e => { if (i !== safeIdx) e.currentTarget.style.background = "#ffffff"; }}
+                        onMouseLeave={e => { if (i !== safeIdx) e.currentTarget.style.background = "transparent"; }}
+                      >
+                        {/* Step indicator */}
+                        <div style={{
+                          width: 24, height: 24, borderRadius: "50%", flexShrink: 0, marginTop: 1,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          background: i < safeIdx ? color : i === safeIdx ? color + "22" : "#f1f5f9",
+                          border: `1.5px solid ${i <= safeIdx ? color : "#e2e8f0"}`,
+                          fontSize: 12, fontWeight: 800,
+                          color: i < safeIdx ? "#fff" : i === safeIdx ? color : "#94a3b8",
+                        }}>
+                          {i < safeIdx ? "✓" : l.num}
+                        </div>
 
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{
-                        fontSize: 14.5, fontWeight: i === safeIdx ? 700 : 400,
-                        lineHeight: 1.4,
-                        color: i === safeIdx ? "#1e293b" : i < safeIdx ? "#475569" : "#64748b",
-                      }}>
-                        {l.title.split("–")[1]?.trim() || l.title}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            fontSize: 14, fontWeight: i === safeIdx ? 700 : 400,
+                            lineHeight: 1.4,
+                            color: i === safeIdx ? "#1e293b" : i < safeIdx ? "#475569" : "#64748b",
+                          }}>
+                            {l.title.split("–")[1]?.trim() || l.title}
+                          </div>
+                          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2, lineHeight: 1.4 }}>
+                            {(l.subtitle || "").slice(0, 46)}{(l.subtitle || "").length > 46 ? "…" : ""}
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ fontSize: 12.5, color: "#475569", marginTop: 2, lineHeight: 1.4 }}>
-                        {(l.subtitle || "").slice(0, 48)}{(l.subtitle || "").length > 48 ? "…" : ""}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    </Fragment>
+                  );
+                })}
               </div>
             </div>
           )}
