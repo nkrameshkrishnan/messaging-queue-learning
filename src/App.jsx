@@ -7425,36 +7425,8 @@ function PlatformNav({ onHome, courseColor, courseName }) {
             <span style={{ color: courseColor, fontWeight: 700, whiteSpace: "nowrap" }}>{courseName}</span>
           </div>
         </>
-      ) : (
-        <div style={{ display: "flex", gap: 24, marginLeft: 8 }}>
-          {["Courses", "Community", "Docs"].map(item => (
-            <span key={item} style={{ fontSize: 15, color: "#64748b", cursor: "pointer", transition: "color 0.15s" }}
-              onMouseEnter={e => e.currentTarget.style.color = "#94a3b8"}
-              onMouseLeave={e => e.currentTarget.style.color = "#475569"}
-            >{item}</span>
-          ))}
-        </div>
-      )}
+      ) : null}
 
-      {/* Right side */}
-      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{
-          height: 30, padding: "0 14px", borderRadius: 8,
-          background: "transparent", border: "1px solid #d1d9e6",
-          display: "flex", alignItems: "center", fontSize: 14, color: "#64748b",
-          cursor: "pointer", transition: "all 0.15s",
-        }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = "#94a3b8"; e.currentTarget.style.color = "#475569"; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = "#d1d9e6"; e.currentTarget.style.color = "#64748b"; }}
-        >Sign in</div>
-        <div style={{
-          width: 32, height: 32, borderRadius: "50%",
-          background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, fontWeight: 700, color: "#fff", cursor: "pointer",
-          boxShadow: "0 2px 8px #7c3aed40",
-        }}>R</div>
-      </div>
     </nav>
   );
 }
