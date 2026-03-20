@@ -7612,8 +7612,8 @@ function HomePage({ onNavigate }) {
 function TechCard({ card, onNavigate, index = 0 }) {
   const [hovered, setHovered] = useState(false);
   const ratings  = { rabbitmq: { stars: 4.9, count: "3.4k" }, kafka: { stars: 4.7, count: "1.8k" }, sqs: { stars: 4.6, count: "945" }, istio: { stars: 4.9, count: "3.2k" } };
-  const levels   = { rabbitmq: "Advanced", kafka: "Intermediate", sqs: "Beginner", istio: "Advanced" };
-  const durations = { rabbitmq: "~6 hrs", kafka: "~2.5 hrs", sqs: "~1 hr", istio: "~6 hrs" };
+  const levels   = { rabbitmq: "Advanced", kafka: "Intermediate", sqs: "Intermediate", istio: "Advanced" };
+  const durations = { rabbitmq: "~6 hrs", kafka: "~2.5 hrs", sqs: "~3 hrs", istio: "~6 hrs" };
   const levelColor = { Beginner: "#22c55e", Intermediate: "#f59e0b", Advanced: "#ef4444" };
   const rating = ratings[card.key];
   const level  = levels[card.key];
