@@ -7583,11 +7583,9 @@ function HomePage({ onNavigate }) {
 // ─── Course Card ──────────────────────────────────────────────────────────────
 function TechCard({ card, onNavigate, index = 0 }) {
   const [hovered, setHovered] = useState(false);
-  const ratings  = { rabbitmq: { stars: 4.9, count: "3.4k" }, kafka: { stars: 4.7, count: "1.8k" }, sqs: { stars: 4.6, count: "945" }, istio: { stars: 4.9, count: "3.2k" } };
   const levels   = { rabbitmq: "Advanced", kafka: "Intermediate", sqs: "Intermediate", istio: "Advanced" };
   const durations = { rabbitmq: "~6 hrs", kafka: "~2.5 hrs", sqs: "~3 hrs", istio: "~6 hrs" };
   const levelColor = { Beginner: "#22c55e", Intermediate: "#f59e0b", Advanced: "#ef4444" };
-  const rating = ratings[card.key];
   const level  = levels[card.key];
 
   return (
@@ -7678,16 +7676,7 @@ function TechCard({ card, onNavigate, index = 0 }) {
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
         }}>{card.description}</p>
 
-        {/* Star rating */}
-        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 16 }}>
-          <span style={{ fontSize: 16, fontWeight: 800, color: "#fbbf24" }}>{rating.stars}</span>
-          <div style={{ display: "flex", gap: 1 }}>
-            {[1, 2, 3, 4, 5].map(s => (
-              <span key={s} style={{ fontSize: 13, color: s <= Math.floor(rating.stars) ? "#fbbf24" : "#94a3b8" }}>★</span>
-            ))}
-          </div>
-          <span style={{ fontSize: 13, color: "#475569" }}>({rating.count} ratings)</span>
-        </div>
+
 
         {/* Footer */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: `1px solid #e8edf4` }}>
