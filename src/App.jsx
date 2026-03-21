@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, Fragment } from "react";
+import { useState, useCallback, useEffect, useRef, Fragment } from "react";
 
 // ─── Keyframe animations ──────────────────────────────────────────────────────
 const ANIM_CSS = `
@@ -8137,6 +8137,8 @@ function TechPage({ group, onHome }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const safeIdx = Math.min(activeIdx, groupLessons.length - 1);
+  const mainRef = useRef(null);
+  useEffect(() => { mainRef.current?.scrollTo({ top: 0, behavior: "instant" }); }, [safeIdx]);
   const lesson = groupLessons[safeIdx];
   const LessonComp = LESSON_COMPONENTS[lesson.id];
   const color = GROUP_COLORS[group];
@@ -8302,7 +8304,7 @@ function TechPage({ group, onHome }) {
         </div>
 
         {/* ── Main content ── */}
-        <main style={{ flex: 1, minWidth: 0, padding: "28px 32px 56px", overflowX: "hidden" }}>
+        <main ref={mainRef} style={{ flex: 1, minWidth: 0, padding: "28px 32px 56px", overflowX: "hidden", overflowY: "auto", height: "calc(100vh - 64px)" }}>
 
           {/* Lesson header card */}
           <div style={{
