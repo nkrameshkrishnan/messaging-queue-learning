@@ -8138,6 +8138,9 @@ function TechPage({ group, onHome }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const safeIdx = Math.min(activeIdx, groupLessons.length - 1);
   const mainRef = useRef(null);
+  // Scroll window to top when course page first opens
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, []);
+  // Scroll content area to top whenever the active lesson changes
   useEffect(() => { mainRef.current?.scrollTo({ top: 0, behavior: "instant" }); }, [safeIdx]);
   const lesson = groupLessons[safeIdx];
   const LessonComp = LESSON_COMPONENTS[lesson.id];
