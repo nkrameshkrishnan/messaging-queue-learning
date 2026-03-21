@@ -18,6 +18,5 @@ dist-ssr/
 *.sln
 *.sw?
 .vscode/settings.json
-package-lock.json
 vite.config.js.timestamp-1774055946357-f95df9b640987.mjs
 vite.config.js.timestamp-1773698800105-9a993d5de4a17.mjs
