@@ -8307,7 +8307,7 @@ function TechPage({ group, onHome }) {
         </div>
 
         {/* ── Main content ── */}
-        <main ref={mainRef} style={{ flex: 1, minWidth: 0, padding: "28px 32px 56px", overflowX: "hidden", overflowY: "auto", height: "calc(100vh - 64px)" }}>
+        <main ref={mainRef} style={{ flex: 1, minWidth: 0, padding: "28px 32px 56px", overflowX: "hidden", overflowY: "auto", height: "calc(100vh - 61px)" }}>
 
           {/* Lesson header card */}
           <div style={{
